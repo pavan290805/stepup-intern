@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Profile</title>
+    <link rel="stylesheet" href="../css/recruiter.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">StepUp Intern</div>
+
+    <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="internship-management.html">Internships</a></li>
+        <li><a href="candidate-management.html">Candidates</a></li>
+        <li><a href="interview-management.html">Interviews</a></li>
+        <li><a href="analytics.html">Analytics</a></li>
+
+        <li class="dropdown">
+            <a href="#" onclick="toggleMenu(event)">👤 Recruiter ▼</a>
+
+            <ul class="dropdown-menu" id="profileMenu">
+                <li><a href="company-profile.html">Company Profile</a></li>
+                <li><a href="billing.html">Billing</a></li>
+                <li><a href="notifications.html">Notifications</a></li>
+                <li><a href="support-center.html">Support Center</a></li>
+                <li><a href="settings.html">Settings</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+
+<div class="main-content">
+
+    <h1>Company Profile</h1>
+
+    <div class="profile-form">
+
+        <div class="form-group">
+            <label>Company Logo</label>
+            <input type="file">
+        </div>
+
+        <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" placeholder="Enter company name">
+        </div>
+
+        <div class="form-group">
+            <label>Industry</label>
+            <input type="text" placeholder="Enter industry">
+        </div>
+
+        <div class="form-group">
+            <label>Website</label>
+            <input type="url" placeholder="https://example.com">
+        </div>
+
+        <div class="form-group">
+            <label>Company Size</label>
+            <input type="text" placeholder="e.g. 50-100 Employees">
+        </div>
+
+        <div class="form-group">
+            <label>Headquarters</label>
+            <input type="text" placeholder="Enter location">
+        </div>
+
+        <div class="form-group">
+            <label>Company Description</label>
+            <textarea placeholder="Write about your company"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>LinkedIn</label>
+            <input type="url" placeholder="LinkedIn URL">
+        </div>
+
+        <div class="form-group">
+            <label>Instagram</label>
+            <input type="url" placeholder="Instagram URL">
+        </div>
+
+        <div class="form-group">
+            <label>Twitter / X</label>
+            <input type="url" placeholder="Twitter URL">
+        </div>
+
+        <button class="btn">Save Changes</button>
+
+    </div>
+
+</div>
+
+<script src="../js/recruiter.js"></script>
+
+</body>
+</html>

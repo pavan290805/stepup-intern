@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Dashboard</title>
+    <link rel="stylesheet" href="../css/recruiter.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">StepUp Intern</div>
+
+    <ul class="nav-links">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="internship-management.html">Internships</a></li>
+        <li><a href="candidate-management.html">Candidates</a></li>
+        <li><a href="interview-management.html">Interviews</a></li>
+        <li><a href="analytics.html">Analytics</a></li>
+
+        <li class="dropdown">
+            <a href="#" onclick="toggleMenu(event)">👤 Recruiter ▼</a>
+
+            <ul class="dropdown-menu" id="profileMenu">
+                <li><a href="company-profile.html">Company Profile</a></li>
+                <li><a href="billing.html">Billing</a></li>
+                <li><a href="notifications.html">Notifications</a></li>
+                <li><a href="support-center.html">Support Center</a></li>
+                <li><a href="settings.html">Settings</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+
+<div class="main-content">
+
+    <h1>Recruiter Dashboard</h1>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Active Internships</h3>
+            <p>12</p>
+        </div>
+
+        <div class="card">
+            <h3>Applications Received</h3>
+            <p>243</p>
+        </div>
+
+        <div class="card">
+            <h3>Interviews Scheduled</h3>
+            <p>18</p>
+        </div>
+
+        <div class="card">
+            <h3>Hiring Statistics</h3>
+            <p>6</p>
+        </div>
+
+    </div>
+
+    <div class="section">
+        <h2>Recent Applications</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Candidate</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>Rahul</td>
+                    <td>Frontend Intern</td>
+                    <td>Shortlisted</td>
+                </tr>
+
+                <tr>
+                    <td>Priya</td>
+                    <td>Backend Intern</td>
+                    <td>Interview Scheduled</td>
+                </tr>
+
+                <tr>
+                    <td>Arjun</td>
+                    <td>Data Science Intern</td>
+                    <td>Applied</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="../js/recruiter.js"></script>
+
+</body>
+</html>
