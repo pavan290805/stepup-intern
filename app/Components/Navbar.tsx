@@ -3,11 +3,11 @@ export default function Navbar() {
     <div className="h-20 bg-white shadow-sm border-b flex items-center justify-between px-8">
 
       <div>
-        <h1 className="text-3xl font-bold text-gray-800">
+        <h1 className="text-4xl font-bold text-gray-800">
           Recruiter Dashboard
         </h1>
 
-        <p className="text-sm text-gray-500">
+        <p className="text-gray-500">
           Manage candidates and company profile
         </p>
       </div>
@@ -18,22 +18,21 @@ export default function Navbar() {
           🔔
         </button>
 
-        <div className="w-11 h-11 rounded-full bg-[#1E88E5] text-white flex items-center justify-center font-bold">
+        <div className="w-12 h-12 rounded-full bg-[#1E88E5] text-white flex items-center justify-center font-bold text-lg">
           L
         </div>
 
         <div>
-          <p className="font-semibold text-gray-800">
+          <h3 className="font-semibold text-lg">
             Lalith Kumar
-          </p>
+          </h3>
 
-          <p className="text-sm text-gray-500">
+          <p className="text-gray-500 text-sm">
             Recruiter
           </p>
         </div>
 
       </div>
-
     </div>
   );
 }
