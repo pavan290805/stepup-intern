@@ -1,19 +1,77 @@
 "use client";
+
 import { useState } from "react";
 import Image from "next/image";
+
+import {
+  inputStyles,
+  primaryButtonStyles,
+  socialButtonStyles,
+  sectionTitleStyles,
+  sectionSubtitleStyles,
+  labelStyles,
+  linkStyles,
+} from "../constants/styles";
+import{
+signupStudent,
+signupRecruiter,
+handleGoogleLogin,
+handleLinkedInLogin
+} from "../services/auth";
 
 type SignupProps = {
   setShowSignup: React.Dispatch<React.SetStateAction<boolean>>;
 };
-export default function Signup({ setShowSignup }: SignupProps) {
+export default  function Signup({ setShowSignup }: SignupProps) {
   const [role, setRole] = useState<"student" | "recruiter">("student");
 
   const isRecruiter = role === "recruiter";
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    window.alert(`${role === "student" ? "Student" : "Recruiter"} signup submitted.`);
-  };
+  const handleSubmit = async (
+  event: React.FormEvent<HTMLFormElement>
+) => {
+  event.preventDefault();
+
+const form = event.currentTarget;
+const formData = new FormData(form);
+
+  try {
+    if (role === "student") {
+
+      const studentData = {
+        fullName: formData.get("fullName") as string,
+        email: formData.get("email") as string,
+        password: formData.get("password") as string,
+        confirmPassword: formData.get("confirmPassword") as string,
+      };
+      if(formData.get("password") !== formData.get("confirmPassword")){
+    alert("Passwords do not match");
+    return;
+}
+
+      await signupStudent(studentData);
+
+    } else {
+
+      const recruiterData = {
+        companyName: formData.get("companyName") as string,
+        companyEmail: formData.get("companyEmail") as string,
+        companyWebsite: formData.get("companyWebsite") as string,
+        industry: formData.get("industry") as string,
+        contactPersonName: formData.get("contactPersonName") as string,
+        personalEmail: formData.get("personalEmail") as string,
+        password: formData.get("password") as string,
+        confirmPassword: formData.get("confirmPassword") as string,
+      };
+
+      await signupRecruiter(recruiterData);
+    }
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+  
 
   return (
     <div className="min-h-screen flex overflow-x-hidden md:bg-[#0880EF]">
@@ -21,24 +79,25 @@ export default function Signup({ setShowSignup }: SignupProps) {
       {/* Left Panel */}
       <div className="hidden md:flex w-1/2 min-w-0 bg-[#0880EF] text-white flex-col justify-start items-center pt-12 p-10 relative md:sticky md:top-0 md:h-screen md:self-start overflow-hidden">
 
-        <div className="absolute top-8 left-8">
-          <h1 className="text-3xl font-bold text-white">
-            StepUp
-          </h1>
-          <h1 className="text-3xl font-bold text-black">
-            Intern
-          </h1>
+        <div className="absolute top-4 left-8">
+          <Image
+              src="/StepUpLogo.png"
+              alt="StepUp Logo"
+              width={120}
+              height={50}
+              priority
+            />
         </div>
 
         <div className="flex flex-1 w-full flex-col items-center justify-center text-center px-6">
           <div className="mb-10 flex justify-center">
             <Image
-              src="/Illustration_Image.png"
-              alt="Illustration"
-              width={320}
-              height={250}
+              src="/illustration_Image.png"
+              alt="Career Illustration"
+              width={420}
+              height={420}
               priority
-              className="object-contain opacity-90"
+              className="object-contain"
             />
           </div>
 
@@ -50,22 +109,6 @@ export default function Signup({ setShowSignup }: SignupProps) {
             Find internships that match your skills and ambitions.
           </p>
 
-          <div className="flex gap-4 mt-10">
-            <div className="bg-white/20 px-4 py-2 rounded-lg">
-              <p className="font-bold">50K+</p>
-              <p className="text-sm">Students</p>
-            </div>
-
-            <div className="bg-white/20 px-4 py-2 rounded-lg">
-              <p className="font-bold">5K+</p>
-              <p className="text-sm">Companies</p>
-            </div>
-
-            <div className="bg-white/20 px-4 py-2 rounded-lg">
-              <p className="font-bold">200+</p>
-              <p className="text-sm">Cities</p>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -74,11 +117,11 @@ export default function Signup({ setShowSignup }: SignupProps) {
 
         <div className="w-full max-w-md min-w-0">
 
-          <h1 className="text-3xl font-bold text-black mb-2">
+          <h1 className={sectionTitleStyles}>
             {isRecruiter ? "Recruiter Sign Up" : "Student Sign Up"}
           </h1>
 
-          <p className="text-gray-500 mb-6">
+          <p className={sectionSubtitleStyles}>
             {isRecruiter
               ? "Register your company to post internships and find talent"
               : "Join StepUp and start your journey"}
@@ -115,94 +158,58 @@ export default function Signup({ setShowSignup }: SignupProps) {
             {isRecruiter && (
               <div className="grid gap-4 mb-4 md:grid-cols-2">
                 <div>
-                  <label className="block mb-2 text-sm text-black">
+                  <label className={labelStyles}>
                     Company Name
                   </label>
 
                   <input
                     type="text"
+                    name="companyName"
                     placeholder="StepUp Technologies Pvt. Ltd."
-                    className="
-                      w-full
-                      border
-                      border-gray-300
-                      rounded-lg
-                      p-3
-                      text-black
-                      placeholder:text-gray-500
-                      focus:outline-none
-                      focus:ring-2
-                      focus:ring-[#0880EF]
-                    "
+                    className={inputStyles}
+                    required
                   />
                   </div>
 
                   <div>
-                  <label className="block mb-2 text-sm text-black">
+                  <label className={labelStyles}>
                     Company Email
                   </label>
 
                   <input
                     type="email"
+                    name="companyEmail"
                     placeholder="hr@company.com"
-                    className="
-                      w-full
-                      border
-                      border-gray-300
-                      rounded-lg
-                      p-3
-                      text-black
-                      placeholder:text-gray-500
-                      focus:outline-none
-                      focus:ring-2
-                      focus:ring-[#0880EF]
-                    "
+                    className={inputStyles}
+                    required
                   />
                   </div>
 
                   <div>
-                  <label className="block mb-2 text-sm text-black">
+                  <label className={labelStyles}>
                     Company Website
                   </label>
 
                   <input
                     type="url"
+                    name="companyWebsite"
                     placeholder="https://company.com"
-                    className="
-                      w-full
-                      border
-                      border-gray-300
-                      rounded-lg
-                      p-3
-                      text-black
-                      placeholder:text-gray-500
-                      focus:outline-none
-                      focus:ring-2
-                      focus:ring-[#0880EF]
-                    "
+                    className={inputStyles}
+                    required
                   />
                   </div>
 
                   <div>
-                  <label className="block mb-2 text-sm text-black">
+                  <label className={labelStyles}>
                     Industry
                   </label>
 
                   <input
                     type="text"
+                    name="industry"
                     placeholder="Software, Finance, Healthcare"
-                    className="
-                      w-full
-                      border
-                      border-gray-300
-                      rounded-lg
-                      p-3
-                      text-black
-                      placeholder:text-gray-500
-                      focus:outline-none
-                      focus:ring-2
-                      focus:ring-[#0880EF]
-                    "
+                    className={inputStyles}
+                    required
                   />
                   </div>
                 </div>
@@ -210,111 +217,68 @@ export default function Signup({ setShowSignup }: SignupProps) {
 
             {/* Full Name */}
             <div className="mb-4">
-              <label className="block mb-2 text-sm text-black">
+              <label className={labelStyles}>
                 {isRecruiter ? "Contact Person Name" : "Full Name"}
               </label>
 
               <input
                 type="text"
+                name={isRecruiter ? "contactPersonName" : "fullName"}
                 placeholder={isRecruiter ? "Arjun Kumar" : "Arjun Kumar"}
-                className="
-                  w-full
-                  border
-                  border-gray-300
-                  rounded-lg
-                  p-3
-                  text-black
-                  placeholder:text-gray-500
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-[#0880EF]
-                "
+                className={inputStyles}
+                required
               />
             </div>
 
             {/* Email */}
             <div className="mb-4">
-              <label className="block mb-2 text-sm text-black">
+              <label className={labelStyles}>
                 {isRecruiter ? "Personal Email Address" : "Email Address"}
               </label>
 
               <input
                 type="email"
-                placeholder="arjun@example.com"
-                className="
-                  w-full
-                  border
-                  border-gray-300
-                  rounded-lg
-                  p-3
-                  text-black
-                  placeholder:text-gray-500
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-[#0880EF]
-                "
+                name={isRecruiter ? "personalEmail" : "email"}
+                placeholder={isRecruiter ? "arjun@company.com" : "arjun@example.com"}
+                className={inputStyles}
+                required
               />
             </div>
 
           {/* Password */}
           <div className="mb-4">
-            <label className="block mb-2 text-sm text-black">
+            <label className={labelStyles}>
               Password
             </label>
 
             <input
               type="password"
+              name="password"
               placeholder="********"
-              className="
-                w-full
-                border
-                border-gray-300
-                rounded-lg
-                p-3
-                text-black
-                placeholder:text-gray-500
-                focus:outline-none
-                focus:ring-2
-                focus:ring-[#0880EF]
-              "
+              className={inputStyles}
+              required
             />
           </div>
 
           {/* Confirm Password */}
           <div className="mb-6">
-            <label className="block mb-2 text-sm text-black">
+            <label className={labelStyles}>
               Confirm Password
             </label>
 
             <input
               type="password"
+              name="confirmPassword"
               placeholder="********"
-              className="
-                w-full
-                border
-                border-gray-300
-                rounded-lg
-                p-3
-                text-black
-                placeholder:text-gray-500
-                focus:outline-none
-                focus:ring-2
-                focus:ring-[#0880EF]
-              "
+              className={inputStyles}
+              required
             />
           </div>
 
             {/* Create Account Button */}
             <button
               type="submit"
-              className="
-                w-full
-                bg-[#0880EF]
-                text-white
-                py-3
-                rounded-lg
-                font-semibold
-              "
+              className={primaryButtonStyles}
             >
               {isRecruiter
                 ? "Create Recruiter Account"
@@ -334,18 +298,8 @@ export default function Signup({ setShowSignup }: SignupProps) {
           {/* Google Signup */}
           <button
             type="button"
-            className="
-              w-full
-              border
-              border-gray-300
-              py-2.5
-              rounded-lg
-              text-black
-              flex
-              items-center
-              justify-center
-              gap-2
-            "
+            onClick={handleGoogleLogin}
+            className={socialButtonStyles}
           >
             <Image
               src="/google.svg"
@@ -356,6 +310,20 @@ export default function Signup({ setShowSignup }: SignupProps) {
 
             Continue with Google
           </button>
+          <button
+  type="button"
+  onClick={handleLinkedInLogin}
+  className={`${socialButtonStyles} mt-3`}
+>
+  <Image
+    src="/linkedinLogo.svg"
+    alt="LinkedIn"
+    width={20}
+    height={20}
+  />
+
+  Continue with LinkedIn
+</button>
 
           {/* Terms */}
           <p className="text-xs text-center text-gray-500 mt-4">
@@ -368,7 +336,7 @@ export default function Signup({ setShowSignup }: SignupProps) {
             Already have an account?{" "}
             <span
               onClick={() => setShowSignup(false)}
-              className="text-[#0880EF] cursor-pointer"
+              className={linkStyles}
             >
               Sign In
             </span>

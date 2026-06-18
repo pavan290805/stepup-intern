@@ -1,44 +1,64 @@
 "use client";
+
 import Image from "next/image";
+import {
+  inputStyles,
+  primaryButtonStyles,
+  socialButtonStyles,
+  sectionTitleStyles,
+  sectionSubtitleStyles,
+  labelStyles,
+  linkStyles,
+} from "../constants/styles";
+import {
+    loginUser,
+    handleGoogleLogin,
+    handleLinkedInLogin,
+} from "../services/auth";
+
 type LoginProps = {
   setShowSignup: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export default function Login({
-  setShowSignup,
-}: LoginProps) {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+export default function Login({ setShowSignup }: LoginProps) {
+  const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const email = formData.get("email");
 
-    window.alert(`Login submitted for ${email || "your account"}.`);
+    const email = formData.get("email");
+    const password = formData.get("password");
+
+    const loginData = {
+      email: typeof email === "string" ? email : "",
+      password: typeof password === "string" ? password : "",
+    };
+
+    await loginUser(loginData);
   };
 
   return (
     <div className="min-h-screen flex">
-      
       {/* Left Panel */}
-      <div className="hidden md:flex w-1/2 bg-[#0880EF] text-white flex-col justify-center items-center p-10">
-    <div className="absolute top-8 left-8">
-  <h1 className="text-3xl font-bold text-white">
-    StepUp
-  </h1>
-
-  <h1 className="text-3xl font-bold text-black">
-    Intern
-  </h1>
-</div>
-
-        {/* Illustration Placeholder */}
-        <div className=" bg-white/10 rounded-2xl mb-10 flex items-center justify-center">
+      <div className="hidden md:flex w-1/2 bg-[#0880EF] text-white flex-col justify-center items-center p-10 relative">
+        <div className="absolute top-4 left-8">
           <Image
-            src="/Illustration_Image.png"
-            alt="Login Illustration"
-            width={320}
-            height={320}
+            src="/StepUpLogo.png"
+            alt="StepUp Logo"
+            width={120}
+            height={50}
             priority
+          />
+        </div>
+
+        <div className="mb-8 flex items-center justify-center">
+          <Image
+            src="/illustration_Image.png"
+            alt="Career Illustration"
+            width={420}
+            height={420}
+            priority
+            className="object-contain"
           />
         </div>
 
@@ -49,41 +69,22 @@ export default function Login({
         <p className="text-center text-white/80 max-w-sm">
           Find internships that match your skills and ambitions.
         </p>
-
-        <div className="flex gap-4 mt-10">
-          <div className="bg-white/20 px-4 py-2 rounded-lg">
-            <p className="font-bold">50K+</p>
-            <p className="text-sm">Students</p>
-          </div>
-
-          <div className="bg-white/20 px-4 py-2 rounded-lg">
-            <p className="font-bold">5K+</p>
-            <p className="text-sm">Companies</p>
-          </div>
-
-          <div className="bg-white/20 px-4 py-2 rounded-lg">
-            <p className="font-bold">200+</p>
-            <p className="text-sm">Cities</p>
-          </div>
-        </div>
-
       </div>
 
       {/* Right Panel */}
       <div className="w-full md:w-1/2 bg-white flex justify-center items-center p-8">
-
         <form className="w-full max-w-md" onSubmit={handleSubmit}>
-
-          <h1 className="text-3xl font-bold text-black mb-2">
+          <h1 className={sectionTitleStyles}>
             Welcome Back
           </h1>
 
-          <p className="text-gray-500 mb-8">
+          <p className={sectionSubtitleStyles}>
             Sign in to your StepUp account
           </p>
 
+          {/* Email */}
           <div className="mb-4">
-            <label className="block mb-2 text-sm text-black">
+            <label className={labelStyles}>
               Email Address
             </label>
 
@@ -91,12 +92,13 @@ export default function Login({
               name="email"
               type="email"
               placeholder="arjun@example.com"
-              className="w-full border border-gray-300 text-black rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#0880EF] placeholder:text-black/50"
+              className={inputStyles}
             />
           </div>
 
+          {/* Password */}
           <div className="mb-2">
-            <label className="block mb-2 text-sm text-black ">
+            <label className={labelStyles}>
               Password
             </label>
 
@@ -104,52 +106,82 @@ export default function Login({
               name="password"
               type="password"
               placeholder="********"
-              className="w-full border border-gray-300 text-black rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#0880EF] placeholder:text-black/50"
+              className={inputStyles}
             />
           </div>
 
+          {/* Forgot Password */}
           <div className="flex justify-end mb-6">
             <button
               type="button"
-              className="text-sm text-[#0880EF]"
+              className={`text-sm ${linkStyles}`}
             >
               Forgot password?
             </button>
           </div>
 
+          {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-[#0880EF] text-white py-3 rounded-lg font-semibold"
+            className={primaryButtonStyles}
           >
             Sign In
           </button>
 
+          {/* Divider */}
           <div className="flex items-center my-6">
             <div className="flex-1 border-t"></div>
+
             <span className="px-3 text-gray-400 text-sm">
               or
             </span>
+
             <div className="flex-1 border-t"></div>
           </div>
 
-          <button type="button" className="w-full border py-3 rounded-lg text-black flex items-center justify-center gap-2">
+          {/* Google Login */}
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className={socialButtonStyles}
+          >
             <Image
-            src="/google.svg"
-            alt="Google"
-            width={20}
-            height={20}/>
-            Continue with Google
-        </button>
+              src="/google.svg"
+              alt="Google"
+              width={20}
+              height={20}
+            />
 
+            Continue with Google
+          </button>
+
+          {/* LinkedIn Login */}
+          <button
+            type="button"
+            onClick={handleLinkedInLogin}
+            className={`${socialButtonStyles} mt-3`}
+          >
+            <Image
+              src="/linkedinLogo.svg"
+              alt="LinkedIn"
+              width={20}
+              height={20}
+            />
+
+            Continue with LinkedIn
+          </button>
+
+          {/* Signup Link */}
           <p className="text-center text-sm mt-6 text-black">
-            Don&apos;t have an account?{" "}
-            <span onClick={() => setShowSignup(true)} className="text-[#0880EF] cursor-pointer">
-                Create one
+            Don't have an account?{" "}
+            <span
+              onClick={() => setShowSignup(true)}
+              className={linkStyles}
+            >
+              Create one
             </span>
           </p>
-
         </form>
-
       </div>
     </div>
   );
