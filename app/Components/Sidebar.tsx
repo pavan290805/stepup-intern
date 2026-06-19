@@ -36,12 +36,6 @@ export default function Sidebar() {
           🏠 Dashboard
         </Link>
 
-        <Link
-          href="/recruiter/company-profile"
-          className={menuClass("/recruiter/company-profile")}
-        >
-          🏢 Company Profile
-        </Link>
 
         <Link
           href="/recruiter/candidate-management"
@@ -65,12 +59,7 @@ export default function Sidebar() {
   📅 Interviews
 </Link>
 
-        <Link
-          href="/recruiter/create-internship"
-          className={menuClass("/recruiter/create-internship")}
-        >
-          ➕ Create Internship
-        </Link>
+
 
       </div>
 
