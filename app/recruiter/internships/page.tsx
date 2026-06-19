@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { useState } from "react";
 import Sidebar from "../../Components/Sidebar";
@@ -42,9 +43,9 @@ const initialInternships = [
 export default function InternshipsPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
-  const [selectedInternship, setSelectedInternship] = useState<any>(null);
+  const [selectedInternship, setSelectedInternship] = useState<any | null>(null);
   const [internships, setInternships] = useState(initialInternships);
-  const [showForm, setShowForm] = useState(false);
+
   const filteredInternships = internships.filter((internship) => {
     const matchesSearch = internship.title
       .toLowerCase()
@@ -70,11 +71,11 @@ export default function InternshipsPage() {
             </h1>
 
             <Link
-            href="/recruiter/create-internship"
-            className="bg-[#1E88E5] text-white px-5 py-3 rounded-xl hover:bg-blue-700 transition"
+              href="/recruiter/create-internship"
+              className="bg-[#1E88E5] text-white px-5 py-3 rounded-xl hover:bg-blue-700 transition"
             >
-                + Create Internship
-                </Link>
+              + Create Internship
+            </Link>
           </div>
 
           <div className="grid md:grid-cols-4 gap-6 mb-8">
@@ -158,132 +159,132 @@ export default function InternshipsPage() {
             </button>
           </div>
 <div className="bg-white rounded-2xl shadow overflow-x-auto">
-          
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="text-left p-4">Title</th>
-                  <th className="text-left p-4">Duration</th>
-                  <th className="text-left p-4">Stipend</th>
-                  <th className="text-left p-4">Applicants</th>
-                  <th className="text-left p-4">Status</th>
-                  <th className="text-left p-4">Action</th>
-                </tr>
-              </thead>
+  <table className="w-full">
+    <thead className="bg-gray-50">
+      <tr>
+        <th className="text-left p-4">Title</th>
+        <th className="text-left p-4">Duration</th>
+        <th className="text-left p-4">Stipend</th>
+        <th className="text-left p-4">Applicants</th>
+        <th className="text-left p-4">Status</th>
+        <th className="text-left p-4">Action</th>
+      </tr>
+    </thead>
 
-              <tbody>
-                {filteredInternships.map((internship) => (
-                  <tr
-                    key={internship.id}
-                    className="border-t hover:bg-blue-50"
-                  >
-                    <td className="p-4 font-medium">
-                      {internship.title}
-                    </td>
+    <tbody>
+      {filteredInternships.map((internship) => (
+        <tr
+          key={internship.id}
+          className="border-t hover:bg-blue-50"
+        >
+          <td className="p-4 font-medium">
+            {internship.title}
+          </td>
 
-                    <td className="p-4">
-                      {internship.duration}
-                    </td>
+          <td className="p-4">
+            {internship.duration}
+          </td>
 
-                    <td className="p-4">
-                      {internship.stipend}
-                    </td>
+          <td className="p-4">
+            {internship.stipend}
+          </td>
 
-                    <td className="p-4">
-                      {internship.applicants}
-                    </td>
+          <td className="p-4">
+            {internship.applicants}
+          </td>
 
-                    <td className="p-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm ${
-                          internship.status === "Active"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {internship.status}
-                      </span>
-                    </td>
+          <td className="p-4">
+            <span
+              className={`px-3 py-1 rounded-full text-sm ${
+                internship.status === "Active"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {internship.status}
+            </span>
+          </td>
 
-                    <td className="p-4">
-                      <button
-                        onClick={() =>
-                          setSelectedInternship(internship)
-                        }
-                        className="bg-[#1E88E5] text-white px-4 py-2 rounded-lg"
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <td className="p-4">
+            <button
+              onClick={() =>
+                setSelectedInternship(internship)
+              }
+              className="bg-[#1E88E5] text-white px-4 py-2 rounded-lg"
+            >
+              View
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
 
-          {selectedInternship && (
-            <div className="bg-white rounded-2xl shadow p-6 mt-6">
-              <h2 className="text-2xl font-bold mb-4">
-                Internship Details
-              </h2>
+{selectedInternship && (
+  <div className="bg-white rounded-2xl shadow p-6 mt-6">
+    <h2 className="text-2xl font-bold mb-4">
+      Internship Details
+    </h2>
 
-              <p>
-                <strong>Title:</strong>{" "}
-                {selectedInternship.title}
-              </p>
+    <p>
+      <strong>Title:</strong>{" "}
+      {selectedInternship.title}
+    </p>
 
-              <p>
-                <strong>Duration:</strong>{" "}
-                {selectedInternship.duration}
-              </p>
+    <p>
+      <strong>Duration:</strong>{" "}
+      {selectedInternship.duration}
+    </p>
 
-              <p>
-                <strong>Stipend:</strong>{" "}
-                {selectedInternship.stipend}
-              </p>
+    <p>
+      <strong>Stipend:</strong>{" "}
+      {selectedInternship.stipend}
+    </p>
 
-              <p>
-                <strong>Applicants:</strong>{" "}
-                {selectedInternship.applicants}
-              </p>
+    <p>
+      <strong>Applicants:</strong>{" "}
+      {selectedInternship.applicants}
+    </p>
 
-              <p>
-                <strong>Status:</strong>{" "}
-                {selectedInternship.status}
-              </p>
+    <p>
+      <strong>Status:</strong>{" "}
+      {selectedInternship.status}
+    </p>
 
-              <div className="flex gap-3 mt-4">
-<button
-  onClick={() => {
-    const updatedInternships = internships.map((item) =>
-      item.id === selectedInternship.id
-        ? { ...item, status: "Closed" }
-        : item
-    );
+    <div className="flex gap-3 mt-4">
+      <button
+        onClick={() => {
+          const updatedInternships = internships.map(
+            (item) =>
+              item.id === selectedInternship.id
+                ? { ...item, status: "Closed" }
+                : item
+          );
 
-    setInternships(updatedInternships);
+          setInternships(updatedInternships);
 
-    setSelectedInternship({
-      ...selectedInternship,
-      status: "Closed",
-    });
-  }}
-  className="bg-red-600 text-white px-4 py-2 rounded-lg"
->
-  Close Internship
-</button>
+          setSelectedInternship({
+            ...selectedInternship,
+            status: "Closed",
+          });
+        }}
+        className="bg-red-600 text-white px-4 py-2 rounded-lg"
+      >
+        Close Internship
+      </button>
 
-                <button
-                  onClick={() =>
-                    setSelectedInternship(null)
-                  }
-                  className="bg-gray-600 text-white px-4 py-2 rounded-lg"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
+      <button
+        onClick={() =>
+          setSelectedInternship(null)
+        }
+        className="bg-gray-600 text-white px-4 py-2 rounded-lg"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
         </div>
       </div>
     </div>

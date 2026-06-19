@@ -260,15 +260,57 @@ const filteredCandidates = candidateList.filter((candidate) => {
           </div>
 
 {selectedCandidate && (
-  <div className="bg-white rounded-2xl shadow p-6 mt-6">
+  <div className="bg-white rounded-2xl shadow p-8 mt-6 border-l-4 border-[#1E88E5]">
     <h2 className="text-2xl font-bold mb-4">
       Candidate Details
     </h2>
 
     <p><strong>Name:</strong> {selectedCandidate.name}</p>
-    <p><strong>Email:</strong> {selectedCandidate.email}</p>
-    <p><strong>Skills:</strong> {selectedCandidate.skills}</p>
-    <p><strong>Applied On:</strong> {selectedCandidate.appliedOn}</p>
+<p><strong>Email:</strong> {selectedCandidate.email}</p>
+
+<p>
+  <strong>Phone:</strong> +91 9876543210
+</p>
+
+<p>
+  <strong>College:</strong> KLH University
+</p>
+
+<p>
+  <strong>Degree:</strong> B.Tech CSE
+</p>
+
+<p>
+  <strong>CGPA:</strong> 8.7
+</p>
+
+<p>
+  <strong>Skills:</strong> {selectedCandidate.skills}
+</p>
+
+<p>
+  <strong>Applied On:</strong> {selectedCandidate.appliedOn}
+</p>
+
+<p>
+  <strong>Experience:</strong> Fresher
+</p>
+
+<p>
+  <strong>Resume:</strong>
+
+  <button
+    onClick={() =>
+      window.open(
+        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        "_blank"
+      )
+    }
+    className="ml-2 text-blue-600 hover:underline"
+  >
+    View Resume
+  </button>
+</p>
 
     <p className="mt-2">
       <strong>Status:</strong> {candidateStatus}
@@ -317,6 +359,11 @@ const filteredCandidates = candidateList.filter((candidate) => {
   className="bg-red-600 text-white px-4 py-2 rounded-lg"
 >
   Reject
+</button>
+<button
+  className="bg-purple-600 text-white px-4 py-2 rounded-lg"
+>
+  Schedule Interview
 </button>
 
       <button

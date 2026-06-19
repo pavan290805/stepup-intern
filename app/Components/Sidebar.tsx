@@ -7,14 +7,14 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const menuClass = (path: string) =>
-    `flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${
+    `flex items-center gap-3 h-14 px-5 rounded-xl transition-all duration-300 ${
       pathname === path
         ? "bg-white text-[#1E88E5] font-semibold shadow-md"
         : "text-white hover:bg-white/20"
     }`;
 
   return (
-    <div className="w-64 min-h-screen bg-[#1E88E5] text-white p-6 shadow-xl flex flex-col">
+    <div className="w-72 min-h-screen bg-[#1E88E5] text-white p-6 shadow-xl flex flex-col">
 
       <div className="mb-12">
         <h1 className="text-5xl font-bold">
@@ -26,7 +26,8 @@ export default function Sidebar() {
         </h2>
       </div>
 
-      <div className="flex flex-col gap-3 flex-1">
+      {/* Main Menu */}
+      <div className="flex flex-col gap-4 flex-1">
 
         <Link
           href="/recruiter"
@@ -49,6 +50,7 @@ export default function Sidebar() {
           👥 Candidate Management
         </Link>
 
+
         <Link
           href="/recruiter/internships"
           className={menuClass("/recruiter/internships")}
@@ -56,20 +58,31 @@ export default function Sidebar() {
           💼 Internships
         </Link>
 
+<Link
+  href="/recruiter/interviews"
+  className={menuClass("/recruiter/interviews")}
+>
+  📅 Interviews
+</Link>
+
+        <Link
+          href="/recruiter/create-internship"
+          className={menuClass("/recruiter/create-internship")}
+        >
+          ➕ Create Internship
+        </Link>
+
       </div>
 
-      <Link
-        href="/"
-        className="flex items-center gap-3 p-3 rounded-xl hover:bg-red-500/30 transition mt-auto"
-      >
-        🚪 Logout
-      </Link>
-    <Link
-      href="/recruiter/create-internship"
-      className={menuClass("/recruiter/create-internship")}
-  >
-  ➕ Create Internship
-  </Link>
+      {/* Bottom Profile */}
+      <div className="mt-auto">
+        <Link
+          href="/recruiter/profile"
+          className={menuClass("/recruiter/profile")}
+        >
+          👤 Profile
+        </Link>
+      </div>
 
     </div>
   );

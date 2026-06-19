@@ -15,30 +15,30 @@ export default function CreateInternship() {
   const [description, setDescription] = useState("");
   const [deadline, setDeadline] = useState("");
 
-  const handleCreateInternship = () => {
-    if (
-      !title ||
-      !duration ||
-      !stipend ||
-      !skills ||
-      !description ||
-      !deadline
-    ) {
-      alert("Please fill all fields");
-      return;
-    }
+const handleCreateInternship = () => {
+  if (
+    !title ||
+    !duration ||
+    !stipend ||
+    !skills ||
+    !description ||
+    !deadline
+  ) {
+    alert("Please fill all fields");
+    return;
+  }
 
-    alert("Internship Created Successfully");
+  alert("Internship Created Successfully");
 
-    setTitle("");
-    setDuration("");
-    setStipend("");
-    setSkills("");
-    setDescription("");
-    setDeadline("");
+  setTitle("");
+  setDuration("");
+  setStipend("");
+  setSkills("");
+  setDescription("");
+  setDeadline("");
 
-    router.push("/recruiter/internships");
-  };
+  router.push("/recruiter/internships");
+};
 
   return (
     <div className="flex min-h-screen">
