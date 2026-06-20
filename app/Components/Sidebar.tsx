@@ -16,6 +16,7 @@ export default function Sidebar() {
   return (
     <div className="w-72 min-h-screen bg-[#1E88E5] text-white p-6 shadow-xl flex flex-col">
 
+
       <div className="mb-12">
         <h1 className="text-5xl font-bold">
           StepUp
@@ -26,7 +27,6 @@ export default function Sidebar() {
         </h2>
       </div>
 
-      {/* Main Menu */}
       <div className="flex flex-col gap-4 flex-1">
 
         <Link
@@ -36,43 +36,28 @@ export default function Sidebar() {
           🏠 Dashboard
         </Link>
 
-
-        <Link
-          href="/recruiter/candidate-management"
-          className={menuClass("/recruiter/candidate-management")}
-        >
-          👥 Candidate Management
-        </Link>
-
-
         <Link
           href="/recruiter/internships"
           className={menuClass("/recruiter/internships")}
         >
-          💼 Internships
+          💼 Internship Management
         </Link>
 
-<Link
-  href="/recruiter/interviews"
-  className={menuClass("/recruiter/interviews")}
->
-  📅 Interviews
-</Link>
-
-
-
-      </div>
-
-      {/* Bottom Profile */}
-      <div className="mt-auto">
         <Link
-          href="/recruiter/profile"
-          className={menuClass("/recruiter/profile")}
+          href="/recruiter/interviews"
+          className={menuClass("/recruiter/interviews")}
         >
-          👤 Profile
+          📅 Interviews
         </Link>
-      </div>
 
+        <Link
+          href="/recruiter/analytics"
+          className={menuClass("/recruiter/analytics")}
+        >
+          📊 Analytics
+        </Link>
+
+      </div>
     </div>
   );
 }

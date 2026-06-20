@@ -1,15 +1,25 @@
 "use client";
-
 import { useState } from "react";
-
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 export default function Navbar() {
+  const pathname = usePathname();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const pageTitles: Record<string, string> = {
+  "/recruiter": "Recruiter Dashboard",
+  "/recruiter/internships": "Internship Management",
+  "/recruiter/create-internship": "Create Internship",
+  "/recruiter/interviews": "Interviews",
+  "/recruiter/analytics": "Analytics",
+  "/recruiter/profile": "Profile",
+  "/recruiter/settings": "Settings",
+};
   return (
     <div className="h-20 bg-white shadow-sm border-b flex items-center justify-between px-8">
       <div>
         <h1 className="text-4xl font-bold text-gray-800">
-          Recruiter Dashboard
+          {pageTitles[pathname] || "Recruiter Dashboard"}
         </h1>
 
         <p className="text-gray-500">
@@ -73,26 +83,28 @@ export default function Navbar() {
 
           {showProfileMenu && (
             <div className="absolute right-0 mt-3 w-52 bg-white rounded-xl shadow-lg border z-50">
-              <button
-                className="w-full text-left px-4 py-3 hover:bg-gray-100"
-              >
-                👤 My Profile
-              </button>
+<Link
+  href="/recruiter/profile"
+  className="block px-4 py-3 hover:bg-gray-100"
+>
+  👤 My Profile
+</Link>
 
-              <button
-                className="w-full text-left px-4 py-3 hover:bg-gray-100"
+              <Link
+                href="/recruiter/settings"
+                className="block px-4 py-3 hover:bg-gray-100"
               >
                 ⚙️ Settings
-              </button>
+              </Link>
 
               <hr />
 
-              <button
-                onClick={() => (window.location.href = "/")}
-                className="w-full text-left px-4 py-3 text-red-500 hover:bg-red-50"
+              <Link
+                href="/"
+                className="block px-4 py-3 text-red-500 hover:bg-red-50"
               >
                 🚪 Logout
-              </button>
+              </Link>
             </div>
           )}
         </div>

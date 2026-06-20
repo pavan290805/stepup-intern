@@ -57,55 +57,75 @@ export default function InterviewsPage() {
             </button>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-2xl shadow">
-              <h3 className="text-gray-500">
-                Total Interviews
-              </h3>
-              <p className="text-3xl font-bold text-[#1E88E5]">
-                {interviews.length}
-              </p>
-            </div>
+<div className="grid md:grid-cols-5 gap-6 mb-8">
 
-            <div className="bg-white p-6 rounded-2xl shadow">
-              <h3 className="text-gray-500">
-                Scheduled
-              </h3>
-              <p className="text-3xl font-bold text-green-600">
-                {
-                  interviews.filter(
-                    (i) => i.status === "Scheduled"
-                  ).length
-                }
-              </p>
-            </div>
+  <div className="bg-white p-6 rounded-2xl shadow">
+    <h3 className="text-gray-500">
+      Total Interviews
+    </h3>
 
-            <div className="bg-white p-6 rounded-2xl shadow">
-              <h3 className="text-gray-500">
-                Completed
-              </h3>
-              <p className="text-3xl font-bold text-purple-600">
-                {
-                  interviews.filter(
-                    (i) => i.status === "Completed"
-                  ).length
-                }
-              </p>
-            </div>
+    <p className="text-3xl font-bold text-[#1E88E5]">
+      {interviews.length}
+    </p>
+  </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow">
-              <h3 className="text-gray-500">
-                Online Interviews
-              </h3>
-              <p className="text-3xl font-bold text-orange-500">
-                {
-                  interviews.filter(
-                    (i) => i.mode === "Online"
-                  ).length
-                }
-              </p>
-            </div>
-          </div>
+  <div className="bg-white p-6 rounded-2xl shadow">
+    <h3 className="text-gray-500">
+      Scheduled
+    </h3>
+
+    <p className="text-3xl font-bold text-green-600">
+      {
+        interviews.filter(
+          (i) => i.status === "Scheduled"
+        ).length
+      }
+    </p>
+  </div>
+
+  <div className="bg-white p-6 rounded-2xl shadow">
+    <h3 className="text-gray-500">
+      Completed
+    </h3>
+
+    <p className="text-3xl font-bold text-purple-600">
+      {
+        interviews.filter(
+          (i) => i.status === "Completed"
+        ).length
+      }
+    </p>
+  </div>
+
+  <div className="bg-white p-6 rounded-2xl shadow">
+    <h3 className="text-gray-500">
+      Online Interviews
+    </h3>
+
+    <p className="text-3xl font-bold text-orange-500">
+      {
+        interviews.filter(
+          (i) => i.mode === "Online"
+        ).length
+      }
+    </p>
+  </div>
+
+  <div className="bg-white p-6 rounded-2xl shadow">
+    <h3 className="text-gray-500">
+      Offline Interviews
+    </h3>
+
+    <p className="text-3xl font-bold text-indigo-600">
+      {
+        interviews.filter(
+          (i) => i.mode === "Offline"
+        ).length
+      }
+    </p>
+  </div>
+
+</div>
 
           <div className="bg-white rounded-2xl shadow overflow-hidden">
             <table className="w-full">
@@ -172,21 +192,36 @@ export default function InterviewsPage() {
                         {interview.status}
                       </span>
                     </td>
+<td className="p-4">
+  <div className="flex gap-2">
 
-                    <td className="p-4">
-                      <button
-                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-                        onClick={() =>
-                          setInterviews(
-                            interviews.filter(
-                              (i) => i.id !== interview.id
-                            )
-                          )
-                        }
-                      >
-                        Cancel
-                      </button>
-                    </td>
+    <button
+      className="bg-[#1E88E5] text-white px-3 py-2 rounded-lg hover:bg-blue-700"
+    >
+      View
+    </button>
+
+    <button
+      className="bg-yellow-500 text-white px-3 py-2 rounded-lg hover:bg-yellow-600"
+    >
+      Reschedule
+    </button>
+
+    <button
+      className="bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600"
+      onClick={() =>
+        setInterviews(
+          interviews.filter(
+            (i) => i.id !== interview.id
+          )
+        )
+      }
+    >
+      Cancel
+    </button>
+
+  </div>
+</td>
                   </tr>
                 ))}
               </tbody>

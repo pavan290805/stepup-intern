@@ -15,7 +15,7 @@ export default function AnalyticsPage() {
           </h1>
 
           {/* Stats Cards */}
-          <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <div className="grid md:grid-cols-5 gap-6 mb-8">
 
             <div className="bg-white p-6 rounded-2xl shadow">
               <h3 className="text-gray-500">
@@ -50,6 +50,15 @@ export default function AnalyticsPage() {
               </h3>
               <p className="text-3xl font-bold text-purple-600">
                 30
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl shadow">
+              <h3 className="text-gray-500">
+                Hiring Rate
+              </h3>
+              <p className="text-3xl font-bold text-green-600">
+                32%
               </p>
             </div>
 
@@ -151,6 +160,65 @@ export default function AnalyticsPage() {
 
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div className="bg-red-500 h-3 rounded-full w-[35%]"></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="bg-white rounded-2xl shadow p-6 mb-8">
+            <h2 className="text-2xl font-bold mb-5">
+              Recent Activity
+            </h2>
+
+            <div className="space-y-4">
+
+              <div className="flex items-center gap-4 border-b pb-3">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                  ✅
+                </div>
+
+                <div>
+                  <p className="font-medium">
+                    Rahul Kumar applied for Frontend Developer Intern
+                  </p>
+
+                  <p className="text-sm text-gray-500">
+                    10 minutes ago
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 border-b pb-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  🎉
+                </div>
+
+                <div>
+                  <p className="font-medium">
+                    AI/ML Internship created successfully
+                  </p>
+
+                  <p className="text-sm text-gray-500">
+                    1 hour ago
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 border-b pb-3">
+                <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                  ⭐
+                </div>
+
+                <div>
+                  <p className="font-medium">
+                    Priya Sharma shortlisted
+                  </p>
+
+                  <p className="text-sm text-gray-500">
+                    Today
+                  </p>
                 </div>
               </div>
 

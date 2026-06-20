@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import Sidebar from "../../Components/Sidebar";
 import Navbar from "../../Components/Navbar";
 
@@ -13,7 +13,22 @@ const initialInternships = [
     stipend: "₹10,000",
     applicants: 25,
     status: "Active",
+    applicantsList: [
+      {
+        id: 1,
+        name: "Rahul Kumar",
+        email: "rahul@gmail.com",
+        resume: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      },
+      {
+        id: 2,
+        name: "Priya Sharma",
+        email: "priya@gmail.com",
+        resume: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      },
+    ],
   },
+
   {
     id: 2,
     title: "AI/ML Intern",
@@ -22,6 +37,7 @@ const initialInternships = [
     applicants: 18,
     status: "Active",
   },
+
   {
     id: 3,
     title: "UI/UX Designer Intern",
@@ -30,6 +46,7 @@ const initialInternships = [
     applicants: 12,
     status: "Closed",
   },
+
   {
     id: 4,
     title: "Backend Developer Intern",
@@ -39,11 +56,11 @@ const initialInternships = [
     status: "Active",
   },
 ];
-
 export default function InternshipsPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [selectedInternship, setSelectedInternship] = useState<any | null>(null);
+  const [showApplicants, setShowApplicants] = useState(false);
   const [internships, setInternships] = useState(initialInternships);
 
   const filteredInternships = internships.filter((internship) => {
@@ -171,120 +188,140 @@ export default function InternshipsPage() {
       </tr>
     </thead>
 
-    <tbody>
-      {filteredInternships.map((internship) => (
-        <tr
-          key={internship.id}
-          className="border-t hover:bg-blue-50"
-        >
-          <td className="p-4 font-medium">
-            {internship.title}
-          </td>
+<tbody>
+{filteredInternships.map((internship) => (
+  <Fragment key={internship.id}>
+      <tr className="border-t hover:bg-blue-50">
+        <td className="p-4 font-medium">
+          {internship.title}
+        </td>
 
-          <td className="p-4">
-            {internship.duration}
-          </td>
+        <td className="p-4">
+          {internship.duration}
+        </td>
 
-          <td className="p-4">
-            {internship.stipend}
-          </td>
+        <td className="p-4">
+          {internship.stipend}
+        </td>
 
-          <td className="p-4">
-            {internship.applicants}
-          </td>
+        <td className="p-4">
+          {internship.applicants}
+        </td>
 
-          <td className="p-4">
-            <span
-              className={`px-3 py-1 rounded-full text-sm ${
-                internship.status === "Active"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-red-100 text-red-700"
-              }`}
-            >
-              {internship.status}
-            </span>
-          </td>
+        <td className="p-4">
+          <span
+            className={`px-3 py-1 rounded-full text-sm ${
+              internship.status === "Active"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {internship.status}
+          </span>
+        </td>
 
-          <td className="p-4">
-            <button
-              onClick={() =>
-                setSelectedInternship(internship)
-              }
-              className="bg-[#1E88E5] text-white px-4 py-2 rounded-lg"
-            >
-              View
-            </button>
+        <td className="p-4">
+          <button
+            onClick={() =>
+              setSelectedInternship(
+                selectedInternship?.id === internship.id
+                  ? null
+                  : internship
+              )
+            }
+            className="bg-[#1E88E5] text-white px-4 py-2 rounded-lg"
+          >
+            View
+          </button>
+        </td>
+      </tr>
+
+      {selectedInternship?.id === internship.id && (
+        <tr>
+          <td colSpan={6} className="bg-gray-50 p-6">
+
+            <h3 className="text-2xl font-bold mb-4">
+              Internship Details
+            </h3>
+
+            <p>
+              <strong>Title:</strong> {internship.title}
+            </p>
+
+            <p>
+              <strong>Duration:</strong> {internship.duration}
+            </p>
+
+            <p>
+              <strong>Stipend:</strong> {internship.stipend}
+            </p>
+
+            <p>
+              <strong>Applicants:</strong> {internship.applicants}
+            </p>
+
+            <p>
+              <strong>Status:</strong> {internship.status}
+            </p>
+
+            {internship.applicantsList && (
+              <div className="mt-6">
+                <h4 className="text-xl font-bold mb-4">
+                  Applicants
+                </h4>
+
+                {internship.applicantsList.map(
+                  (candidate: any) => (
+                    <div
+                      key={candidate.id}
+                      className="border rounded-xl p-4 mb-3 flex justify-between items-center"
+                    >
+                      <div>
+                        <p className="font-semibold">
+                          {candidate.name}
+                        </p>
+
+                        <p className="text-gray-500">
+                          {candidate.email}
+                        </p>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            window.open(
+                              candidate.resume,
+                              "_blank"
+                            )
+                          }
+                          className="bg-blue-600 text-white px-3 py-2 rounded"
+                        >
+                          View Resume
+                        </button>
+
+                        <a
+                          href={candidate.resume}
+                          download
+                          className="bg-green-600 text-white px-3 py-2 rounded"
+                        >
+                          Download Resume
+                        </a>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            )}
+
           </td>
         </tr>
-      ))}
-    </tbody>
+      )}
+</Fragment>
+  ))}
+</tbody>
   </table>
 </div>
 
-{selectedInternship && (
-  <div className="bg-white rounded-2xl shadow p-6 mt-6">
-    <h2 className="text-2xl font-bold mb-4">
-      Internship Details
-    </h2>
-
-    <p>
-      <strong>Title:</strong>{" "}
-      {selectedInternship.title}
-    </p>
-
-    <p>
-      <strong>Duration:</strong>{" "}
-      {selectedInternship.duration}
-    </p>
-
-    <p>
-      <strong>Stipend:</strong>{" "}
-      {selectedInternship.stipend}
-    </p>
-
-    <p>
-      <strong>Applicants:</strong>{" "}
-      {selectedInternship.applicants}
-    </p>
-
-    <p>
-      <strong>Status:</strong>{" "}
-      {selectedInternship.status}
-    </p>
-
-    <div className="flex gap-3 mt-4">
-      <button
-        onClick={() => {
-          const updatedInternships = internships.map(
-            (item) =>
-              item.id === selectedInternship.id
-                ? { ...item, status: "Closed" }
-                : item
-          );
-
-          setInternships(updatedInternships);
-
-          setSelectedInternship({
-            ...selectedInternship,
-            status: "Closed",
-          });
-        }}
-        className="bg-red-600 text-white px-4 py-2 rounded-lg"
-      >
-        Close Internship
-      </button>
-
-      <button
-        onClick={() =>
-          setSelectedInternship(null)
-        }
-        className="bg-gray-600 text-white px-4 py-2 rounded-lg"
-      >
-        Close
-      </button>
-    </div>
-  </div>
-)}
         </div>
       </div>
     </div>

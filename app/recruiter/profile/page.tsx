@@ -14,6 +14,39 @@ export default function RecruiterProfile() {
             Recruiter Profile
           </h1>
 
+          {/* Stats Cards */}
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white rounded-2xl shadow p-6">
+              <h3 className="text-gray-500">
+                Internships Posted
+              </h3>
+
+              <p className="text-3xl font-bold text-[#1E88E5]">
+                8
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow p-6">
+              <h3 className="text-gray-500">
+                Candidates Managed
+              </h3>
+
+              <p className="text-3xl font-bold text-green-600">
+                120
+              </p>
+            </div>
+
+            <div className="bg-white rounded-2xl shadow p-6">
+              <h3 className="text-gray-500">
+                Interviews Scheduled
+              </h3>
+
+              <p className="text-3xl font-bold text-purple-600">
+                15
+              </p>
+            </div>
+          </div>
+
           <div className="bg-white rounded-2xl shadow p-8">
             <div className="flex items-center gap-6 mb-8">
               <div className="w-24 h-24 rounded-full bg-[#1E88E5] text-white flex items-center justify-center text-4xl font-bold">
@@ -72,32 +105,46 @@ export default function RecruiterProfile() {
                   Hyderabad, India
                 </p>
               </div>
+
               <div>
-  <label className="block text-gray-500 mb-1">
-    Joined Date
-  </label>
-  <p className="font-semibold">
-    June 2025
-  </p>
-</div>
+                <label className="block text-gray-500 mb-1">
+                  Joined Date
+                </label>
 
-<div>
-  <label className="block text-gray-500 mb-1">
-    Internships Posted
-  </label>
-  <p className="font-semibold">
-    8
-  </p>
-</div>
+                <p className="font-semibold">
+                  June 2025
+                </p>
+              </div>
 
-<div>
-  <label className="block text-gray-500 mb-1">
-    Candidates Managed
-  </label>
-  <p className="font-semibold">
-    120
-  </p>
-</div>
+              <div>
+                <label className="block text-gray-500 mb-1">
+                  Internships Posted
+                </label>
+
+                <p className="font-semibold">
+                  8
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-gray-500 mb-1">
+                  Candidates Managed
+                </label>
+
+                <p className="font-semibold">
+                  120
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-gray-500 mb-1">
+                  Interviews Scheduled
+                </label>
+
+                <p className="font-semibold">
+                  15
+                </p>
+              </div>
 
             </div>
 
@@ -110,12 +157,23 @@ export default function RecruiterProfile() {
                 StepUp Intern helps students connect
                 with recruiters and discover internship
                 opportunities through a modern platform.
+                Our goal is to simplify internship hiring
+                and provide opportunities for students
+                across different domains.
               </p>
             </div>
 
-            <button className="mt-8 bg-[#1E88E5] text-white px-6 py-3 rounded-xl hover:bg-blue-700">
-              Edit Profile
-            </button>
+            <div className="flex gap-4 mt-8">
+
+              <button className="bg-[#1E88E5] text-white px-6 py-3 rounded-xl hover:bg-blue-700">
+                Edit Profile
+              </button>
+
+              <button className="bg-gray-700 text-white px-6 py-3 rounded-xl hover:bg-black">
+                Change Password
+              </button>
+
+            </div>
           </div>
         </div>
       </div>
