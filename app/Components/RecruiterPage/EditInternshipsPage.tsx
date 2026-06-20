@@ -64,6 +64,8 @@ const getPageCopy = (mode: InternshipsPageMode) => {
   };
 };
 
+import Header from "./Header";
+
 export default function EditInternshipsPage({ mode = "edit" }: EditInternshipsPageProps) {
   const {
     internships,
@@ -146,58 +148,7 @@ export default function EditInternshipsPage({ mode = "edit" }: EditInternshipsPa
 
   return (
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
-      <header className="border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="leading-none">
-              <p className="text-xl font-bold tracking-tight text-[#0880EF] sm:text-2xl">StepUp</p>
-              <p className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">Intern</p>
-            </div>
-            <div className="h-10 w-px bg-slate-200" />
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.3em] text-[#0880EF]">
-                Recruiter Portal
-              </p>
-              <h1 className="text-2xl font-bold tracking-tight text-[#083B87] sm:text-[1.75rem]">
-                {pageCopy.title}
-              </h1>
-            </div>
-          </div>
-
-          <nav className="flex flex-wrap items-center gap-2 rounded-full border border-slate-200 bg-white p-1 shadow-sm">
-            <Link
-              href="/"
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              Create Internship
-            </Link>
-            <Link
-              href="/?page=edit-internships"
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                mode === "edit" ? "bg-[#E8F2FF] text-[#0B5CC4] shadow-sm" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-              }`}
-            >
-              Edit Internship
-            </Link>
-            <Link
-              href="/?page=close-internships"
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                mode === "close" ? "bg-[#E8F2FF] text-[#0B5CC4] shadow-sm" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-              }`}
-            >
-              Close Internship
-            </Link>
-            <Link
-              href="/?page=featured-internships"
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                mode === "featured" ? "bg-[#E8F2FF] text-[#0B5CC4] shadow-sm" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-              }`}
-            >
-              Featured Internship Promotion
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <main className="mx-auto grid max-w-[1400px] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-8 xl:grid-cols-[260px_minmax(0,1fr)_340px]">
         <aside className="space-y-6">

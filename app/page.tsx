@@ -3,11 +3,12 @@
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import RecruiterPage from "./Components/RecruiterPage/RecruiterPage";
+import InterviewsPage from "./Components/RecruiterPage/InterviewsPage";
 import CloseInternshipsPage from "./Components/RecruiterPage/CloseInternshipsPage";
 import EditInternshipsPage from "./Components/RecruiterPage/EditInternshipsPage";
 import FeaturedInternshipsPage from "./Components/RecruiterPage/FeaturedInternshipsPage";
 
-const validRoutes = new Set(["edit-internships", "close-internships", "featured-internships"]);
+const validRoutes = new Set(["edit-internships", "close-internships", "featured-internships", "interviews"]);
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -27,6 +28,10 @@ export default function Home() {
 
   if (selectedPage === "close-internships") {
     return <CloseInternshipsPage />;
+  }
+
+  if (selectedPage === "interviews") {
+    return <InterviewsPage />;
   }
 
   if (selectedPage === "featured-internships") {

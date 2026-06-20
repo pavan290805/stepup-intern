@@ -11,6 +11,7 @@ import EmptyListingsState from "./components/EmptyListingsState";
 import InternshipListingCard from "./components/InternshipListingCard";
 import RecruiterProfileCard from "./components/RecruiterProfileCard";
 import RecruiterStatsGrid from "./components/RecruiterStatsGrid";
+import Header from "./Header";
 
 const internshipTypes: Internship["type"][] = ["Full-time", "Part-time", "Remote", "Hybrid"];
 
@@ -46,6 +47,15 @@ export default function RecruiterPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [errors, setErrors] = useState<Record<keyof InternshipFormState, string>>({
+    title: "",
+    department: "",
+    location: "",
+    type: "",
+    stipend: "",
+    deadline: "",
+    description: "",
+  });
 
   const filteredInternships = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -67,6 +77,15 @@ export default function RecruiterPage() {
   const resetForm = () => {
     setForm(emptyForm);
     setEditingId(null);
+    setErrors({
+      title: "",
+      department: "",
+      location: "",
+      type: "",
+      stipend: "",
+      deadline: "",
+      description: "",
+    });
   };
 
   const openCreateForm = () => {
@@ -79,16 +98,55 @@ export default function RecruiterPage() {
     setShowCreateForm(false);
   };
 
+  const updateField = <K extends keyof InternshipFormState>(field: K, value: InternshipFormState[K]) => {
+    setForm((current) => ({ ...current, [field]: value }));
+    setErrors((current) => ({ ...current, [field]: "" }));
+  };
+
   const handleLogout = () => {
     resetForm();
     setShowCreateForm(false);
     setSearch("");
   };
 
+  const validateForm = () => {
+    const nextErrors: Record<keyof InternshipFormState, string> = {
+      title: "",
+      department: "",
+      location: "",
+      type: "",
+      stipend: "",
+      deadline: "",
+      description: "",
+    };
+
+    if (!form.title.trim()) {
+      nextErrors.title = "Internship title is required.";
+    }
+    if (!form.department.trim()) {
+      nextErrors.department = "Department is required.";
+    }
+    if (!form.location.trim()) {
+      nextErrors.location = "Location is required.";
+    }
+    if (!form.stipend.trim()) {
+      nextErrors.stipend = "Stipend / compensation is required.";
+    }
+    if (!form.deadline.trim()) {
+      nextErrors.deadline = "Application deadline is required.";
+    }
+    if (!form.description.trim()) {
+      nextErrors.description = "Description is required.";
+    }
+
+    setErrors(nextErrors);
+    return Object.values(nextErrors).every((error) => !error);
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!form.title.trim() || !form.department.trim() || !form.location.trim() || !form.deadline.trim() || !form.description.trim() || !form.stipend.trim()) {
+    if (!validateForm()) {
       return;
     }
 
@@ -120,63 +178,7 @@ export default function RecruiterPage() {
 
   return (
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
-      <header className="border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="leading-none">
-              <p className="text-xl font-bold tracking-tight text-[#0880EF] sm:text-2xl">StepUp</p>
-              <p className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">Intern</p>
-            </div>
-            <div className="h-10 w-px bg-slate-200" />
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.3em] text-[#0880EF]">
-                Recruiter Portal
-              </p>
-              <h1 className="text-2xl font-bold tracking-tight text-[#083B87] sm:text-[1.75rem]">
-                Recruiter Dashboard
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <nav className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white p-1 shadow-sm xl:flex">
-              <button
-                type="button"
-                className="rounded-full bg-[#E8F2FF] px-4 py-2 text-sm font-medium text-[#0B5CC4] shadow-sm"
-                onClick={openCreateForm}
-              >
-                Create Internship
-              </button>
-              <Link
-                href="/?page=edit-internships"
-                className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-              >
-                Edit Internship
-              </Link>
-              <Link
-                href="/?page=close-internships"
-                className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-              >
-                Close Internship
-              </Link>
-              <Link
-                href="/?page=featured-internships"
-                className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-              >
-                Featured Internship Promotion
-              </Link>
-            </nav>
-
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="rounded-full border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header onCreate={openCreateForm} />
 
       <main className="mx-auto grid max-w-[1400px] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_minmax(0,1fr)_280px] lg:px-8">
         <aside className="space-y-6">
@@ -243,38 +245,41 @@ export default function RecruiterPage() {
                   <label className="mb-2 block text-sm font-medium text-slate-700">Internship Title</label>
                   <input
                     value={form.title}
-                    onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0880EF] focus:ring-2 focus:ring-[#0880EF]/15"
+                    onChange={(event) => updateField("title", event.target.value)}
+                    className={`w-full rounded-xl border px-4 py-3 text-slate-900 outline-none transition focus:ring-2 focus:ring-[#0880EF]/15 ${errors.title ? "border-red-300 focus:border-red-500 focus:ring-red-100" : "border-slate-300 bg-white"}`}
                     placeholder="Frontend Developer Intern"
                   />
+                  {errors.title ? <p className="mt-2 text-sm text-red-600">{errors.title}</p> : null}
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">Department</label>
                   <input
                     value={form.department}
-                    onChange={(event) => setForm((current) => ({ ...current, department: event.target.value }))}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0880EF] focus:ring-2 focus:ring-[#0880EF]/15"
+                    onChange={(event) => updateField("department", event.target.value)}
+                    className={`w-full rounded-xl border px-4 py-3 text-slate-900 outline-none transition focus:ring-2 focus:ring-[#0880EF]/15 ${errors.department ? "border-red-300 focus:border-red-500 focus:ring-red-100" : "border-slate-300 bg-white"}`}
                     placeholder="Engineering"
                   />
+                  {errors.department ? <p className="mt-2 text-sm text-red-600">{errors.department}</p> : null}
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">Location</label>
                   <input
                     value={form.location}
-                    onChange={(event) => setForm((current) => ({ ...current, location: event.target.value }))}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0880EF] focus:ring-2 focus:ring-[#0880EF]/15"
+                    onChange={(event) => updateField("location", event.target.value)}
+                    className={`w-full rounded-xl border px-4 py-3 text-slate-900 outline-none transition focus:ring-2 focus:ring-[#0880EF]/15 ${errors.location ? "border-red-300 focus:border-red-500 focus:ring-red-100" : "border-slate-300 bg-white"}`}
                     placeholder="Remote or Bangalore"
                   />
+                  {errors.location ? <p className="mt-2 text-sm text-red-600">{errors.location}</p> : null}
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">Internship Type</label>
                   <select
                     value={form.type}
-                    onChange={(event) => setForm((current) => ({ ...current, type: event.target.value as Internship["type"] }))}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0880EF] focus:ring-2 focus:ring-[#0880EF]/15"
+                    onChange={(event) => updateField("type", event.target.value as Internship["type"])}
+                    className={`w-full rounded-xl border px-4 py-3 text-slate-900 outline-none transition focus:ring-2 focus:ring-[#0880EF]/15 ${errors.type ? "border-red-300 focus:border-red-500 focus:ring-red-100" : "border-slate-300 bg-white"}`}
                   >
                     {internshipTypes.map((type) => (
                       <option key={type} value={type}>
@@ -282,37 +287,43 @@ export default function RecruiterPage() {
                       </option>
                     ))}
                   </select>
+                  {errors.type ? <p className="mt-2 text-sm text-red-600">{errors.type}</p> : null}
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">Stipend / Compensation</label>
                   <input
                     value={form.stipend}
-                    onChange={(event) => setForm((current) => ({ ...current, stipend: event.target.value }))}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0880EF] focus:ring-2 focus:ring-[#0880EF]/15"
+                    onChange={(event) => updateField("stipend", event.target.value)}
+                    className={`w-full rounded-xl border px-4 py-3 text-slate-900 outline-none transition focus:ring-2 focus:ring-[#0880EF]/15 ${errors.stipend ? "border-red-300 focus:border-red-500 focus:ring-red-100" : "border-slate-300 bg-white"}`}
                     placeholder="$500/month"
                   />
+                  {errors.stipend ? <p className="mt-2 text-sm text-red-600">{errors.stipend}</p> : null}
                 </div>
 
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">Application Deadline</label>
                   <input
                     value={form.deadline}
-                    onChange={(event) => setForm((current) => ({ ...current, deadline: event.target.value }))}
+                    onChange={(event) => updateField("deadline", event.target.value)}
                     type="date"
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0880EF] focus:ring-2 focus:ring-[#0880EF]/15"
+                    className={`w-full rounded-xl border px-4 py-3 text-slate-900 outline-none transition focus:ring-2 focus:ring-[#0880EF]/15 ${errors.deadline ? "border-red-300 focus:border-red-500 focus:ring-red-100" : "border-slate-300 bg-white"}`}
                   />
+                  {errors.deadline ? <p className="mt-2 text-sm text-red-600">{errors.deadline}</p> : null}
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="mb-2 block text-sm font-medium text-slate-700">Description</label>
                   <textarea
                     value={form.description}
-                    onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
+                    onChange={(event) => updateField("description", event.target.value)}
                     rows={5}
-                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-[#0880EF] focus:ring-2 focus:ring-[#0880EF]/15"
+                    className={`w-full rounded-xl border px-4 py-3 text-slate-900 outline-none transition focus:border-[#0880EF] focus:ring-2 focus:ring-[#0880EF]/15 ${errors.description ? "border-red-300 focus:border-red-500 focus:ring-red-100" : "border-slate-300 bg-white"}`}
                     placeholder="Describe the project, responsibilities, tools, and outcomes."
                   />
+                  {errors.description ? (
+                    <p className="mt-2 text-sm text-red-600">{errors.description}</p>
+                  ) : null}
                 </div>
 
                 <div className="md:col-span-2 flex flex-wrap gap-3">

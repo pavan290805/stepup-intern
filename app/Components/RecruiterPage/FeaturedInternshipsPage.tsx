@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Internship, useRecruiterInternships } from "./useRecruiterInternships";
+import Header from "./Header";
 
 export default function FeaturedInternshipsPage() {
   const { internships, stats, promoteListing } = useRecruiterInternships();
@@ -107,52 +108,7 @@ export default function FeaturedInternshipsPage() {
 
   return (
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
-      <header className="border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="leading-none">
-              <p className="text-xl font-bold tracking-tight text-[#0880EF] sm:text-2xl">StepUp</p>
-              <p className="text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">Intern</p>
-            </div>
-            <div className="h-10 w-px bg-slate-200" />
-            <div>
-              <p className="text-[0.7rem] font-semibold uppercase tracking-[0.3em] text-[#0880EF]">
-                Recruiter Portal
-              </p>
-              <h1 className="text-2xl font-bold tracking-tight text-[#083B87] sm:text-[1.75rem]">
-                Featured Promotion Dashboard
-              </h1>
-            </div>
-          </div>
-
-          <nav className="flex flex-wrap items-center gap-2 rounded-full border border-slate-200 bg-white p-1 shadow-sm">
-            <Link
-              href="/"
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              Create Internship
-            </Link>
-            <Link
-              href="/?page=edit-internships"
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              Edit Internship
-            </Link>
-            <Link
-              href="/?page=close-internships"
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              Close Internship
-            </Link>
-            <Link
-              href="/?page=featured-internships"
-              className="rounded-full bg-[#E8F2FF] px-4 py-2 text-sm font-medium text-[#0B5CC4] shadow-sm"
-            >
-              Featured Internship Promotion
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Header />
 
       <main className="mx-auto max-w-[1400px] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
         <section className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:grid-cols-[1.4fr_1fr]">
