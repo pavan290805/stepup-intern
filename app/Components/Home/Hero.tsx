@@ -76,70 +76,13 @@ export default function Hero() {
           </div>
          {/* Hero Stats */}
 
-<div className="flex flex-wrap gap-5 mt-10">
 
-  {/* Students Card */}
-  <div
-    className="
-      flex items-center gap-4
-      bg-white/80
-      backdrop-blur-md
-      border border-gray-200
-      rounded-2xl
-      px-5 py-4
-      shadow-lg
-      hover:shadow-xl
-      transition
-    "
-  >
-    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-      <Users className="w-6 h-6 text-[#0880EF]" />
-    </div>
 
-    <div>
-      <h3 className="text-2xl font-bold text-[#0880EF]">
-        100+
-      </h3>
 
-      <p className="text-sm text-gray-600">
-        Students Got Internships
-      </p>
-    </div>
-  </div>
-
-  {/* Partners Card */}
-  <div
-    className="
-      flex items-center gap-4
-      bg-white/80
-      backdrop-blur-md
-      border border-gray-200
-      rounded-2xl
-      px-5 py-4
-      shadow-lg
-      hover:shadow-xl
-      transition
-    "
-  >
-    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
-      <Building2 className="w-6 h-6 text-[#0880EF]" />
-    </div>
-
-    <div>
-      <h3 className="text-2xl font-bold text-[#0880EF]">
-        10+
-      </h3>
-
-      <p className="text-sm text-gray-600">
-        Hiring Partners
-      </p>
-    </div>
-  </div>
-
-</div>
         </motion.div>
 
         {/* Right Content */}
+        
 
         <motion.div
   className={`${heroRight} relative flex items-center justify-center`}
@@ -148,6 +91,8 @@ export default function Hero() {
   transition={{ duration: 0.8 }}
   viewport={{ once: true }}
 >
+  
+  
 
   {/* Laptop */}
  
@@ -167,8 +112,8 @@ export default function Hero() {
   {/* Floating Card 1 */}
 
   <motion.div
-    className={`${floatingCard} absolute top-0 left-0 z-20`}
-   animate={{ y: [0, -25, 0] }}
+    className={`${floatingCard} absolute top-8 left-0 z-20`}
+   animate={{ y: [0, -20, 0] }}
 
 transition={{
   duration: 2.5,
@@ -195,7 +140,7 @@ transition={{
 
   <motion.div
     className={`${floatingCard} absolute bottom-0 right-0 z-20`}
-    animate={{ y: [0, 25, 0] }}
+    animate={{ y: [0, 20, 0] }}
 
 transition={{
   duration: 3,
@@ -219,6 +164,69 @@ transition={{
   </motion.div>
 
 </motion.div>
+<div className="absolute top-32 right-45 z-30 flex gap-5">
+
+  {/* Students */}
+  <div
+    className="
+      w-70
+      h-20
+      bg-white
+      rounded-2xl
+      shadow-xl
+      border border-gray-100
+      px-5
+      flex
+      items-center
+      gap-4
+    "
+  >
+    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+      <Users className="w-6 h-6 text-[#0880EF]" />
+    </div>
+
+    <div>
+      <h3 className="text-3xl font-bold text-[#0880EF]">
+        100+
+      </h3>
+
+      <p className="text-gray-600 text-sm">
+        Students Got Internships
+      </p>
+    </div>
+  </div>
+
+  {/* Partners */}
+  <div
+    className="
+      w-65
+      h-20
+      bg-white
+      rounded-2xl
+      shadow-xl
+      border border-gray-100
+      px-5
+      flex
+      items-center
+      gap-4
+    "
+  >
+    <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+      <Building2 className="w-6 h-6 text-[#0880EF]" />
+    </div>
+
+    <div>
+      <h3 className="text-3xl font-bold text-[#0880EF]">
+        10+
+      </h3>
+
+      <p className="text-gray-600 text-sm">
+        Hiring Partners
+      </p>
+    </div>
+  </div>
+
+</div>
 
       </div>
     </section>
