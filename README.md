@@ -1,2 +1,1 @@
-StepUp Intern
-# STEP-UP Intern
+# STEP-UP AI
