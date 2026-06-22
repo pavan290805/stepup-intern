@@ -73,77 +73,77 @@ const SKILL_DATABASE: string[] = [
 // ─── Skill Alias Map ──────────────────────────────────────────────────────────
 
 const SKILL_ALIASES: Record<string, string[]> = {
-  JavaScript:         ["javascript", "js", "java script"],
-  TypeScript:         ["typescript", "ts"],
-  Python:             ["python", "python3", "py"],
-  Java:               ["java"],
-  "C++":              ["c++", "cpp", "c plus plus"],
-  "C#":               ["c#", "csharp", "c sharp"],
-  Go:                 ["golang", "go"],
-  Kotlin:             ["kotlin"],
-  Swift:              ["swift"],
-  Ruby:               ["ruby", "ruby on rails", "ror"],
-  PHP:                ["php"],
-  Scala:              ["scala"],
-  Rust:               ["rust", "rust-lang"],
-  React:              ["react", "react.js", "reactjs", "react js"],
-  "Next.js":          ["next", "next.js", "nextjs", "next js"],
-  Vue:                ["vue", "vue.js", "vuejs", "vue js"],
-  Angular:            ["angular", "angularjs", "angular.js"],
-  HTML:               ["html", "html5"],
-  CSS:                ["css", "css3"],
-  "Tailwind CSS":     ["tailwind", "tailwindcss", "tailwind css"],
-  Bootstrap:          ["bootstrap"],
-  SASS:               ["sass", "scss"],
-  SCSS:               ["scss"],
-  Redux:              ["redux", "redux toolkit", "rtk"],
-  GraphQL:            ["graphql", "graph ql"],
-  "Node.js":          ["node", "node.js", "nodejs", "node js"],
-  "Express.js":       ["express", "express.js", "expressjs", "express js"],
-  Django:             ["django"],
-  Flask:              ["flask"],
-  FastAPI:            ["fastapi", "fast api"],
-  "Spring Boot":      ["spring", "spring boot", "springboot"],
-  "REST API":         ["rest", "rest api", "rest apis", "restful", "restful api", "restful apis"],
-  Microservices:      ["microservices", "micro services", "microservice"],
-  SQL:                ["sql"],
-  MySQL:              ["mysql"],
-  PostgreSQL:         ["postgresql", "postgres", "postgre sql"],
-  MongoDB:            ["mongodb", "mongo", "mongo db"],
-  Firebase:           ["firebase", "fire base"],
-  Redis:              ["redis"],
-  SQLite:             ["sqlite", "sql lite"],
-  Git:                ["git"],
-  GitHub:             ["github", "git hub"],
-  Docker:             ["docker"],
-  Kubernetes:         ["kubernetes", "k8s"],
-  AWS:                ["aws", "amazon web services"],
-  Azure:              ["azure", "microsoft azure"],
-  GCP:                ["gcp", "google cloud", "google cloud platform"],
-  "Cloud Computing":  ["cloud computing", "cloud"],
-  "CI/CD":            ["ci/cd", "cicd", "ci cd", "continuous integration", "continuous deployment"],
-  Linux:              ["linux", "unix"],
+  JavaScript: ["javascript", "js", "java script"],
+  TypeScript: ["typescript", "ts"],
+  Python: ["python", "python3", "py"],
+  Java: ["java"],
+  "C++": ["c++", "cpp", "c plus plus"],
+  "C#": ["c#", "csharp", "c sharp"],
+  Go: ["golang", "go"],
+  Kotlin: ["kotlin"],
+  Swift: ["swift"],
+  Ruby: ["ruby", "ruby on rails", "ror"],
+  PHP: ["php"],
+  Scala: ["scala"],
+  Rust: ["rust", "rust-lang"],
+  React: ["react", "react.js", "reactjs", "react js"],
+  "Next.js": ["next", "next.js", "nextjs", "next js"],
+  Vue: ["vue", "vue.js", "vuejs", "vue js"],
+  Angular: ["angular", "angularjs", "angular.js"],
+  HTML: ["html", "html5"],
+  CSS: ["css", "css3"],
+  "Tailwind CSS": ["tailwind", "tailwindcss", "tailwind css"],
+  Bootstrap: ["bootstrap"],
+  SASS: ["sass", "scss"],
+  SCSS: ["scss"],
+  Redux: ["redux", "redux toolkit", "rtk"],
+  GraphQL: ["graphql", "graph ql"],
+  "Node.js": ["node", "node.js", "nodejs", "node js"],
+  "Express.js": ["express", "express.js", "expressjs", "express js"],
+  Django: ["django"],
+  Flask: ["flask"],
+  FastAPI: ["fastapi", "fast api"],
+  "Spring Boot": ["spring", "spring boot", "springboot"],
+  "REST API": ["rest", "rest api", "rest apis", "restful", "restful api", "restful apis"],
+  Microservices: ["microservices", "micro services", "microservice"],
+  SQL: ["sql"],
+  MySQL: ["mysql"],
+  PostgreSQL: ["postgresql", "postgres", "postgre sql"],
+  MongoDB: ["mongodb", "mongo", "mongo db"],
+  Firebase: ["firebase", "fire base"],
+  Redis: ["redis"],
+  SQLite: ["sqlite", "sql lite"],
+  Git: ["git"],
+  GitHub: ["github", "git hub"],
+  Docker: ["docker"],
+  Kubernetes: ["kubernetes", "k8s"],
+  AWS: ["aws", "amazon web services"],
+  Azure: ["azure", "microsoft azure"],
+  GCP: ["gcp", "google cloud", "google cloud platform"],
+  "Cloud Computing": ["cloud computing", "cloud"],
+  "CI/CD": ["ci/cd", "cicd", "ci cd", "continuous integration", "continuous deployment"],
+  Linux: ["linux", "unix"],
   "Machine Learning": ["machine learning", "ml"],
-  "Deep Learning":    ["deep learning", "dl"],
-  TensorFlow:         ["tensorflow", "tensor flow", "tf"],
-  PyTorch:            ["pytorch", "py torch"],
-  LLMs:               ["llm", "llms", "large language model", "large language models"],
-  RAG:                ["rag", "retrieval augmented generation", "retrieval-augmented generation"],
-  "Agentic AI":       ["agentic ai", "agentic", "ai agents", "autonomous agents"],
-  NLP:                ["nlp", "natural language processing"],
-  "Computer Vision":  ["computer vision", "cv"],
-  "Data Science":     ["data science", "data scientist"],
-  Pandas:             ["pandas"],
-  NumPy:              ["numpy"],
-  "Scikit-learn":     ["scikit-learn", "sklearn", "scikit learn"],
-  "Data Structures":  ["data structures", "data structure"],
-  Algorithms:         ["algorithms", "algorithm", "dsa"],
-  "Problem Solving":  ["problem solving", "problem-solving"],
-  Communication:      ["communication"],
-  Leadership:         ["leadership"],
-  Teamwork:           ["teamwork", "team work", "collaboration"],
-  Agile:              ["agile"],
-  Scrum:              ["scrum"],
+  "Deep Learning": ["deep learning", "dl"],
+  TensorFlow: ["tensorflow", "tensor flow", "tf"],
+  PyTorch: ["pytorch", "py torch"],
+  LLMs: ["llm", "llms", "large language model", "large language models"],
+  RAG: ["rag", "retrieval augmented generation", "retrieval-augmented generation"],
+  "Agentic AI": ["agentic ai", "agentic", "ai agents", "autonomous agents"],
+  NLP: ["nlp", "natural language processing"],
+  "Computer Vision": ["computer vision", "cv"],
+  "Data Science": ["data science", "data scientist"],
+  Pandas: ["pandas"],
+  NumPy: ["numpy"],
+  "Scikit-learn": ["scikit-learn", "sklearn", "scikit learn"],
+  "Data Structures": ["data structures", "data structure"],
+  Algorithms: ["algorithms", "algorithm", "dsa"],
+  "Problem Solving": ["problem solving", "problem-solving"],
+  Communication: ["communication"],
+  Leadership: ["leadership"],
+  Teamwork: ["teamwork", "team work", "collaboration"],
+  Agile: ["agile"],
+  Scrum: ["scrum"],
 };
 
 // ─── Pre-compiled Skill Patterns ──────────────────────────────────────────────
@@ -162,9 +162,9 @@ function buildSkillPattern(canonical: string): SkillPattern {
   const alternations = aliases.map((alias) => {
     const esc = escapeRegex(alias);
     const startsAlpha = /^[a-z0-9]/i.test(alias);
-    const endsAlpha   = /[a-z0-9]$/i.test(alias);
+    const endsAlpha = /[a-z0-9]$/i.test(alias);
     const prefix = startsAlpha ? "(?<![a-zA-Z0-9_])" : "";
-    const suffix = endsAlpha   ? "(?![a-zA-Z0-9_])"  : "(?![a-zA-Z0-9])";
+    const suffix = endsAlpha ? "(?![a-zA-Z0-9_])" : "(?![a-zA-Z0-9])";
     return `${prefix}${esc}${suffix}`;
   });
   const regex = new RegExp(alternations.join("|"), "i");
@@ -183,30 +183,30 @@ interface SkillRecommendationConfig {
 }
 
 const SKILL_RECOMMENDATION_MAP: Record<string, SkillRecommendationConfig> = {
-  TypeScript:         { title: "TypeScript Fundamentals",       subtitle: "Learn static typing for JS",           type: "COURSE",        icon: "🎓" },
-  "Next.js":          { title: "Build a Next.js Project",       subtitle: "App Router & Server Components",       type: "PROJECT",       icon: "💻" },
-  Git:                { title: "Practice Version Control",       subtitle: "Git branching & workflows",            type: "COURSE",        icon: "🎓" },
-  GitHub:             { title: "GitHub Collaboration",           subtitle: "PRs, Issues, Actions",                 type: "COURSE",        icon: "🎓" },
-  AWS:                { title: "Learn Cloud Deployment",         subtitle: "AWS fundamentals & services",          type: "CERTIFICATION", icon: "📜" },
-  Azure:              { title: "Azure Fundamentals",             subtitle: "Microsoft cloud certification",        type: "CERTIFICATION", icon: "📜" },
-  "REST API":         { title: "Practice API Integration",       subtitle: "Build & consume REST APIs",            type: "PROJECT",       icon: "💻" },
-  RESTful:            { title: "Practice API Integration",       subtitle: "Build & consume REST APIs",            type: "PROJECT",       icon: "💻" },
-  GraphQL:            { title: "GraphQL API Design",             subtitle: "Queries, mutations, subscriptions",    type: "COURSE",        icon: "🎓" },
-  Docker:             { title: "Docker Containerization",        subtitle: "Containers & Docker Compose",          type: "COURSE",        icon: "🎓" },
-  Kubernetes:         { title: "Kubernetes Orchestration",       subtitle: "Deploy & scale containers",            type: "CERTIFICATION", icon: "📜" },
-  "Machine Learning": { title: "ML Crash Course",               subtitle: "Supervised & unsupervised learning",   type: "COURSE",        icon: "🎓" },
-  "Deep Learning":    { title: "Deep Learning Specialization",  subtitle: "Neural networks & architectures",      type: "CERTIFICATION", icon: "📜" },
-  Python:             { title: "Python for Developers",          subtitle: "Core Python & best practices",         type: "COURSE",        icon: "🎓" },
-  Java:               { title: "Java Programming",               subtitle: "OOP & Java ecosystem",                 type: "COURSE",        icon: "🎓" },
-  React:              { title: "React Development",              subtitle: "Hooks, Context, and patterns",         type: "COURSE",        icon: "🎓" },
-  "Node.js":          { title: "Node.js Backend Dev",            subtitle: "Server-side JS development",           type: "COURSE",        icon: "🎓" },
-  "Express.js":       { title: "Express.js API Building",        subtitle: "RESTful APIs with Express",            type: "PROJECT",       icon: "💻" },
-  SQL:                { title: "SQL Mastery",                    subtitle: "Queries, joins, optimization",         type: "COURSE",        icon: "🎓" },
-  MongoDB:            { title: "MongoDB Basics",                 subtitle: "NoSQL data modeling",                  type: "COURSE",        icon: "🎓" },
-  PostgreSQL:         { title: "PostgreSQL Deep Dive",           subtitle: "Advanced relational DB",               type: "COURSE",        icon: "🎓" },
-  LLMs:               { title: "LLM Development",               subtitle: "Prompt engineering & fine-tuning",     type: "COURSE",        icon: "🎓" },
-  RAG:                { title: "RAG Pipeline Project",           subtitle: "Retrieval-augmented generation",       type: "PROJECT",       icon: "💻" },
-  "Agentic AI":       { title: "Agentic AI Systems",             subtitle: "Build autonomous AI agents",           type: "PROJECT",       icon: "💻" },
+  TypeScript: { title: "TypeScript Fundamentals", subtitle: "Learn static typing for JS", type: "COURSE", icon: "🎓" },
+  "Next.js": { title: "Build a Next.js Project", subtitle: "App Router & Server Components", type: "PROJECT", icon: "💻" },
+  Git: { title: "Practice Version Control", subtitle: "Git branching & workflows", type: "COURSE", icon: "🎓" },
+  GitHub: { title: "GitHub Collaboration", subtitle: "PRs, Issues, Actions", type: "COURSE", icon: "🎓" },
+  AWS: { title: "Learn Cloud Deployment", subtitle: "AWS fundamentals & services", type: "CERTIFICATION", icon: "📜" },
+  Azure: { title: "Azure Fundamentals", subtitle: "Microsoft cloud certification", type: "CERTIFICATION", icon: "📜" },
+  "REST API": { title: "Practice API Integration", subtitle: "Build & consume REST APIs", type: "PROJECT", icon: "💻" },
+  RESTful: { title: "Practice API Integration", subtitle: "Build & consume REST APIs", type: "PROJECT", icon: "💻" },
+  GraphQL: { title: "GraphQL API Design", subtitle: "Queries, mutations, subscriptions", type: "COURSE", icon: "🎓" },
+  Docker: { title: "Docker Containerization", subtitle: "Containers & Docker Compose", type: "COURSE", icon: "🎓" },
+  Kubernetes: { title: "Kubernetes Orchestration", subtitle: "Deploy & scale containers", type: "CERTIFICATION", icon: "📜" },
+  "Machine Learning": { title: "ML Crash Course", subtitle: "Supervised & unsupervised learning", type: "COURSE", icon: "🎓" },
+  "Deep Learning": { title: "Deep Learning Specialization", subtitle: "Neural networks & architectures", type: "CERTIFICATION", icon: "📜" },
+  Python: { title: "Python for Developers", subtitle: "Core Python & best practices", type: "COURSE", icon: "🎓" },
+  Java: { title: "Java Programming", subtitle: "OOP & Java ecosystem", type: "COURSE", icon: "🎓" },
+  React: { title: "React Development", subtitle: "Hooks, Context, and patterns", type: "COURSE", icon: "🎓" },
+  "Node.js": { title: "Node.js Backend Dev", subtitle: "Server-side JS development", type: "COURSE", icon: "🎓" },
+  "Express.js": { title: "Express.js API Building", subtitle: "RESTful APIs with Express", type: "PROJECT", icon: "💻" },
+  SQL: { title: "SQL Mastery", subtitle: "Queries, joins, optimization", type: "COURSE", icon: "🎓" },
+  MongoDB: { title: "MongoDB Basics", subtitle: "NoSQL data modeling", type: "COURSE", icon: "🎓" },
+  PostgreSQL: { title: "PostgreSQL Deep Dive", subtitle: "Advanced relational DB", type: "COURSE", icon: "🎓" },
+  LLMs: { title: "LLM Development", subtitle: "Prompt engineering & fine-tuning", type: "COURSE", icon: "🎓" },
+  RAG: { title: "RAG Pipeline Project", subtitle: "Retrieval-augmented generation", type: "PROJECT", icon: "💻" },
+  "Agentic AI": { title: "Agentic AI Systems", subtitle: "Build autonomous AI agents", type: "PROJECT", icon: "💻" },
 };
 
 // ─── Roadmap Phase Templates ──────────────────────────────────────────────────
@@ -219,24 +219,24 @@ interface RoadmapTemplate {
 }
 
 const ROADMAP_TEMPLATES: Record<string, RoadmapTemplate> = {
-  TypeScript:         { title: "TypeScript Fundamentals",    description: "Master static typing and interfaces for better code quality.",            duration: "2 Weeks", difficulty: "Intermediate" },
-  "Next.js":          { title: "Next.js Development",        description: "Explore Server Components and App Router in the modern framework.",        duration: "3 Weeks", difficulty: "Intermediate" },
-  React:              { title: "React Essentials",           description: "Learn hooks, context, and modern React patterns.",                         duration: "3 Weeks", difficulty: "Intermediate" },
-  Python:             { title: "Python Fundamentals",        description: "Core Python syntax, OOP, and standard library.",                           duration: "2 Weeks", difficulty: "Beginner"     },
-  Java:               { title: "Java Programming",           description: "Object-oriented design and Java ecosystem.",                               duration: "3 Weeks", difficulty: "Intermediate" },
-  Docker:             { title: "Docker Containerization",    description: "Package and deploy apps with Docker.",                                      duration: "1 Week",  difficulty: "Intermediate" },
-  Kubernetes:         { title: "Kubernetes Orchestration",   description: "Scale containerized apps in production.",                                   duration: "2 Weeks", difficulty: "Advanced"     },
-  AWS:                { title: "AWS Cloud Basics",           description: "Core AWS services and deployment patterns.",                                duration: "3 Weeks", difficulty: "Intermediate" },
-  Azure:              { title: "Azure Cloud Fundamentals",   description: "Microsoft Azure services and certification prep.",                          duration: "3 Weeks", difficulty: "Intermediate" },
-  "Machine Learning": { title: "Machine Learning Basics",    description: "Supervised & unsupervised learning algorithms.",                            duration: "4 Weeks", difficulty: "Advanced"     },
-  SQL:                { title: "SQL & Databases",            description: "Relational database design and complex queries.",                           duration: "2 Weeks", difficulty: "Beginner"     },
-  GraphQL:            { title: "GraphQL API Design",         description: "Schema design, resolvers, and client integration.",                         duration: "2 Weeks", difficulty: "Intermediate" },
-  MongoDB:            { title: "MongoDB NoSQL",              description: "Document modeling and aggregation pipelines.",                              duration: "1 Week",  difficulty: "Beginner"     },
-  Git:                { title: "Git Version Control",        description: "Branching strategies and team workflows.",                                  duration: "1 Week",  difficulty: "Beginner"     },
-  "Node.js":          { title: "Node.js Backend",            description: "Server-side JavaScript and async programming.",                             duration: "3 Weeks", difficulty: "Intermediate" },
-  "Deep Learning":    { title: "Deep Learning",              description: "Neural networks, CNNs, RNNs and modern architectures.",                     duration: "6 Weeks", difficulty: "Advanced"     },
-  LLMs:               { title: "LLM Development",            description: "Prompt engineering, fine-tuning, and deployment.",                          duration: "3 Weeks", difficulty: "Advanced"     },
-  RAG:                { title: "RAG Pipeline Development",   description: "Build retrieval-augmented generation systems.",                             duration: "2 Weeks", difficulty: "Advanced"     },
+  TypeScript: { title: "TypeScript Fundamentals", description: "Master static typing and interfaces for better code quality.", duration: "2 Weeks", difficulty: "Intermediate" },
+  "Next.js": { title: "Next.js Development", description: "Explore Server Components and App Router in the modern framework.", duration: "3 Weeks", difficulty: "Intermediate" },
+  React: { title: "React Essentials", description: "Learn hooks, context, and modern React patterns.", duration: "3 Weeks", difficulty: "Intermediate" },
+  Python: { title: "Python Fundamentals", description: "Core Python syntax, OOP, and standard library.", duration: "2 Weeks", difficulty: "Beginner" },
+  Java: { title: "Java Programming", description: "Object-oriented design and Java ecosystem.", duration: "3 Weeks", difficulty: "Intermediate" },
+  Docker: { title: "Docker Containerization", description: "Package and deploy apps with Docker.", duration: "1 Week", difficulty: "Intermediate" },
+  Kubernetes: { title: "Kubernetes Orchestration", description: "Scale containerized apps in production.", duration: "2 Weeks", difficulty: "Advanced" },
+  AWS: { title: "AWS Cloud Basics", description: "Core AWS services and deployment patterns.", duration: "3 Weeks", difficulty: "Intermediate" },
+  Azure: { title: "Azure Cloud Fundamentals", description: "Microsoft Azure services and certification prep.", duration: "3 Weeks", difficulty: "Intermediate" },
+  "Machine Learning": { title: "Machine Learning Basics", description: "Supervised & unsupervised learning algorithms.", duration: "4 Weeks", difficulty: "Advanced" },
+  SQL: { title: "SQL & Databases", description: "Relational database design and complex queries.", duration: "2 Weeks", difficulty: "Beginner" },
+  GraphQL: { title: "GraphQL API Design", description: "Schema design, resolvers, and client integration.", duration: "2 Weeks", difficulty: "Intermediate" },
+  MongoDB: { title: "MongoDB NoSQL", description: "Document modeling and aggregation pipelines.", duration: "1 Week", difficulty: "Beginner" },
+  Git: { title: "Git Version Control", description: "Branching strategies and team workflows.", duration: "1 Week", difficulty: "Beginner" },
+  "Node.js": { title: "Node.js Backend", description: "Server-side JavaScript and async programming.", duration: "3 Weeks", difficulty: "Intermediate" },
+  "Deep Learning": { title: "Deep Learning", description: "Neural networks, CNNs, RNNs and modern architectures.", duration: "6 Weeks", difficulty: "Advanced" },
+  LLMs: { title: "LLM Development", description: "Prompt engineering, fine-tuning, and deployment.", duration: "3 Weeks", difficulty: "Advanced" },
+  RAG: { title: "RAG Pipeline Development", description: "Build retrieval-augmented generation systems.", duration: "2 Weeks", difficulty: "Advanced" },
 };
 
 const DEFAULT_PHASE: Omit<RoadmapTemplate, "title"> = {
@@ -289,8 +289,8 @@ async function extractDocxText(file: File): Promise<string> {
  */
 async function extractFileText(file: File): Promise<string> {
   const ext = file.name.split(".").pop()?.toLowerCase();
-  if (ext === "txt")                   return extractTxtText(file);
-  if (ext === "pdf")                   return extractPdfText(file);
+  if (ext === "txt") return extractTxtText(file);
+  if (ext === "pdf") return extractPdfText(file);
   if (ext === "docx" || ext === "doc") return extractDocxText(file);
   throw new Error(`Unsupported file type: .${ext}`);
 }
@@ -330,7 +330,7 @@ function getReadinessLevel(score: number): ReadinessLevel {
 }
 
 function assignPriority(index: number, total: number): Priority {
-  if (index < Math.ceil(total / 3))       return "HIGH";
+  if (index < Math.ceil(total / 3)) return "HIGH";
   if (index < Math.ceil((2 * total) / 3)) return "MEDIUM";
   return "LOW";
 }
@@ -424,13 +424,13 @@ async function performAnalysis(
   if (requiredSkills.length === 0) throw new Error("No recognizable skills found in the job description. Please include specific skill requirements.");
   const { matchedSkills, missingSkills: missingSkillNames } = compareSkills(detectedSkills, requiredSkills);
   const missingSkills: MissingSkill[] = missingSkillNames.map((name, i) => ({ name, priority: assignPriority(i, missingSkillNames.length) }));
-  const matchScore     = calculateMatchScore(matchedSkills, requiredSkills);
+  const matchScore = calculateMatchScore(matchedSkills, requiredSkills);
   const readinessLevel = getReadinessLevel(matchScore);
   const recommendations = generateRecommendations(missingSkillNames);
-  const roadmap        = generateRoadmap(missingSkillNames, matchedSkills);
-  const skillProgress  = buildSkillProgress(matchedSkills, missingSkillNames);
-  const topStrength    = deriveTopStrength(matchedSkills);
-  const growthArea     = deriveGrowthArea(missingSkillNames);
+  const roadmap = generateRoadmap(missingSkillNames, matchedSkills);
+  const skillProgress = buildSkillProgress(matchedSkills, missingSkillNames);
+  const topStrength = deriveTopStrength(matchedSkills);
+  const growthArea = deriveGrowthArea(missingSkillNames);
   return { matchScore, matchedSkills, missingSkills, recommendations, roadmap, readinessLevel, detectedSkills, requiredSkills, skillProgress, topStrength, growthArea };
 }
 
@@ -438,18 +438,18 @@ async function performAnalysis(
 
 function DifficultyBadge({ difficulty }: { difficulty: Difficulty }) {
   const styles: Record<Difficulty, string> = {
-    Beginner:     "bg-green-100 text-green-700",
+    Beginner: "bg-green-100 text-green-700",
     Intermediate: "bg-yellow-100 text-yellow-700",
-    Advanced:     "bg-red-100 text-red-700",
+    Advanced: "bg-red-100 text-red-700",
   };
   return <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${styles[difficulty]}`}>{difficulty}</span>;
 }
 
 function ResourceTypeBadge({ type }: { type: ResourceType }) {
   const styles: Record<ResourceType, string> = {
-    COURSE:        "bg-blue-100 text-blue-600",
+    COURSE: "bg-blue-100 text-blue-600",
     CERTIFICATION: "bg-purple-100 text-purple-600",
-    PROJECT:       "bg-emerald-100 text-emerald-600",
+    PROJECT: "bg-emerald-100 text-emerald-600",
   };
   return <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide ${styles[type]}`}>{type}</span>;
 }
@@ -458,9 +458,9 @@ function ResourceTypeBadge({ type }: { type: ResourceType }) {
 
 function CircularProgress({ percentage }: { percentage: number }) {
   const radius = 60;
-  const circ   = 2 * Math.PI * radius;
+  const circ = 2 * Math.PI * radius;
   const offset = circ - (percentage / 100) * circ;
-  const color  = percentage >= 80 ? "#22c55e" : percentage >= 60 ? "#0880EF" : percentage >= 40 ? "#eab308" : "#f97316";
+  const color = percentage >= 80 ? "#22c55e" : percentage >= 60 ? "#0880EF" : percentage >= 40 ? "#eab308" : "#f97316";
   return (
     <div className="relative flex items-center justify-center" style={{ width: 152, height: 152 }}>
       <svg width="152" height="152" className="rotate-[-90deg]">
@@ -486,20 +486,20 @@ type JDInputMode = "paste" | "upload";
 export default function SkillGapAnalyzer() {
 
   // ── Resume state ──
-  const [uploadedFile, setUploadedFile]   = useState<File | null>(null);
-  const [isDragging, setIsDragging]       = useState(false);
-  const fileInputRef                      = useRef<HTMLInputElement>(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Job Description state ──
-  const [jdInputMode, setJdInputMode]     = useState<JDInputMode>("paste");
+  const [jdInputMode, setJdInputMode] = useState<JDInputMode>("paste");
   const [roleDescription, setRoleDescription] = useState("");
-  const [jdFile, setJdFile]               = useState<File | null>(null);
-  const [isJdDragging, setIsJdDragging]   = useState(false);
-  const jdFileInputRef                    = useRef<HTMLInputElement>(null);
+  const [jdFile, setJdFile] = useState<File | null>(null);
+  const [isJdDragging, setIsJdDragging] = useState(false);
+  const jdFileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Analysis state ──
-  const [isAnalyzed, setIsAnalyzed]       = useState(false);
-  const [isAnalyzing, setIsAnalyzing]     = useState(false);
+  const [isAnalyzed, setIsAnalyzed] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 
@@ -507,7 +507,7 @@ export default function SkillGapAnalyzer() {
   const resultsRef = useRef<HTMLDivElement>(null);
 
   // ── Derived ──
-  const hasJD      = jdInputMode === "upload" ? jdFile !== null : roleDescription.trim().length > 0;
+  const hasJD = jdInputMode === "upload" ? jdFile !== null : roleDescription.trim().length > 0;
   const canAnalyze = uploadedFile !== null && hasJD;
 
   // ── Resume handlers ──
@@ -527,7 +527,7 @@ export default function SkillGapAnalyzer() {
     handleFileSelect(e.dataTransfer.files[0]);
   }, [handleFileSelect]);
 
-  const handleDragOver  = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setIsDragging(true); };
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setIsDragging(true); };
   const handleDragLeave = () => setIsDragging(false);
   const handleRemoveFile = () => {
     setUploadedFile(null); setIsAnalyzed(false); setAnalysisResult(null); setAnalysisError(null);
@@ -551,7 +551,7 @@ export default function SkillGapAnalyzer() {
     handleJdFileSelect(e.dataTransfer.files[0]);
   }, [handleJdFileSelect]);
 
-  const handleJdDragOver  = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setIsJdDragging(true); };
+  const handleJdDragOver = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setIsJdDragging(true); };
   const handleJdDragLeave = () => setIsJdDragging(false);
   const handleRemoveJdFile = () => {
     setJdFile(null); setIsAnalyzed(false); setAnalysisResult(null);
@@ -578,23 +578,23 @@ export default function SkillGapAnalyzer() {
   };
 
   // ── Derived skill progress ──
-  const completedSkills    = analysisResult?.skillProgress.filter((s) => s.status === "completed")   ?? [];
-  const inProgressSkills   = analysisResult?.skillProgress.filter((s) => s.status === "in-progress") ?? [];
-  const remainingSkills    = analysisResult?.skillProgress.filter((s) => s.status === "remaining")   ?? [];
-  const totalTracked       = analysisResult?.skillProgress.length ?? 1;
+  const completedSkills = analysisResult?.skillProgress.filter((s) => s.status === "completed") ?? [];
+  const inProgressSkills = analysisResult?.skillProgress.filter((s) => s.status === "in-progress") ?? [];
+  const remainingSkills = analysisResult?.skillProgress.filter((s) => s.status === "remaining") ?? [];
+  const totalTracked = analysisResult?.skillProgress.length ?? 1;
   const overallProgressPct = Math.round((completedSkills.length / totalTracked) * 100);
 
   // Grouped missing skills by priority
-  const highMissing   = analysisResult?.missingSkills.filter((s) => s.priority === "HIGH")   ?? [];
+  const highMissing = analysisResult?.missingSkills.filter((s) => s.priority === "HIGH") ?? [];
   const mediumMissing = analysisResult?.missingSkills.filter((s) => s.priority === "MEDIUM") ?? [];
-  const lowMissing    = analysisResult?.missingSkills.filter((s) => s.priority === "LOW")    ?? [];
+  const lowMissing = analysisResult?.missingSkills.filter((s) => s.priority === "LOW") ?? [];
 
   // ── Readiness colour helper ──
   const readinessColor: Record<ReadinessLevel, string> = {
-    "Job Ready":    "text-green-600  bg-green-50  border-green-200",
+    "Job Ready": "text-green-600  bg-green-50  border-green-200",
     "Intermediate": "text-blue-600   bg-blue-50   border-blue-200",
-    "Developing":   "text-yellow-600 bg-yellow-50 border-yellow-200",
-    "Beginner":     "text-orange-600 bg-orange-50 border-orange-200",
+    "Developing": "text-yellow-600 bg-yellow-50 border-yellow-200",
+    "Beginner": "text-orange-600 bg-orange-50 border-orange-200",
   };
 
   // ────────────────────────────────────────────────────────────────────────────
@@ -677,10 +677,10 @@ export default function SkillGapAnalyzer() {
                       <rect x="126" y="18" width="108" height="126" rx="7" strokeWidth="2" />
                       <rect x="126" y="18" width="108" height="20" rx="7" fill="white" fillOpacity="0.12" strokeWidth="0" />
                       <line x1="138" y1="27" x2="170" y2="27" strokeWidth="1.5" />
-                      <rect x="140" y="80"  width="12" height="50" rx="3" fill="white" fillOpacity="0.2"  strokeWidth="0" />
-                      <rect x="158" y="60"  width="12" height="70" rx="3" fill="white" fillOpacity="0.25" strokeWidth="0" />
-                      <rect x="176" y="70"  width="12" height="60" rx="3" fill="white" fillOpacity="0.15" strokeWidth="0" />
-                      <rect x="194" y="50"  width="12" height="80" rx="3" fill="white" fillOpacity="0.3"  strokeWidth="0" />
+                      <rect x="140" y="80" width="12" height="50" rx="3" fill="white" fillOpacity="0.2" strokeWidth="0" />
+                      <rect x="158" y="60" width="12" height="70" rx="3" fill="white" fillOpacity="0.25" strokeWidth="0" />
+                      <rect x="176" y="70" width="12" height="60" rx="3" fill="white" fillOpacity="0.15" strokeWidth="0" />
+                      <rect x="194" y="50" width="12" height="80" rx="3" fill="white" fillOpacity="0.3" strokeWidth="0" />
                       <line x1="136" y1="132" x2="216" y2="132" strokeWidth="1.5" />
                     </g>
 
@@ -689,8 +689,8 @@ export default function SkillGapAnalyzer() {
                       <rect x="252" y="30" width="72" height="90" rx="6" strokeWidth="2" />
                       <polyline points="264,104 276,88 290,96 304,72 316,58" strokeWidth="2" fill="none" />
                       <circle cx="264" cy="104" r="3" fill="white" fillOpacity="0.4" strokeWidth="0" />
-                      <circle cx="290" cy="96"  r="3" fill="white" fillOpacity="0.4" strokeWidth="0" />
-                      <circle cx="316" cy="58"  r="3" fill="white" fillOpacity="0.4" strokeWidth="0" />
+                      <circle cx="290" cy="96" r="3" fill="white" fillOpacity="0.4" strokeWidth="0" />
+                      <circle cx="316" cy="58" r="3" fill="white" fillOpacity="0.4" strokeWidth="0" />
                       <line x1="260" y1="90" x2="320" y2="90" strokeWidth="1" strokeDasharray="4 3" />
                       <line x1="260" y1="76" x2="320" y2="76" strokeWidth="1" strokeDasharray="4 3" />
                     </g>
@@ -704,12 +704,12 @@ export default function SkillGapAnalyzer() {
 
                     {/* ── AI / brain nodes ── */}
                     <g opacity="0.13">
-                      <circle cx="64"  cy="172" r="12" strokeWidth="1.5" />
-                      <circle cx="96"  cy="185" r="8"  strokeWidth="1.5" />
-                      <circle cx="46"  cy="190" r="6"  strokeWidth="1.5" />
-                      <line x1="64" y1="172" x2="96"  y2="185" strokeWidth="1.2" />
-                      <line x1="64" y1="172" x2="46"  y2="190" strokeWidth="1.2" />
-                      <line x1="96" y1="185" x2="46"  y2="190" strokeWidth="1.2" />
+                      <circle cx="64" cy="172" r="12" strokeWidth="1.5" />
+                      <circle cx="96" cy="185" r="8" strokeWidth="1.5" />
+                      <circle cx="46" cy="190" r="6" strokeWidth="1.5" />
+                      <line x1="64" y1="172" x2="96" y2="185" strokeWidth="1.2" />
+                      <line x1="64" y1="172" x2="46" y2="190" strokeWidth="1.2" />
+                      <line x1="96" y1="185" x2="46" y2="190" strokeWidth="1.2" />
                       <circle cx="64" cy="172" r="3" fill="white" fillOpacity="0.25" strokeWidth="0" />
                     </g>
 
@@ -782,9 +782,8 @@ export default function SkillGapAnalyzer() {
                   {(["paste", "upload"] as JDInputMode[]).map((mode) => (
                     <button key={mode} id={`jd-${mode}-tab`}
                       onClick={() => setJdInputMode(mode)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                        jdInputMode === mode ? "bg-white text-[#0880EF] shadow-sm" : "text-gray-500 hover:text-gray-700"
-                      }`}>
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${jdInputMode === mode ? "bg-white text-[#0880EF] shadow-sm" : "text-gray-500 hover:text-gray-700"
+                        }`}>
                       {mode === "paste" ? "Paste Text" : "Upload File"}
                     </button>
                   ))}
@@ -948,12 +947,11 @@ export default function SkillGapAnalyzer() {
             {!canAnalyze && !isAnalyzing && (
               <div className="flex flex-wrap gap-2 justify-center">
                 {[
-                  { done: hasJD,          label: "Job Description" },
-                  { done: !!uploadedFile, label: "Resume File"     },
+                  { done: hasJD, label: "Job Description" },
+                  { done: !!uploadedFile, label: "Resume File" },
                 ].map(({ done, label }) => (
-                  <span key={label} className={`text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-medium transition-colors ${
-                    done ? "bg-green-50 border-green-200 text-green-700" : "bg-gray-50 border-gray-200 text-gray-400"
-                  }`}>
+                  <span key={label} className={`text-xs flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-medium transition-colors ${done ? "bg-green-50 border-green-200 text-green-700" : "bg-gray-50 border-gray-200 text-gray-400"
+                    }`}>
                     {done
                       ? <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                       : <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
@@ -990,10 +988,10 @@ export default function SkillGapAnalyzer() {
               </div>
               <div className="flex flex-col gap-2 w-56">
                 {[
-                  { label: "Reading resume",         delay: "0s"    },
-                  { label: "Extracting skills",      delay: "0.15s" },
-                  { label: "Matching requirements",  delay: "0.3s"  },
-                  { label: "Generating roadmap",     delay: "0.45s" },
+                  { label: "Reading resume", delay: "0s" },
+                  { label: "Extracting skills", delay: "0.15s" },
+                  { label: "Matching requirements", delay: "0.3s" },
+                  { label: "Generating roadmap", delay: "0.45s" },
                 ].map((s) => (
                   <div key={s.label} className="flex items-center gap-2.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#0880EF] animate-bounce flex-shrink-0"
@@ -1057,16 +1055,16 @@ export default function SkillGapAnalyzer() {
                   sub: "Current level",
                   color: analysisResult.readinessLevel === "Job Ready" ? "text-green-600"
                     : analysisResult.readinessLevel === "Intermediate" ? "text-blue-600"
-                    : analysisResult.readinessLevel === "Developing" ? "text-yellow-600"
-                    : "text-orange-600",
+                      : analysisResult.readinessLevel === "Developing" ? "text-yellow-600"
+                        : "text-orange-600",
                   bg: analysisResult.readinessLevel === "Job Ready" ? "bg-green-50"
                     : analysisResult.readinessLevel === "Intermediate" ? "bg-blue-50"
-                    : analysisResult.readinessLevel === "Developing" ? "bg-yellow-50"
-                    : "bg-orange-50",
+                      : analysisResult.readinessLevel === "Developing" ? "bg-yellow-50"
+                        : "bg-orange-50",
                   border: analysisResult.readinessLevel === "Job Ready" ? "border-green-100"
                     : analysisResult.readinessLevel === "Intermediate" ? "border-blue-100"
-                    : analysisResult.readinessLevel === "Developing" ? "border-yellow-100"
-                    : "border-orange-100",
+                      : analysisResult.readinessLevel === "Developing" ? "border-yellow-100"
+                        : "border-orange-100",
                 },
               ].map((card) => (
                 <div key={card.label}
@@ -1148,9 +1146,8 @@ export default function SkillGapAnalyzer() {
                 <CircularProgress percentage={analysisResult.matchScore} />
 
                 {/* Readiness level badge */}
-                <span className={`text-sm font-bold px-4 py-1.5 rounded-full border ${
-                  analysisResult.readinessLevel ? readinessColor[analysisResult.readinessLevel] : ""
-                }`}>
+                <span className={`text-sm font-bold px-4 py-1.5 rounded-full border ${analysisResult.readinessLevel ? readinessColor[analysisResult.readinessLevel] : ""
+                  }`}>
                   {analysisResult.readinessLevel}
                 </span>
 
@@ -1202,8 +1199,8 @@ export default function SkillGapAnalyzer() {
                           ${idx === 0
                             ? "bg-[#0880EF] border-[#0880EF] text-white shadow-md shadow-blue-200"
                             : idx === analysisResult.roadmap.length - 1
-                            ? "bg-purple-500 border-purple-500 text-white"
-                            : "bg-white border-gray-300 text-gray-500"}`}>
+                              ? "bg-purple-500 border-purple-500 text-white"
+                              : "bg-white border-gray-300 text-gray-500"}`}>
                           {phase.step}
                         </div>
                         <div className="flex-1 pb-1 min-w-0">
@@ -1242,10 +1239,10 @@ export default function SkillGapAnalyzer() {
                     {(["Job Ready", "Intermediate", "Developing", "Beginner"] as ReadinessLevel[]).map((level) => {
                       const active = analysisResult.readinessLevel === level;
                       const dotColor: Record<ReadinessLevel, string> = {
-                        "Job Ready":    "bg-green-500",
+                        "Job Ready": "bg-green-500",
                         "Intermediate": "bg-blue-500",
-                        "Developing":   "bg-yellow-500",
-                        "Beginner":     "bg-orange-400",
+                        "Developing": "bg-yellow-500",
+                        "Beginner": "bg-orange-400",
                       };
                       return (
                         <div key={level}
@@ -1388,9 +1385,9 @@ export default function SkillGapAnalyzer() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 {[
-                  { label: "Completed",    skills: completedSkills,   dot: "bg-green-500", chip: "bg-green-100 text-green-700 border-green-200",  empty: "None yet"             },
-                  { label: "In Progress",  skills: inProgressSkills,  dot: "bg-blue-500",  chip: "bg-blue-100 text-blue-700 border-blue-200",     empty: "Nothing in progress"  },
-                  { label: "Remaining",    skills: remainingSkills,   dot: "bg-gray-300",  chip: "bg-gray-100 text-gray-500 border-gray-200",     empty: "All skills covered!"  },
+                  { label: "Completed", skills: completedSkills, dot: "bg-green-500", chip: "bg-green-100 text-green-700 border-green-200", empty: "None yet" },
+                  { label: "In Progress", skills: inProgressSkills, dot: "bg-blue-500", chip: "bg-blue-100 text-blue-700 border-blue-200", empty: "Nothing in progress" },
+                  { label: "Remaining", skills: remainingSkills, dot: "bg-gray-300", chip: "bg-gray-100 text-gray-500 border-gray-200", empty: "All skills covered!" },
                 ].map(({ label, skills, dot, chip, empty }) => (
                   <div key={label}>
                     <div className="flex items-center gap-2 mb-3">
