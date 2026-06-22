@@ -11,18 +11,18 @@ import {
   sectionSubtitleStyles,
   labelStyles,
   linkStyles,
-} from "../constants/styles";
+} from "../../Components/constants/styles";
 import{
 signupStudent,
 signupRecruiter,
 handleGoogleLogin,
 handleLinkedInLogin
-} from "../services/auth";
+} from "../../Components/services/auth";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-type SignupProps = {
-  setShowSignup: React.Dispatch<React.SetStateAction<boolean>>;
-};
-export default  function Signup({ setShowSignup }: SignupProps) {
+export default  function Signup() {
+  const router = useRouter();
   const [role, setRole] = useState<"student" | "recruiter">("student");
 
   const isRecruiter = role === "recruiter";
@@ -37,17 +37,17 @@ const formData = new FormData(form);
 
   try {
     if (role === "student") {
-
+      if(formData.get("password") !== formData.get("confirmPassword")){
+    alert("Passwords do not match");
+    return;
+      }
       const studentData = {
         fullName: formData.get("fullName") as string,
         email: formData.get("email") as string,
         password: formData.get("password") as string,
         confirmPassword: formData.get("confirmPassword") as string,
       };
-      if(formData.get("password") !== formData.get("confirmPassword")){
-    alert("Passwords do not match");
-    return;
-}
+
 
       await signupStudent(studentData);
 
@@ -80,6 +80,7 @@ const formData = new FormData(form);
       <div className="hidden md:flex w-1/2 min-w-0 bg-[#0880EF] text-white flex-col justify-start items-center pt-12 p-10 relative md:sticky md:top-0 md:h-screen md:self-start overflow-hidden">
 
         <div className="absolute top-4 left-8">
+          <Link href="/">
           <Image
               src="/StepUpLogo.png"
               alt="StepUp Logo"
@@ -87,6 +88,7 @@ const formData = new FormData(form);
               height={50}
               priority
             />
+            </Link>
         </div>
 
         <div className="flex flex-1 w-full flex-col items-center justify-center text-center px-6">
@@ -335,7 +337,7 @@ const formData = new FormData(form);
           <p className="text-center text-sm mt-6 text-black">
             Already have an account?{" "}
             <span
-              onClick={() => setShowSignup(false)}
+              onClick={() => router.push("/login")}
               className={linkStyles}
             >
               Sign In

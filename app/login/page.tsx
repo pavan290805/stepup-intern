@@ -9,18 +9,18 @@ import {
   sectionSubtitleStyles,
   labelStyles,
   linkStyles,
-} from "../constants/styles";
+} from "../../Components/constants/styles";
 import {
     loginUser,
     handleGoogleLogin,
     handleLinkedInLogin,
-} from "../services/auth";
+} from "../../Components/services/auth";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-type LoginProps = {
-  setShowSignup: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
-export default function Login({ setShowSignup }: LoginProps) {
+export default function Login() {
+  const router = useRouter();
   const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -42,6 +42,7 @@ export default function Login({ setShowSignup }: LoginProps) {
       {/* Left Panel */}
       <div className="hidden md:flex w-1/2 bg-[#0880EF] text-white flex-col justify-center items-center p-10 relative">
         <div className="absolute top-4 left-8">
+          <Link href="/">
           <Image
             src="/StepUpLogo.png"
             alt="StepUp Logo"
@@ -49,6 +50,7 @@ export default function Login({ setShowSignup }: LoginProps) {
             height={50}
             priority
           />
+          </Link>
         </div>
 
         <div className="mb-8 flex items-center justify-center">
@@ -174,12 +176,12 @@ export default function Login({ setShowSignup }: LoginProps) {
           {/* Signup Link */}
           <p className="text-center text-sm mt-6 text-black">
             Don't have an account?{" "}
-            <span
-              onClick={() => setShowSignup(true)}
+            <button type="button"
+              onClick={() => router.push("/signup")}
               className={linkStyles}
             >
               Create one
-            </span>
+            </button>
           </p>
         </form>
       </div>

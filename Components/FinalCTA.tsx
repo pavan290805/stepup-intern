@@ -2,14 +2,12 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-type FinalCTAProps = {
-  onGetStarted: () => void;
-};
 
-export default function FinalCTA({
-  onGetStarted,
-}: FinalCTAProps) {
+
+export default function FinalCTA() {
+  const router = useRouter();
   return (
     <section className="bg-white py-24">
 
@@ -46,7 +44,7 @@ export default function FinalCTA({
           </p>
 
           <button
-            onClick={onGetStarted}
+            onClick={()=> router.push("/signup")}
             className="
               mt-10
               bg-white

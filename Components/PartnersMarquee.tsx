@@ -12,7 +12,7 @@ import {
   marqueeRow,
   partnerCard,
   partnerLogo,
-} from "../../constants/home";
+} from "./constants/home";
 
 const partners = [
   "/partners/logo1.png",

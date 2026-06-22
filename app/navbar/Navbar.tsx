@@ -3,13 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
-type NavbarProps = {
-  onLoginClick: () => void;
-  onSignupClick: () => void;
-};
+export default function Navbar() {
+  const router = useRouter();
 
-export default function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
   return (
     <motion.nav
       initial={{ y: -60, opacity: 0 }}
@@ -32,7 +30,7 @@ export default function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
 
         {/* Logo */}
         <div className="flex items-center gap-3 cursor-pointer">
-
+          <Link href="/">
           <Image
           src="/StepUpLogo_White.png"
           alt="StepUp Intern"
@@ -40,6 +38,7 @@ export default function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
           height={32}
           priority
         />
+        </Link>
         </div>
 
         {/* Navigation */}
@@ -73,7 +72,7 @@ export default function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
         <div className="flex items-center gap-6">
 
           <button
-            onClick={onLoginClick}
+            onClick={()=> router.push("/login")}
             className="
               px-5
               py-2
@@ -88,7 +87,7 @@ export default function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
             Log In
           </button>
           <button
-            onClick={onSignupClick}
+            onClick={()=> router.push("/signup")}
             className="
               px-5
               py-2

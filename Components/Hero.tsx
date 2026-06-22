@@ -23,7 +23,7 @@ import {
   floatingIcon,
   floatingTitle,
   floatingSubtitle,
-} from "../../constants/home";
+} from "./constants/home";
 
 export default function Hero() {
   return (
