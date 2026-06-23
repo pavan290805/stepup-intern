@@ -7,6 +7,8 @@ type InternshipListingCardProps = {
   onFeature: (id: string) => void;
   onClose: (id: string) => void;
   onReopen: (id: string) => void;
+  onDelete: (id: string) => void;
+  onViewApplicants: (internship: Internship) => void;
 };
 
 export default function InternshipListingCard({
@@ -16,6 +18,7 @@ export default function InternshipListingCard({
   onFeature,
   onClose,
   onReopen,
+  onViewApplicants,
 }: InternshipListingCardProps) {
   return (
     <article className="rounded-2xl border border-slate-200 bg-[#FBFDFF] p-5">
@@ -43,6 +46,13 @@ export default function InternshipListingCard({
         </div>
 
         <div className="flex flex-wrap gap-2 lg:justify-end">
+          <button
+            type="button"
+            onClick={() => onViewApplicants(internship)}
+            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-purple-300 hover:text-purple-600 hover:bg-purple-50"
+          >
+            View Applicants
+          </button>
           <button
             type="button"
             onClick={() => onEdit(internship)}
@@ -74,6 +84,13 @@ export default function InternshipListingCard({
               Close
             </button>
           )}
+          <button
+            type="button"
+            onClick={() => onDelete(internship.id)}
+            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-red-300 hover:text-red-600"
+          >
+            Delete
+          </button>
         </div>
       </div>
     </article>

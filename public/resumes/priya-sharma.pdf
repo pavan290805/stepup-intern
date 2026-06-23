@@ -1,0 +1,111 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 850 >>
+stream
+BT
+/F1 24 Tf
+50 750 Td
+(Priya Sharma) Tj
+ET
+BT
+/F1 12 Tf
+50 720 Td
+(Frontend Developer | UI/UX Enthusiast) Tj
+ET
+BT
+/F1 10 Tf
+50 700 Td
+(Email: priya@gmail.com | Phone: +91 97654 32109 | Location: Mumbai, India) Tj
+ET
+BT
+/F1 14 Tf
+50 670 Td
+(PROFESSIONAL SUMMARY) Tj
+ET
+BT
+/F1 10 Tf
+50 650 Td
+(Creative frontend developer with expertise in building responsive web applications.) Tj
+ET
+BT
+/F1 10 Tf
+50 635 Td
+(Strong understanding of UI/UX principles and modern web technologies.) Tj
+ET
+BT
+/F1 10 Tf
+50 620 Td
+(Dedicated to writing clean, maintainable code and creating user-centric designs.) Tj
+ET
+BT
+/F1 14 Tf
+50 590 Td
+(TECHNICAL SKILLS) Tj
+ET
+BT
+/F1 10 Tf
+50 570 Td
+(Frontend: React, Vue.js, Next.js, HTML5, CSS3, Tailwind CSS, Material-UI) Tj
+ET
+BT
+/F1 10 Tf
+50 555 Td
+(Languages: JavaScript, TypeScript, HTML5, CSS3) Tj
+ET
+BT
+/F1 10 Tf
+50 540 Td
+(Tools: Figma, Adobe XD, Git, VS Code) Tj
+ET
+BT
+/F1 14 Tf
+50 510 Td
+(EDUCATION) Tj
+ET
+BT
+/F1 10 Tf
+50 490 Td
+(B.Tech in Information Technology - Mumbai University (2024)) Js
+ET
+BT
+/F1 10 Tf
+50 475 Td
+(CGPA: 3.9/4.0) Tj
+ET
+BT
+/F1 14 Tf
+50 445 Td
+(PROJECTS) Tj
+ET
+BT
+/F1 10 Tf
+50 425 Td
+(E-Commerce Platform - Built responsive shopping application using React) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000214 00000 n 
+0000001117 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1196
+%%EOF

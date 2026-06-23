@@ -14,7 +14,6 @@ export type Internship = {
   deadline: string;
   description: string;
   status: InternshipStatus;
-  featured: boolean;
   createdAt: string;
 };
 
@@ -52,6 +51,23 @@ const createId = () => {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
 
+// Sample internships for demo
+const sampleInternships: Internship[] = [
+  {
+    id: createId(),
+    title: "Frontend Developer",
+    department: "Computer Science Engg",
+    location: "Remote",
+    type: "Hybrid",
+    stipend: "₹15,000 - ₹20,000",
+    deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    description: "We are looking for a talented Frontend Developer to join our team. You will work on building responsive and dynamic web applications using modern JavaScript frameworks.",
+    status: "Active",
+    featured: true,
+    createdAt: new Date().toISOString(),
+  },
+];
+
 const readStoredInternships = (): Internship[] => {
   if (typeof window === "undefined") {
     return cachedInternships;
@@ -59,12 +75,26 @@ const readStoredInternships = (): Internship[] => {
 
   const rawValue = window.localStorage.getItem(STORAGE_KEY);
   if (!rawValue) {
-    return [];
+    // Initialize with sample data on first load
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sampleInternships));
+    return sampleInternships;
   }
 
   try {
     const parsedValue = JSON.parse(rawValue) as Internship[];
-    return Array.isArray(parsedValue) ? parsedValue : [];
+    const storedInternships = Array.isArray(parsedValue) ? parsedValue : [];
+
+    const filteredInternships = storedInternships.filter(
+      (internship) =>
+        internship.title.trim().toLowerCase() !== "hey" ||
+        internship.description.trim().toLowerCase() !== "just do it",
+    );
+
+    if (filteredInternships.length !== storedInternships.length) {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredInternships));
+    }
+
+    return filteredInternships;
   } catch {
     return [];
   }
@@ -102,24 +132,24 @@ const getSnapshot = () => {
   return cachedInternships;
 };
 
-const getServerSnapshot = () => [] as Internship[];
+const SERVER_SNAPSHOT: Internship[] = [];
+const getServerSnapshot = () => SERVER_SNAPSHOT;
 
 export const useRecruiterInternships = () => {
   const internships = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const stats = useMemo(() => {
     const total = internships.length;
-    const active = internships.filter((internship) => internship.status === "Active" || internship.status === "Promoted").length;
-    const featured = internships.filter((internship) => internship.featured).length;
+    const active = internships.filter((internship) => internship.status === "Active").length;
     const closed = internships.filter((internship) => internship.status === "Closed").length;
 
     return [
       { label: "Total Listings", value: total },
       { label: "Active Listings", value: active },
-      { label: "Featured Listings", value: featured },
       { label: "Closed Listings", value: closed },
     ];
   }, [internships]);
+
 
   const createListing = (form: InternshipFormState) => {
     const currentInternships = getSnapshot();
@@ -133,8 +163,7 @@ export const useRecruiterInternships = () => {
       deadline: form.deadline,
       description: form.description.trim(),
       status: "Draft",
-      featured: false,
-      createdAt: new Date().toISOString(),
+
     };
 
     writeStoredInternships([newListing, ...currentInternships]);
@@ -207,6 +236,10 @@ export const useRecruiterInternships = () => {
     );
   };
 
+  const removeListing = (id: string) => {
+    writeStoredInternships(getSnapshot().filter((internship) => internship.id !== id));
+  };
+
   const clearListings = () => {
     writeStoredInternships([]);
   };
@@ -220,6 +253,7 @@ export const useRecruiterInternships = () => {
     promoteListing,
     closeListing,
     reopenListing,
+    removeListing,
     clearListings,
   };
 };

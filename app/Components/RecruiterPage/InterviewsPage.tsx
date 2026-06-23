@@ -1,33 +1,77 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import RecruiterProfileCard from "./components/RecruiterProfileCard";
+import { useEffect, useMemo, useState } from "react";
 import Header from "./Header";
+import { useApplicants } from "./useApplicants";
+import { useRecruiterInternships } from "./useRecruiterInternships";
 
-type Invitation = {
+type InterviewCard = {
   id: string;
   company: string;
   role: string;
-  date?: string;
-  status: "Pending" | "Selected" | "Completed";
+  dateLabel: string;
+  status: "Scheduled" | "Completed" | "Cancelled";
 };
 
 export default function InterviewsPage() {
   const [link, setLink] = useState<string>("");
   const [savedLink, setSavedLink] = useState<string>("");
-  const [invitations, setInvitations] = useState<Invitation[]>([]);
   // start with no recent alerts for now
   const [alerts, setAlerts] = useState<Array<{ id: string; title: string; time: string; avatar?: string }>>([]);
+
+  const { interviews, applicants } = useApplicants();
+  const { internships } = useRecruiterInternships();
+
+  const activeInternships = useMemo(
+    () => internships.filter((item) => item.status === "Active" || item.status === "Promoted"),
+    [internships],
+  );
+
+  const activeInternshipIds = useMemo(
+    () => new Set(activeInternships.map((item) => item.id)),
+    [activeInternships],
+  );
+
+  const interviewCards = useMemo<InterviewCard[]>(() => {
+    return interviews
+      .filter((interview) => activeInternshipIds.has(interview.internshipId))
+      .map((interview) => {
+        const internship = internships.find((item) => item.id === interview.internshipId);
+        const applicant = applicants.find((item) => item.id === interview.applicantId);
+
+        return {
+          id: interview.id,
+          company: internship?.title ?? "Unknown role",
+          role: applicant?.name ?? internship?.title ?? "Candidate",
+          dateLabel: interview.date ? new Date(interview.date).toLocaleString() : "TBD",
+          status: interview.status,
+        };
+      });
+  }, [interviews, activeInternshipIds, internships, applicants]);
+
+  const currentWeekInterviewSummary = useMemo(() => {
+    const today = new Date();
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 7);
+
+    const weekInterviews = interviewCards.filter((card) => {
+      const date = new Date(card.dateLabel);
+      return !Number.isNaN(date.getTime()) && date >= weekStart && date < weekEnd;
+    });
+
+    return {
+      total: weekInterviews.length,
+      completed: weekInterviews.filter((card) => card.status === "Completed").length,
+      scheduled: weekInterviews.filter((card) => card.status === "Scheduled").length,
+    };
+  }, [interviewCards]);
 
   useEffect(() => {
     const stored = typeof window !== "undefined" ? localStorage.getItem("recruiter_calendly_link") : null;
     if (stored) setSavedLink(stored);
-
-    setInvitations([
-      { id: "1", company: "TechNova Solutions", role: "Frontend Intern", date: "2023-10-12T10:30", status: "Pending" },
-      { id: "2", company: "Creatix Studio", role: "UI/UX Design Intern", date: "2023-10-05T09:00", status: "Selected" },
-    ]);
   }, []);
 
   const saveLink = () => {
@@ -39,7 +83,7 @@ export default function InterviewsPage() {
     }
   };
 
-  const openScheduler = (invite: Invitation) => {
+  const openScheduler = (invite: { status: string }) => {
     const url = savedLink || link;
     if (!url) return;
     window.open(url.startsWith("http") ? url : `https://${url}`, "_blank");
@@ -49,20 +93,8 @@ export default function InterviewsPage() {
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
       <Header />
 
-      <main className="mx-auto grid max-w-[1400px] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_minmax(0,1fr)_320px] lg:px-8">
+      <main className="mx-auto grid max-w-[1600px] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_minmax(0,1fr)_320px] lg:px-10 xl:px-12">
         <aside className="space-y-6">
-          <RecruiterProfileCard
-            name="Elena Rodriguez"
-            role="Senior Tech Recruiter"
-            stats={[
-              { label: "Total Listings", value: 0 },
-              { label: "Active Listings", value: 0 },
-              { label: "Featured Listings", value: 0 },
-              { label: "Closed Listings", value: 0 },
-            ]}
-            onEditProfile={() => null}
-          />
-
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <h3 className="font-semibold text-slate-900">Recruiter Tips</h3>
             <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -117,29 +149,37 @@ export default function InterviewsPage() {
             <p className="mt-1 text-sm text-slate-600">Manage and schedule candidate meetings.</p>
 
             <div className="mt-6 space-y-4">
-              {invitations.map((inv) => (
-                <div key={inv.id} className="flex items-center justify-between rounded-xl border border-slate-100 p-4">
-                  <div>
-                    <p className="font-semibold text-slate-900">{inv.company}</p>
-                    <p className="text-sm text-slate-600">{inv.role}</p>
-                    <p className="mt-1 text-xs text-slate-500">{inv.date ? new Date(inv.date).toLocaleString() : "TBD"}</p>
-                  </div>
+              {interviewCards.length > 0 ? (
+                interviewCards.map((card) => (
+                  <div key={card.id} className="flex items-center justify-between rounded-xl border border-slate-100 p-4">
+                    <div>
+                      <p className="font-semibold text-slate-900">{card.company}</p>
+                      <p className="text-sm text-slate-600">{card.role}</p>
+                      <p className="mt-1 text-xs text-slate-500">{card.dateLabel}</p>
+                    </div>
 
-                  <div className="flex items-center gap-3">
-                    {inv.status === "Pending" ? (
-                      <button
-                        onClick={() => openScheduler(inv)}
-                        className="rounded-xl bg-[#0B5CC4] px-4 py-2 text-sm font-semibold text-white"
-                      >
-                        Schedule Interview
-                      </button>
-                    ) : (
-                      <button className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700">View Feedback</button>
-                    )}
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">{inv.status}</span>
+                    <div className="flex items-center gap-3">
+                      {card.status === "Scheduled" ? (
+                        <button
+                          onClick={() => openScheduler(card)}
+                          className="rounded-xl bg-[#0B5CC4] px-4 py-2 text-sm font-semibold text-white"
+                        >
+                          Schedule Interview
+                        </button>
+                      ) : (
+                        <button className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700">
+                          View Feedback
+                        </button>
+                      )}
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">{card.status}</span>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="rounder-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+                  No scheduled interviews found for active internships.
                 </div>
-              ))}
+              )}
             </div>
           </section>
         </section>
@@ -187,8 +227,16 @@ export default function InterviewsPage() {
 
           <section className="rounded-2xl bg-gradient-to-br from-[#0A67C6] to-[#0880EF] p-6 text-white shadow-lg shadow-blue-200">
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-white/80">Hiring Progress</p>
-            <h3 className="mt-3 text-2xl font-semibold">84%</h3>
-            <p className="mt-2 text-sm text-white/85">You have completed 12 out of 15 interviews scheduled for this week.</p>
+            <h3 className="mt-3 text-2xl font-semibold">
+              {currentWeekInterviewSummary.total > 0
+                ? `${Math.round((currentWeekInterviewSummary.completed / currentWeekInterviewSummary.total) * 100)}%`
+                : "0%"}
+            </h3>
+            <p className="mt-2 text-sm text-white/85">
+              {currentWeekInterviewSummary.total > 0
+                ? `You have completed ${currentWeekInterviewSummary.completed} out of ${currentWeekInterviewSummary.total} interviews scheduled for this week.`
+                : "No interviews scheduled for this week."}
+            </p>
           </section>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

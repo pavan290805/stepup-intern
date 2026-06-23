@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   Internship,
   InternshipFormState,
   useRecruiterInternships,
 } from "./useRecruiterInternships";
+import { useRecruiterProfile } from "./useRecruiterProfile";
+import { useApplicants } from "./useApplicants";
 import EmptyListingsState from "./components/EmptyListingsState";
 import InternshipListingCard from "./components/InternshipListingCard";
-import RecruiterProfileCard from "./components/RecruiterProfileCard";
 import RecruiterStatsGrid from "./components/RecruiterStatsGrid";
 import Header from "./Header";
+import InternshipApplicantsPage from "./components/InternshipApplicantsPage";
 
 const internshipTypes: Internship["type"][] = ["Full-time", "Part-time", "Remote", "Hybrid"];
 
@@ -35,18 +37,31 @@ const formatDate = (value: string) => {
 export default function RecruiterPage() {
   const {
     internships,
-    stats,
     emptyForm,
     createListing,
     updateListing,
     promoteListing,
     closeListing,
     reopenListing,
+    removeListing,
   } = useRecruiterInternships();
+  const { profile } = useRecruiterProfile();
+  const { applicants } = useApplicants();
   const [form, setForm] = useState<InternshipFormState>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [viewingApplicants, setViewingApplicants] = useState(false);
+  const [selectedInternship, setSelectedInternship] = useState<Internship | null>(null);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const open = window.localStorage.getItem("open_manage_internships");
+      if (open === "true") {
+        setShowCreateForm(true);
+        window.localStorage.removeItem("open_manage_internships");
+      }
+    }
+  }, []);
   const [errors, setErrors] = useState<Record<keyof InternshipFormState, string>>({
     title: "",
     department: "",
@@ -108,6 +123,26 @@ export default function RecruiterPage() {
     setShowCreateForm(false);
     setSearch("");
   };
+
+  const dashboardStats = useMemo(() => {
+    const totalListings = internships.length;
+    const activeInternships = internships.filter(
+      (listing) => listing.status === "Active" || listing.status === "Promoted",
+    );
+    const activeListings = activeInternships.length;
+    
+    // Count applicants for active internships
+    const activeInternshipIds = new Set(activeInternships.map((i) => i.id));
+    const studentsApplied = applicants.filter((applicant: any) =>
+      activeInternshipIds.has(applicant.internshipId),
+    ).length;
+
+    return [
+      { label: "Total Listings", value: totalListings },
+      { label: "Active Listings", value: activeListings },
+      { label: "Students Applied", value: studentsApplied },
+    ];
+  }, [internships, applicants]);
 
   const validateForm = () => {
     const nextErrors: Record<keyof InternshipFormState, string> = {
@@ -176,27 +211,28 @@ export default function RecruiterPage() {
     setShowCreateForm(true);
   };
 
+  const handleViewApplicants = (internship: Internship) => {
+    setSelectedInternship(internship);
+    setViewingApplicants(true);
+  };
+
+  const handleBackFromApplicants = () => {
+    setViewingApplicants(false);
+    setSelectedInternship(null);
+  };
+
   return (
-    <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
+    <>
+      {viewingApplicants && selectedInternship ? (
+        <InternshipApplicantsPage
+          internship={selectedInternship}
+          onBack={handleBackFromApplicants}
+        />
+      ) : (
+        <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
       <Header onCreate={openCreateForm} />
 
-      <main className="mx-auto grid max-w-[1400px] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[280px_minmax(0,1fr)_280px] lg:px-8">
-        <aside className="space-y-6">
-          <RecruiterProfileCard
-            name="Elena Rodriguez"
-            role="Senior Tech Recruiter"
-            stats={stats}
-            onEditProfile={() => null}
-          />
-
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h3 className="font-semibold text-slate-900">Recruiter Tips</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              Create a listing when you have the role details ready, then use the edit and feature controls to keep it current.
-            </p>
-          </section>
-        </aside>
-
+      <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-6 sm:px-6 lg:px-10 xl:px-12">
         <section className="space-y-6">
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
@@ -219,7 +255,7 @@ export default function RecruiterPage() {
               </button>
             </div>
 
-            <RecruiterStatsGrid stats={stats} />
+            <RecruiterStatsGrid stats={dashboardStats} />
           </div>
 
           {showCreateForm && (
@@ -346,18 +382,20 @@ export default function RecruiterPage() {
           )}
 
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="flex items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-sm font-medium text-slate-500">Internship Listings</p>
                 <h3 className="mt-1 text-xl font-semibold text-slate-900">Your postings appear here</h3>
               </div>
-              <button
-                type="button"
-                className="text-sm font-medium text-[#0B5CC4]"
-                onClick={() => setSearch("")}
-              >
-                Clear search
-              </button>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  className="text-sm font-medium text-[#0B5CC4]"
+                  onClick={() => setSearch("")}
+                >
+                  Clear search
+                </button>
+              </div>
             </div>
 
             <div className="mt-6 space-y-4">
@@ -373,46 +411,21 @@ export default function RecruiterPage() {
                     onFeature={promoteListing}
                     onClose={closeListing}
                     onReopen={reopenListing}
+                    onViewApplicants={handleViewApplicants}
+                    onDelete={(id) => {
+                      if (window.confirm("Remove this internship listing?")) {
+                        removeListing(id);
+                      }
+                    }}
                   />
                 ))
               )}
             </div>
           </section>
         </section>
-
-        <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-          <section className="rounded-2xl bg-gradient-to-br from-[#0A67C6] to-[#0880EF] p-6 text-white shadow-lg shadow-blue-200">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-white/80">
-              Live Status
-            </p>
-            <h3 className="mt-3 text-2xl font-semibold">
-              {internships.length === 0 ? "No active listings" : `${internships.filter((internship) => internship.status !== "Closed").length} live listings`}
-            </h3>
-            <div className="mt-5 rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur">
-              <p className="text-sm text-white/75">Drafts in progress</p>
-              <p className="mt-1 text-2xl font-semibold">{internships.filter((internship) => internship.status === "Draft").length}</p>
-            </div>
-
-            <button
-              type="button"
-              className="mt-6 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-[#0B5CC4] transition hover:bg-[#F3F8FF]"
-              onClick={resetForm}
-            >
-              Start New Draft
-            </button>
-          </section>
-
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h3 className="text-lg font-semibold text-slate-900">Recruiter Workflow</h3>
-            <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-              <li>Create a listing with the form and it appears in your dashboard.</li>
-              <li>Edit any listing to update the posting before or after publishing.</li>
-              <li>Close a listing when the role is filled or no longer accepting applications.</li>
-              <li>Toggle Feature to promote priority internships.</li>
-            </ul>
-          </section>
-        </aside>
       </main>
-    </div>
+        </div>
+      )}
+    </>
   );
 }

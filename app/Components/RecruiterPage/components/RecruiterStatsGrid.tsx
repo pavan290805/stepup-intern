@@ -6,7 +6,7 @@ type RecruiterStatsGridProps = {
 export default function RecruiterStatsGrid({ stats, compact = false }: RecruiterStatsGridProps) {
   const gridClassName = compact
     ? "mt-4 grid grid-cols-2 gap-3"
-    : "mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4";
+    : "mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3";
 
   const cardClassName = compact
     ? "rounded-2xl border border-slate-200 bg-[#FBFDFF] px-3 py-3 text-center"

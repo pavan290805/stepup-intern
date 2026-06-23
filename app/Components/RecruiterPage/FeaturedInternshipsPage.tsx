@@ -110,7 +110,7 @@ export default function FeaturedInternshipsPage() {
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
       <Header />
 
-      <main className="mx-auto max-w-[1400px] space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-6 sm:px-6 lg:px-10 xl:px-12">
         <section className="grid gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm lg:grid-cols-[1.4fr_1fr]">
           <div>
             <p className="text-sm font-medium text-slate-500">Promotion Command Center</p>

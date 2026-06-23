@@ -5,26 +5,22 @@ import { useSearchParams } from "next/navigation";
 import RecruiterPage from "./Components/RecruiterPage/RecruiterPage";
 import InterviewsPage from "./Components/RecruiterPage/InterviewsPage";
 import CloseInternshipsPage from "./Components/RecruiterPage/CloseInternshipsPage";
-import EditInternshipsPage from "./Components/RecruiterPage/EditInternshipsPage";
 import FeaturedInternshipsPage from "./Components/RecruiterPage/FeaturedInternshipsPage";
+import ProfilePage from "./Components/RecruiterPage/ProfilePage";
 
-const validRoutes = new Set(["edit-internships", "close-internships", "featured-internships", "interviews"]);
+const validRoutes = new Set(["close-internships", "featured-internships", "interviews", "profile"]);
 
 export default function Home() {
   const searchParams = useSearchParams();
   const page = searchParams?.get("page") ?? "";
 
   const selectedPage = useMemo(() => {
-    if (!page || !validRoutes.has(page)) {
+    if (!page || page === "edit-internships" || !validRoutes.has(page)) {
       return "dashboard";
     }
 
     return page;
   }, [page]);
-
-  if (selectedPage === "edit-internships") {
-    return <EditInternshipsPage />;
-  }
 
   if (selectedPage === "close-internships") {
     return <CloseInternshipsPage />;
@@ -36,6 +32,10 @@ export default function Home() {
 
   if (selectedPage === "featured-internships") {
     return <FeaturedInternshipsPage />;
+  }
+
+  if (selectedPage === "profile") {
+    return <ProfilePage />;
   }
 
   return <RecruiterPage />;
