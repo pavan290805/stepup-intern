@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Applicant } from "../useApplicants";
+import type { Applicant } from "../hooks/useApplicants";
 
 type ApplicantCardProps = {
   applicant: Applicant;

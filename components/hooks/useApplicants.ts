@@ -311,9 +311,9 @@ export const useApplicants = () => {
 
   const scheduleInterview = (applicantId: string, internshipId: string, date: string, time: string) => {
     const currentApplicants = getApplicantsSnapshot();
-    const updated = currentApplicants.map((applicant) =>
+    const updated: Applicant[] = currentApplicants.map((applicant) =>
       applicant.id === applicantId
-        ? { ...applicant, status: "Scheduled", scheduledInterviewDate: `${date}T${time}` }
+        ? { ...applicant, status: "Scheduled" as const, scheduledInterviewDate: `${date}T${time}` }
         : applicant,
     );
     writeStoredApplicants(updated);

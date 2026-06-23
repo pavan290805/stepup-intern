@@ -6,6 +6,7 @@ type RecruiterProfileCardProps = {
   location?: string;
   stats: Array<{ label: string; value: number }>;
   onEditProfile: () => void;
+  onChangePicture?: () => void;
 };
 
 export default function RecruiterProfileCard({
@@ -16,7 +17,15 @@ export default function RecruiterProfileCard({
   location,
   stats,
   onEditProfile,
+  onChangePicture,
 }: RecruiterProfileCardProps) {
+  const initials = name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
     <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="h-18 bg-gradient-to-r from-[#E8F2FF] to-white" />
@@ -29,17 +38,24 @@ export default function RecruiterProfileCard({
         ✎
       </button>
       <div className="px-5 pb-5 text-center">
-        <div className="mx-auto -mt-10 grid h-20 w-20 place-items-center overflow-hidden rounded-2xl border-4 border-white bg-[linear-gradient(135deg,#dceafe,#8bc0ff)] text-lg font-bold text-[#0B5CC4] shadow-md">
+        <div className="group relative mx-auto -mt-10 h-20 w-20 overflow-hidden rounded-2xl border-4 border-white bg-[linear-gradient(135deg,#dceafe,#8bc0ff)] text-lg font-bold text-[#0B5CC4] shadow-md">
           {picture ? (
             <img src={picture} alt={name} className="h-full w-full object-cover" />
           ) : (
-            <span>{name
-              .split(" ")
-              .map((part) => part[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase()}</span>
+            <span className="flex h-full w-full items-center justify-center">{initials}</span>
           )}
+          {onChangePicture ? (
+            <button
+              type="button"
+              onClick={onChangePicture}
+              className="absolute inset-0 flex items-center justify-center bg-slate-950/0 text-white opacity-0 transition hover:bg-slate-950/40 group-hover:opacity-100"
+              aria-label="Change profile photo"
+            >
+              <span className="rounded-full bg-slate-950/70 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em]">
+                Edit
+              </span>
+            </button>
+          ) : null}
         </div>
         <h2 className="mt-4 text-lg font-semibold">{name}</h2>
         <p className="text-sm text-slate-500">{role}</p>

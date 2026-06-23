@@ -6,14 +6,14 @@ import {
   Internship,
   InternshipFormState,
   useRecruiterInternships,
-} from "./useRecruiterInternships";
-import { useRecruiterProfile } from "./useRecruiterProfile";
-import { useApplicants } from "./useApplicants";
-import EmptyListingsState from "./components/EmptyListingsState";
-import InternshipListingCard from "./components/InternshipListingCard";
-import RecruiterStatsGrid from "./components/RecruiterStatsGrid";
-import Header from "./Header";
-import InternshipApplicantsPage from "./components/InternshipApplicantsPage";
+} from "../hooks/useRecruiterInternships";
+import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
+import { useApplicants } from "../hooks/useApplicants";
+import EmptyListingsState from "../internships/EmptyListingsState";
+import InternshipListingCard from "../internships/InternshipListingCard";
+import RecruiterStatsGrid from "./RecruiterStatsGrid";
+import Header from "../layout/Header";
+import InternshipApplicantsPage from "../internships/InternshipApplicants";
 
 const internshipTypes: Internship["type"][] = ["Full-time", "Part-time", "Remote", "Hybrid"];
 

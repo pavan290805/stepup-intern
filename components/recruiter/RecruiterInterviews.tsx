@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Header from "./Header";
-import { useApplicants } from "./useApplicants";
-import { useRecruiterInternships } from "./useRecruiterInternships";
+import Header from "../layout/Header";
+import { useApplicants } from "../hooks/useApplicants";
+import { useRecruiterInternships } from "../hooks/useRecruiterInternships";
 
 type InterviewCard = {
   id: string;

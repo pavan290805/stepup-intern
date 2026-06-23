@@ -1,4 +1,4 @@
-import Header from "../Components/RecruiterPage/Header";
+import Header from "../../components/layout/Header";
 
 export default function AboutPage() {
   return (

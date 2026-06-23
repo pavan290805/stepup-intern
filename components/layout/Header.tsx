@@ -3,36 +3,37 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { usePathname, useSearchParams } from "next/navigation";
-import { useRecruiterProfile } from "./useRecruiterProfile";
+import { usePathname } from "next/navigation";
+import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
 
 type HeaderProps = {
   onCreate?: () => void;
 };
 
 export default function Header({ onCreate }: HeaderProps) {
-  const searchParams = useSearchParams();
   const pathname = usePathname() ?? "/";
-  const page = searchParams?.get("page") ?? "";
 
   const navItems = [
     { key: "home", label: "Home", href: "/" },
     { key: "about", label: "About Us", href: "/about" },
-    { key: "internships", label: "Internships", href: "/?page=edit-internships" },
+    { key: "internships", label: "Internships", href: "/internships" },
+    { key: "interviews", label: "Interviews", href: "/interviews" },
     { key: "contact", label: "Contact Us", href: "/contact" },
-    { key: "profile", label: "Profile", href: "/?page=profile" },
+    { key: "profile", label: "Profile", href: "/profile" },
   ];
 
   // Mobile-only menu (hamburger) — intentionally separate from desktop nav
   const mobileNav = [
-    { key: "internships", label: "Internships", href: "/?page=edit-internships" },
-    { key: "interviews", label: "Interviews", href: "/?page=interviews" },
-    { key: "profile", label: "Profile", href: "/?page=profile" },
+    { key: "internships", label: "Internships", href: "/internships" },
+    { key: "interviews", label: "Interviews", href: "/interviews" },
+    { key: "about", label: "About Us", href: "/about" },
+    { key: "contact", label: "Contact Us", href: "/contact" },
+    { key: "profile", label: "Profile", href: "/profile" },
   ];
 
   const isActiveNavItem = (key: string) => {
     if (key === "home") {
-      return pathname === "/" && !page;
+      return pathname === "/";
     }
 
     if (key === "about") {
@@ -44,11 +45,11 @@ export default function Header({ onCreate }: HeaderProps) {
     }
 
     if (key === "internships") {
-      return page?.includes("internships") ?? false;
+      return pathname.startsWith("/internships");
     }
 
     if (key === "profile") {
-      return page === "profile";
+      return pathname === "/profile";
     }
 
     return false;
@@ -60,9 +61,9 @@ export default function Header({ onCreate }: HeaderProps) {
   const [navOpen, setNavOpen] = useState(false);
 
   const baseItem = "inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition";
-  const activeClass = (p: string) =>
+  const activeClass = (key: string) =>
     baseItem +
-    (p === page || (p === "dashboard" && !page)
+    (isActiveNavItem(key)
       ? " bg-[#E8F2FF] text-[#0B5CC4] shadow-sm"
       : " text-slate-600 hover:bg-slate-100 hover:text-slate-900");
 

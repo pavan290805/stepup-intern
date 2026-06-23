@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 
 export type RecruiterProfile = {
   name: string;
@@ -126,8 +126,6 @@ const refreshProfile = () => {
 };
 
 if (typeof window !== "undefined") {
-  currentProfile = readStoredProfile();
-
   window.addEventListener("storage", (event: StorageEvent) => {
     if (event.key === STORAGE_KEY) {
       refreshProfile();
@@ -150,6 +148,10 @@ export const useRecruiterProfile = () => {
     () => currentProfile,
     () => currentProfile,
   );
+
+  useEffect(() => {
+    refreshProfile();
+  }, []);
 
   return { profile, updateProfile };
 };

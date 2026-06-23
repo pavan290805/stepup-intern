@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { Internship } from "../useRecruiterInternships";
-import { useApplicants } from "../useApplicants";
+import type { Internship } from "../hooks/useRecruiterInternships";
+import { useApplicants } from "../hooks/useApplicants";
 import ApplicantCard from "./ApplicantCard";
 import ScheduleInterviewModal from "./ScheduleInterviewModal";
 import SendEmailModal from "./SendEmailModal";

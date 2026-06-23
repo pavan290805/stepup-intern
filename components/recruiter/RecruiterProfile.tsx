@@ -1,11 +1,11 @@
 "use client";
 
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
-import Header from "./Header";
-import { useRecruiterProfile } from "./useRecruiterProfile";
-import { useRecruiterInternships } from "./useRecruiterInternships";
-import { useApplicants } from "./useApplicants";
-import RecruiterProfileCard from "./components/RecruiterProfileCard";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import Header from "../layout/Header";
+import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
+import { useRecruiterInternships } from "../hooks/useRecruiterInternships";
+import { useApplicants } from "../hooks/useApplicants";
+import RecruiterProfileCard from "./RecruiterProfileCard";
 
 export type ProfileFormState = {
   name: string;
@@ -36,6 +36,7 @@ export default function ProfilePage() {
   const { profile, updateProfile } = useRecruiterProfile();
   const { internships } = useRecruiterInternships();
   const { applicants } = useApplicants();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [form, setForm] = useState<ProfileFormState>({
     name: profile.name,
     picture: profile.picture,
@@ -130,6 +131,13 @@ export default function ProfilePage() {
   );
 
   const displayedProfile = profile;
+  const displayedPicture = picturePreview || profile.picture;
+  const initials = displayedProfile.name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   const updateField = <K extends keyof ProfileFormState>(key: K, value: ProfileFormState[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
@@ -197,9 +205,17 @@ export default function ProfilePage() {
 
       <main className="mx-auto grid w-full max-w-none gap-10 px-4 pt-6 pb-28 sm:px-6 lg:grid-cols-[420px_minmax(0,2.1fr)] lg:px-12 xl:px-16">
         <aside className="space-y-6">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handlePictureChange}
+            className="hidden"
+          />
+
           <RecruiterProfileCard
             name={displayedProfile.name}
-            picture={displayedProfile.picture}
+            picture={displayedPicture}
             role={displayedProfile.role}
             company={displayedProfile.company}
             location={displayedProfile.location}
@@ -208,6 +224,7 @@ export default function ProfilePage() {
               setPersonalEditing(true);
               setCompanyEditing(false);
             }}
+            onChangePicture={() => fileInputRef.current?.click()}
           />
 
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">

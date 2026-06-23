@@ -6,10 +6,10 @@ import {
   Internship,
   InternshipFormState,
   useRecruiterInternships,
-} from "./useRecruiterInternships";
-import EmptyListingsState from "./components/EmptyListingsState";
-import InternshipListingCard from "./components/InternshipListingCard";
-import RecruiterStatsGrid from "./components/RecruiterStatsGrid";
+} from "../hooks/useRecruiterInternships";
+import EmptyListingsState from "./EmptyListingsState";
+import InternshipListingCard from "./InternshipListingCard";
+import RecruiterStatsGrid from "../recruiter/RecruiterStatsGrid";
 
 const formatDate = (value: string) => {
   if (!value) {
@@ -64,7 +64,7 @@ const getPageCopy = (mode: InternshipsPageMode) => {
   };
 };
 
-import Header from "./Header";
+import Header from "../layout/Header";
 
 export default function EditInternshipsPage({ mode = "edit" }: EditInternshipsPageProps) {
   const {

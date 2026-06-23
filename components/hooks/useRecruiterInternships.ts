@@ -14,6 +14,7 @@ export type Internship = {
   deadline: string;
   description: string;
   status: InternshipStatus;
+  featured: boolean;
   createdAt: string;
 };
 
@@ -163,7 +164,8 @@ export const useRecruiterInternships = () => {
       deadline: form.deadline,
       description: form.description.trim(),
       status: "Draft",
-
+      featured: false,
+      createdAt: new Date().toISOString(),
     };
 
     writeStoredInternships([newListing, ...currentInternships]);
