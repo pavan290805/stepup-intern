@@ -1,182 +1,201 @@
-import Sidebar from "../../Components/Sidebar";
+
 import Navbar from "../../Components/Navbar";
 
 export default function RecruiterProfile() {
-  return (
-    <div className="flex">
-      <Sidebar />
+return (
+  <div className="min-h-screen bg-[#F8FAFC]">
+    <Navbar />
 
-      <div className="flex-1 bg-gray-100 min-h-screen">
-        <Navbar />
+    <div className="p-8">
 
-        <div className="p-8">
-          <h1 className="text-3xl font-bold mb-6">
-            Recruiter Profile
-          </h1>
+          <div className="bg-white border border-gray-200 rounded-xl p-8">
 
-          {/* Stats Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-gray-500">
-                Internships Posted
-              </h3>
+            {/* Profile Header */}
+<div className="bg-white border border-gray-200 rounded-xl p-6 mb-8">
 
-              <p className="text-3xl font-bold text-[#1E88E5]">
-                8
-              </p>
-            </div>
+  <div className="flex items-center gap-5">
 
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-gray-500">
-                Candidates Managed
-              </h3>
+    <div className="w-20 h-20 rounded-full bg-blue-600 text-white flex items-center justify-center text-2xl font-bold">
+      LK
+    </div>
 
-              <p className="text-3xl font-bold text-green-600">
-                120
-              </p>
-            </div>
+    <div>
+      <h1 className="text-3xl font-bold text-gray-900">
+        Lalith Kumar
+      </h1>
 
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-gray-500">
-                Interviews Scheduled
-              </h3>
+      <p className="text-gray-500">
+        Recruiter
+      </p>
 
-              <p className="text-3xl font-bold text-purple-600">
-                15
-              </p>
-            </div>
-          </div>
+      <p className="text-gray-500">
+        StepUp Intern
+      </p>
+    </div>
 
-          <div className="bg-white rounded-2xl shadow p-8">
-            <div className="flex items-center gap-6 mb-8">
-              <div className="w-24 h-24 rounded-full bg-[#1E88E5] text-white flex items-center justify-center text-4xl font-bold">
-                L
-              </div>
+  </div>
+
+</div>
+            {/* Recruiter Information */}
+            <h2 className="text-2xl font-bold mb-5">
+              Personal Information
+            </h2>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-10">
 
               <div>
-                <h2 className="text-2xl font-bold">
-                  Lalith Kumar
-                </h2>
-
-                <p className="text-gray-500">
-                  Recruiter
-                </p>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-
-              <div>
-                <label className="block text-gray-500 mb-1">
-                  Company Name
-                </label>
-
-                <p className="font-semibold">
-                  StepUp Intern
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-gray-500 mb-1">
+                <label className="text-gray-500">
                   Email
                 </label>
 
-                <p className="font-semibold">
+                <p className="font-medium text-gray-900">
                   lalith@example.com
                 </p>
               </div>
 
               <div>
-                <label className="block text-gray-500 mb-1">
+                <label className="text-gray-500">
                   Phone
                 </label>
 
-                <p className="font-semibold">
+                <p className="font-medium text-gray-900">
                   +91 9876543210
                 </p>
               </div>
 
               <div>
-                <label className="block text-gray-500 mb-1">
+                <label className="text-gray-500">
                   Location
                 </label>
 
-                <p className="font-semibold">
+                <p className="font-medium text-gray-900">
                   Hyderabad, India
                 </p>
               </div>
 
               <div>
-                <label className="block text-gray-500 mb-1">
+                <label className="text-gray-500">
                   Joined Date
                 </label>
 
-                <p className="font-semibold">
+                <p className="font-medium text-gray-900">
                   June 2025
                 </p>
               </div>
 
+            </div>
+
+            {/* Company Information */}
+            <h2 className="text-2xl font-bold mb-5">
+              Company Information
+            </h2>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-10">
+
               <div>
-                <label className="block text-gray-500 mb-1">
-                  Internships Posted
+                <label className="text-gray-500">
+                  Company Name
                 </label>
 
-                <p className="font-semibold">
-                  8
+                <p className="font-medium text-gray-900">
+                  StepUp Intern
                 </p>
               </div>
 
               <div>
-                <label className="block text-gray-500 mb-1">
-                  Candidates Managed
+                <label className="text-gray-500">
+                  Website
                 </label>
 
-                <p className="font-semibold">
-                  120
+                <p className="font-medium text-gray-900">
+                  www.stepupintern.com
                 </p>
               </div>
 
               <div>
-                <label className="block text-gray-500 mb-1">
-                  Interviews Scheduled
+                <label className="text-gray-500">
+                  Industry
                 </label>
 
-                <p className="font-semibold">
-                  15
+                <p className="font-medium text-gray-900">
+                  Internship & Recruitment
+                </p>
+              </div>
+
+              <div>
+                <label className="text-gray-500">
+                  Company Size
+                </label>
+
+                <p className="font-medium text-gray-900">
+                  50+ Employees
                 </p>
               </div>
 
             </div>
 
-            <div className="mt-8">
-              <label className="block text-gray-500 mb-2">
-                About Company
-              </label>
+            <div className="grid md:grid-cols-3 gap-5 mb-10">
 
-              <p className="text-gray-700">
-                StepUp Intern helps students connect
-                with recruiters and discover internship
-                opportunities through a modern platform.
-                Our goal is to simplify internship hiring
-                and provide opportunities for students
-                across different domains.
-              </p>
-            </div>
+  <div className="bg-white border border-gray-200 rounded-xl p-5">
+    <p className="text-sm text-gray-500">
+      Internships Posted
+    </p>
 
-            <div className="flex gap-4 mt-8">
+    <h3 className="text-3xl font-bold mt-2">
+      8
+    </h3>
+  </div>
 
-              <button className="bg-[#1E88E5] text-white px-6 py-3 rounded-xl hover:bg-blue-700">
-                Edit Profile
-              </button>
+  <div className="bg-white border border-gray-200 rounded-xl p-5">
+    <p className="text-sm text-gray-500">
+      Applicants Managed
+    </p>
 
-              <button className="bg-gray-700 text-white px-6 py-3 rounded-xl hover:bg-black">
-                Change Password
-              </button>
+    <h3 className="text-3xl font-bold mt-2">
+      120
+    </h3>
+  </div>
 
-            </div>
+  <div className="bg-white border border-gray-200 rounded-xl p-5">
+    <p className="text-sm text-gray-500">
+      Interviews Conducted
+    </p>
+
+    <h3 className="text-3xl font-bold mt-2">
+      35
+    </h3>
+  </div>
+
+</div>
+
+            {/* About Company */}
+            <h2 className="text-2xl font-bold mb-4">
+              About Company
+            </h2>
+
+            <p className="text-gray-600 leading-7">
+              StepUp Intern helps students connect with
+              recruiters and discover internship opportunities
+              through a modern recruitment platform. Recruiters
+              can post internships, manage applicants, schedule
+              interviews and track hiring analytics in one place.
+            </p>
+
+           <div className="mt-8 flex gap-3">
+
+  <button className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">
+    Edit Profile
+  </button>
+
+  <button className="border border-gray-300 px-5 py-2 rounded-lg hover:bg-gray-50">
+    Download Profile
+  </button>
+
+</div>
+
           </div>
+
         </div>
       </div>
-    </div>
   );
 }

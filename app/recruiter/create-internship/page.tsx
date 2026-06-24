@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "../../Components/Sidebar";
 import Navbar from "../../Components/Navbar";
 
 export default function CreateInternship() {
@@ -41,16 +40,21 @@ const handleCreateInternship = () => {
 };
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
+  <div className="min-h-screen bg-[#F8FAFC]">
+    <Navbar />
 
-      <div className="flex-1 bg-gray-100">
-        <Navbar />
+    <div className="p-8">
 
         <div className="p-8">
-          <h1 className="text-3xl font-bold mb-6">
-            Create Internship
-          </h1>
+<div className="mb-8">
+  <h2 className="text-xl font-semibold text-gray-900">
+    Create Internship
+  </h2>
+
+  <p className="text-sm text-gray-500">
+    Publish a new internship opportunity for students.
+  </p>
+</div>
 
           <div className="bg-white rounded-2xl shadow p-8">
             <div className="grid md:grid-cols-2 gap-6">

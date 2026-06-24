@@ -1,70 +1,146 @@
-import Sidebar from "../../Components/Sidebar";
+
 import Navbar from "../../Components/Navbar";
 
 export default function AnalyticsPage() {
   return (
-    <div className="flex">
-      <Sidebar />
+  <div className="min-h-screen bg-[#F8FAFC]">
+    <Navbar />
 
-      <div className="flex-1 bg-gray-100 min-h-screen">
-        <Navbar />
+    <div className="p-8">
 
-        <div className="p-8">
-          <h1 className="text-3xl font-bold mb-6">
-            Recruitment Analytics
-          </h1>
+<div className="p-8">
 
-          {/* Stats Cards */}
-          <div className="grid md:grid-cols-5 gap-6 mb-8">
+  <div className="mb-8">
+    <h2 className="text-xl font-semibold text-gray-900">
+      Analytics Overview
+    </h2>
 
-            <div className="bg-white p-6 rounded-2xl shadow">
-              <h3 className="text-gray-500">
-                Total Applications
-              </h3>
-              <p className="text-3xl font-bold text-[#1E88E5]">
-                250
-              </p>
-            </div>
+    <p className="text-sm text-gray-500">
+      Monitor recruitment performance and hiring metrics.
+    </p>
+  </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow">
-              <h3 className="text-gray-500">
-                Shortlisted
-              </h3>
-              <p className="text-3xl font-bold text-green-600">
-                45
-              </p>
-            </div>
+  {/* Stats Cards */}
+  <div className="grid md:grid-cols-5 gap-5 mb-8">
 
-            <div className="bg-white p-6 rounded-2xl shadow">
-              <h3 className="text-gray-500">
-                Rejected
-              </h3>
-              <p className="text-3xl font-bold text-red-500">
-                80
-              </p>
-            </div>
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <p className="text-sm text-gray-500">
+        Applications
+      </p>
 
-            <div className="bg-white p-6 rounded-2xl shadow">
-              <h3 className="text-gray-500">
-                Interviews Scheduled
-              </h3>
-              <p className="text-3xl font-bold text-purple-600">
-                30
-              </p>
-            </div>
+      <h3 className="text-3xl font-bold mt-2 text-blue-600">
+        250
+      </h3>
+    </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow">
-              <h3 className="text-gray-500">
-                Hiring Rate
-              </h3>
-              <p className="text-3xl font-bold text-green-600">
-                32%
-              </p>
-            </div>
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <p className="text-sm text-gray-500">
+        Shortlisted
+      </p>
 
-          </div>
+      <h3 className="text-3xl font-bold mt-2 text-green-600">
+        45
+      </h3>
+    </div>
 
-          {/* Top Internships */}
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <p className="text-sm text-gray-500">
+        Rejected
+      </p>
+
+      <h3 className="text-3xl font-bold mt-2 text-red-500">
+        80
+      </h3>
+    </div>
+
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <p className="text-sm text-gray-500">
+        Interviews
+      </p>
+
+      <h3 className="text-3xl font-bold mt-2 text-blue-600">
+        30
+      </h3>
+    </div>
+
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
+      <p className="text-sm text-gray-500">
+        Hiring Rate
+      </p>
+
+      <h3 className="text-3xl font-bold mt-2 text-green-600">
+        32%
+      </h3>
+    </div>
+
+  </div>
+
+  {/* Recruitment Funnel */}
+  <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8">
+
+    <h2 className="text-lg font-semibold mb-6">
+      Recruitment Funnel
+    </h2>
+
+    <div className="flex items-center justify-between text-center">
+
+      <div>
+        <p className="text-3xl font-bold">
+          250
+        </p>
+
+        <p className="text-gray-500">
+          Applications
+        </p>
+      </div>
+
+      <span className="text-xl text-gray-400">
+        →
+      </span>
+
+      <div>
+        <p className="text-3xl font-bold text-green-600">
+          45
+        </p>
+
+        <p className="text-gray-500">
+          Shortlisted
+        </p>
+      </div>
+
+      <span className="text-xl text-gray-400">
+        →
+      </span>
+
+      <div>
+        <p className="text-3xl font-bold text-blue-600">
+          30
+        </p>
+
+        <p className="text-gray-500">
+          Interviews
+        </p>
+      </div>
+
+      <span className="text-xl text-gray-400">
+        →
+      </span>
+
+      <div>
+        <p className="text-3xl font-bold">
+          12
+        </p>
+
+        <p className="text-gray-500">
+          Hired
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+  {/* Top Internships */}
           <div className="bg-white rounded-2xl shadow p-6 mb-8">
             <h2 className="text-2xl font-bold mb-4">
               Top Performing Internships
@@ -111,156 +187,106 @@ export default function AnalyticsPage() {
             </table>
           </div>
 
-          {/* Monthly Applications */}
-          <div className="bg-white rounded-2xl shadow p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-6">
-              Monthly Applications
-            </h2>
 
-            <div className="space-y-5">
+{/* Bottom Section */}
+<div className="grid lg:grid-cols-2 gap-6">
 
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span>January</span>
-                  <span>40</span>
-                </div>
+  {/* Top Performing Internships */}
+  <div className="bg-white border border-gray-200 rounded-xl p-6">
 
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div className="bg-[#1E88E5] h-3 rounded-full w-[40%]"></div>
-                </div>
-              </div>
+    <h2 className="text-lg font-semibold mb-5">
+      Top Performing Internships
+    </h2>
 
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span>February</span>
-                  <span>65</span>
-                </div>
+    <table className="w-full">
+      <thead>
+        <tr className="border-b">
+          <th className="text-left py-3">
+            Internship
+          </th>
 
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div className="bg-green-500 h-3 rounded-full w-[65%]"></div>
-                </div>
-              </div>
+          <th className="text-left py-3">
+            Applicants
+          </th>
+        </tr>
+      </thead>
 
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span>March</span>
-                  <span>90</span>
-                </div>
+      <tbody>
+        <tr className="border-b">
+          <td className="py-3">
+            Frontend Developer Intern
+          </td>
 
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div className="bg-purple-500 h-3 rounded-full w-[90%]"></div>
-                </div>
-              </div>
+          <td>65</td>
+        </tr>
 
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span>April</span>
-                  <span>35</span>
-                </div>
+        <tr className="border-b">
+          <td className="py-3">
+            AI/ML Intern
+          </td>
 
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div className="bg-red-500 h-3 rounded-full w-[35%]"></div>
-                </div>
-              </div>
+          <td>52</td>
+        </tr>
 
-            </div>
-          </div>
+        <tr>
+          <td className="py-3">
+            UI/UX Designer Intern
+          </td>
 
-          {/* Recent Activity */}
-          <div className="bg-white rounded-2xl shadow p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-5">
-              Recent Activity
-            </h2>
+          <td>38</td>
+        </tr>
+      </tbody>
+    </table>
 
-            <div className="space-y-4">
+  </div>
 
-              <div className="flex items-center gap-4 border-b pb-3">
-                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                  ✅
-                </div>
+  {/* Recruitment Summary */}
+  <div className="bg-white border border-gray-200 rounded-xl p-6">
 
-                <div>
-                  <p className="font-medium">
-                    Rahul Kumar applied for Frontend Developer Intern
-                  </p>
+    <h2 className="text-lg font-semibold mb-5">
+      Recruitment Summary
+    </h2>
 
-                  <p className="text-sm text-gray-500">
-                    10 minutes ago
-                  </p>
-                </div>
-              </div>
+    <div className="space-y-5">
 
-              <div className="flex items-center gap-4 border-b pb-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  🎉
-                </div>
+      <div className="flex justify-between border-b pb-3">
+        <span className="text-gray-600">
+          Offer Letters Sent
+        </span>
 
-                <div>
-                  <p className="font-medium">
-                    AI/ML Internship created successfully
-                  </p>
+        <span className="font-bold text-xl">
+          12
+        </span>
+      </div>
 
-                  <p className="text-sm text-gray-500">
-                    1 hour ago
-                  </p>
-                </div>
-              </div>
+      <div className="flex justify-between border-b pb-3">
+        <span className="text-gray-600">
+          Offers Accepted
+        </span>
 
-              <div className="flex items-center gap-4 border-b pb-3">
-                <div className="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
-                  ⭐
-                </div>
+        <span className="font-bold text-xl text-green-600">
+          8
+        </span>
+      </div>
 
-                <div>
-                  <p className="font-medium">
-                    Priya Sharma shortlisted
-                  </p>
+      <div className="flex justify-between">
+        <span className="text-gray-600">
+          Acceptance Rate
+        </span>
 
-                  <p className="text-sm text-gray-500">
-                    Today
-                  </p>
-                </div>
-              </div>
+        <span className="font-bold text-xl text-blue-600">
+          66%
+        </span>
+      </div>
 
-            </div>
-          </div>
+    </div>
 
-          {/* Recruitment Summary */}
-          <div className="grid md:grid-cols-3 gap-6">
+  </div>
 
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-gray-500">
-                Offer Letters Sent
-              </h3>
-
-              <p className="text-3xl font-bold">
-                12
-              </p>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-gray-500">
-                Offers Accepted
-              </h3>
-
-              <p className="text-3xl font-bold text-green-600">
-                8
-              </p>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow p-6">
-              <h3 className="text-gray-500">
-                Acceptance Rate
-              </h3>
-
-              <p className="text-3xl font-bold text-[#1E88E5]">
-                66%
-              </p>
-            </div>
+</div>
 
           </div>
         </div>
       </div>
-    </div>
   );
 }
