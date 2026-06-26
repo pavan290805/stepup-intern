@@ -97,7 +97,7 @@ export const categoryGrid =
 export const categoryCard =
   "bg-white border border-gray-200 rounded-2xl p-6 text-center font-semibold hover:border-[#0880EF] hover:text-[#0880EF] hover:shadow-lg transition";
 
-/* ---------------- Partner CTA ---------------- */
+/* ---------------- Recruiter CTA ---------------- */
 
 export const partnerContainer =
   "bg-[#0880EF] rounded-3xl px-10 py-20 text-center text-white";

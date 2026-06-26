@@ -50,7 +50,7 @@ export default function Footer() {
 
               <Link href="/internships">Internships</Link>
 
-              <Link href="/partners">Partners</Link>
+              <Link href="/partners">Recruiters</Link>
 
               <Link href="/contact">Contact</Link>
 

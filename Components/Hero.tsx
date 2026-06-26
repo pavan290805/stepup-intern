@@ -70,7 +70,7 @@ export default function Hero() {
             </button>
 
             <button className={secondaryButton}>
-              Become a Partner
+              Become a Recruiter
             </button>
 
           </div>
@@ -196,7 +196,7 @@ transition={{
     </div>
   </div>
 
-  {/* Partners */}
+  {/* Recruiters */}
   <div
     className="
       w-65
@@ -221,7 +221,7 @@ transition={{
       </h3>
 
       <p className="text-gray-600 text-sm">
-        Hiring Partners
+        Hiring Recruiters
       </p>
     </div>
   </div>

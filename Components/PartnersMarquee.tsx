@@ -26,6 +26,7 @@ const partners = [
   "/partners/logo9.png",
   "/partners/logo10.png",
   "/partners/logo11.png",
+  "/partners/logo12.png",
 ];
 
 const firstRow = partners.slice(0, 6);
@@ -37,7 +38,7 @@ export default function PartnersMarquee() {
       <div className={partnersContainer}>
 
         <h2 className={partnersTitle}>
-          Trusted by Leading Hiring Partners
+          Trusted by Leading Hiring Recruiters
         </h2>
 
         <p className={partnersSubtitle}>
@@ -61,7 +62,7 @@ export default function PartnersMarquee() {
               <div className={partnerCard} key={index}>
                 <Image
                   src={logo}
-                  alt={`Partner ${index + 1}`}
+                  alt={`Recruiter ${index + 1}`}
                   width={150}
                   height={70}
                   className={partnerLogo}
@@ -89,7 +90,7 @@ export default function PartnersMarquee() {
               <div className={partnerCard} key={index}>
                 <Image
                   src={logo}
-                  alt={`Partner ${index + 7}`}
+                  alt={`Recruiter ${index + 7}`}
                   width={150}
                   height={70}
                   className={partnerLogo}

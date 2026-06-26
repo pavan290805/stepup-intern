@@ -58,7 +58,7 @@ export default function Navbar() {
           </Link>
 
           <Link href="/partners" className="hover:text-[#0880EF] transition">
-            Partners
+            Recruiters
           </Link>
 
           <Link href="/contact" className="hover:text-[#0880EF] transition">

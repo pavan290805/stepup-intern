@@ -51,7 +51,7 @@ export default function PartnerCTA() {
 
             <p className="text-gray-600 text-lg leading-8 mt-6">
 
-              Partner with StepUp Intern to connect with skilled,
+              Recruit with StepUp Intern to connect with skilled,
               motivated students from different domains. Post
               internships, manage applications and discover your
               next future employee through one platform.
@@ -82,7 +82,7 @@ export default function PartnerCTA() {
                 "
               >
 
-                Become a Partner
+                Become a Recruiter
 
                 <ArrowRight size={20} />
 
