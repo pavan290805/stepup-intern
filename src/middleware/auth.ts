@@ -59,11 +59,21 @@ export function errorResponse(message: string, errors?: string[], status: number
   );
 }
 
-export function createAuthCookies(accessToken: string, refreshToken: string) {
-  const response = NextResponse.json({
-    success: true,
-    message: 'Authenticated successfully',
-  });
+export function createAuthCookies<T>(
+  data: T,
+  accessToken: string,
+  refreshToken: string,
+  message: string = 'Authenticated successfully',
+  status: number = 200
+) {
+  const response = NextResponse.json(
+    {
+      success: true,
+      message,
+      data,
+    } as ApiResponse<T>,
+    { status }
+  );
 
   response.cookies.set('accessToken', accessToken, {
     httpOnly: true,

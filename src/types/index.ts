@@ -32,3 +32,5 @@ export interface PaginatedResponse<T> {
     pages: number;
   };
 }
+
+export type RouteParams<T extends Record<string, string> = { id: string }> = Promise<T>;

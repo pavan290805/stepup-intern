@@ -17,12 +17,8 @@ export async function POST(request: NextRequest) {
 
     const result = await authService.login(data as any);
 
-    const authResponse = createAuthCookies(result.accessToken, result.refreshToken);
-
-    return authResponse.json({
-      success: true,
-      message: 'Logged in successfully',
-      data: {
+    return createAuthCookies(
+      {
         user: {
           id: result.user._id,
           name: result.user.name,
@@ -32,7 +28,10 @@ export async function POST(request: NextRequest) {
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
       },
-    });
+      result.accessToken,
+      result.refreshToken,
+      'Logged in successfully'
+    );
   } catch (error: any) {
     return errorResponse(error.message || 'Login failed', undefined, 401);
   }

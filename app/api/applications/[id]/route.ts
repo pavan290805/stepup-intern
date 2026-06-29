@@ -3,17 +3,20 @@ import { connectDB } from '@/lib/db';
 import { applicationStatusUpdateSchema } from '@/lib/validations';
 import { errorResponse, successResponse, withAuth } from '@/middleware/auth';
 import { validateRequestBody } from '@/middleware/validation';
+import StudentProfile from '@/models/StudentProfile';
 import User from '@/models/User';
 import { applicationService } from '@/modules/application/application.service';
 import { notificationService } from '@/modules/notification/notification.service';
+import { RouteParams } from '@/types';
 import { NextRequest } from 'next/server';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
     const authError = await withAuth(request, [USER_ROLES.RECRUITER, USER_ROLES.ADMIN]);
     if (authError) return authError;
@@ -21,18 +24,16 @@ export async function PATCH(
     const { valid, data, response } = await validateRequestBody(request, applicationStatusUpdateSchema);
     if (!valid) return response;
 
-    const application = await applicationService.updateApplicationStatus(params.id, data as any);
+    const application = await applicationService.updateApplicationStatus(id, data as any);
 
     if (!application) {
       return errorResponse('Application not found', undefined, 404);
     }
 
-    // Create notification for student
-    const internship = await application.populate('internshipId');
-    const student = await application.populate('studentId');
-
-    if (student?.studentId?.userId) {
-      const studentUser = await User.findById(student.studentId.userId);
+    // Create notification for the student who owns this application.
+    const studentProfile = await StudentProfile.findById(application.studentId);
+    if (studentProfile?.userId) {
+      const studentUser = await User.findById(studentProfile.userId);
       if (studentUser) {
         await notificationService.createNotification(studentUser._id.toString(), {
           title: 'Application Status Updated',
@@ -51,15 +52,16 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
     const authError = await withAuth(request, [USER_ROLES.STUDENT]);
     if (authError) return authError;
 
-    await applicationService.deleteApplication(params.id);
+    await applicationService.deleteApplication(id);
 
     return successResponse(null, 'Application deleted successfully');
   } catch (error: any) {

@@ -17,12 +17,8 @@ export async function POST(request: NextRequest) {
 
     const result = await authService.register(data as any);
 
-    const authResponse = createAuthCookies(result.accessToken, result.refreshToken);
-
-    return authResponse.json({
-      success: true,
-      message: 'User registered successfully',
-      data: {
+    return createAuthCookies(
+      {
         user: {
           id: result.user._id,
           name: result.user.name,
@@ -32,7 +28,10 @@ export async function POST(request: NextRequest) {
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
       },
-    });
+      result.accessToken,
+      result.refreshToken,
+      'User registered successfully'
+    );
   } catch (error: any) {
     return errorResponse(error.message || 'Registration failed', undefined, 400);
   }

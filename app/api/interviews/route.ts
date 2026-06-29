@@ -1,6 +1,6 @@
 import { USER_ROLES } from '@/constants';
 import { connectDB } from '@/lib/db';
-import { interviewSchema, interviewUpdateSchema } from '@/lib/validations';
+import { interviewSchema } from '@/lib/validations';
 import { errorResponse, successResponse, withAuth } from '@/middleware/auth';
 import { validateRequestBody } from '@/middleware/validation';
 import User from '@/models/User';
@@ -38,52 +38,5 @@ export async function POST(request: NextRequest) {
     return successResponse(interview, 'Interview scheduled successfully', 201);
   } catch (error: any) {
     return errorResponse(error.message || 'Failed to schedule interview', undefined, 400);
-  }
-}
-
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    await connectDB();
-
-    const authError = await withAuth(request);
-    if (authError) return authError;
-
-    const interview = await interviewService.getInterviewById(params.id);
-
-    if (!interview) {
-      return errorResponse('Interview not found', undefined, 404);
-    }
-
-    return successResponse(interview);
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch interview', undefined, 500);
-  }
-}
-
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    await connectDB();
-
-    const authError = await withAuth(request, [USER_ROLES.RECRUITER, USER_ROLES.ADMIN]);
-    if (authError) return authError;
-
-    const { valid, data, response } = await validateRequestBody(request, interviewUpdateSchema);
-    if (!valid) return response;
-
-    const interview = await interviewService.updateInterview(params.id, data as any);
-
-    if (!interview) {
-      return errorResponse('Interview not found', undefined, 404);
-    }
-
-    return successResponse(interview, 'Interview updated successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to update interview', undefined, 400);
   }
 }

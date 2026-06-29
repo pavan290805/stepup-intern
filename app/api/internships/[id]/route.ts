@@ -5,16 +5,18 @@ import { errorResponse, successResponse, withAuth } from '@/middleware/auth';
 import { validateRequestBody } from '@/middleware/validation';
 import { internshipService } from '@/modules/internship/internship.service';
 import { recruiterService } from '@/modules/recruiter/recruiter.service';
+import { RouteParams } from '@/types';
 import { NextRequest } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
-    const internship = await internshipService.getInternshipById(params.id);
+    const internship = await internshipService.getInternshipById(id);
 
     if (!internship) {
       return errorResponse('Internship not found', undefined, 404);
@@ -28,10 +30,11 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
     const authError = await withAuth(request, [USER_ROLES.RECRUITER, USER_ROLES.ADMIN]);
     if (authError) return authError;
@@ -44,14 +47,14 @@ export async function PATCH(
     // Verify ownership if recruiter
     if (user.role === USER_ROLES.RECRUITER) {
       const recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
-      const internship = await internshipService.getInternshipById(params.id);
+      const internship = await internshipService.getInternshipById(id);
 
       if (internship && internship.recruiterId.toString() !== recruiterProfile?._id.toString()) {
         return errorResponse('Not authorized to update this internship', undefined, 403);
       }
     }
 
-    const internship = await internshipService.updateInternship(params.id, data as any);
+    const internship = await internshipService.updateInternship(id, data as any);
 
     if (!internship) {
       return errorResponse('Internship not found', undefined, 404);
@@ -65,10 +68,11 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
     const authError = await withAuth(request, [USER_ROLES.RECRUITER, USER_ROLES.ADMIN]);
     if (authError) return authError;
@@ -78,14 +82,14 @@ export async function DELETE(
     // Verify ownership if recruiter
     if (user.role === USER_ROLES.RECRUITER) {
       const recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
-      const internship = await internshipService.getInternshipById(params.id);
+      const internship = await internshipService.getInternshipById(id);
 
       if (internship && internship.recruiterId.toString() !== recruiterProfile?._id.toString()) {
         return errorResponse('Not authorized to delete this internship', undefined, 403);
       }
     }
 
-    await internshipService.deleteInternship(params.id);
+    await internshipService.deleteInternship(id);
 
     return successResponse(null, 'Internship deleted successfully');
   } catch (error: any) {

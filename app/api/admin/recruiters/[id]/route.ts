@@ -2,14 +2,16 @@ import { USER_ROLES } from '@/constants';
 import { connectDB } from '@/lib/db';
 import { errorResponse, successResponse, withAuth } from '@/middleware/auth';
 import { adminService } from '@/modules/admin/admin.service';
+import { RouteParams } from '@/types';
 import { NextRequest } from 'next/server';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
     const authError = await withAuth(request, [USER_ROLES.ADMIN]);
     if (authError) return authError;
@@ -23,9 +25,9 @@ export async function PATCH(
     let recruiter;
 
     if (body.action === 'verify') {
-      recruiter = await adminService.verifyRecruiter(params.id);
+      recruiter = await adminService.verifyRecruiter(id);
     } else if (body.action === 'reject') {
-      recruiter = await adminService.rejectRecruiter(params.id);
+      recruiter = await adminService.rejectRecruiter(id);
     } else {
       return errorResponse('Invalid action', undefined, 400);
     }

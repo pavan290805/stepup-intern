@@ -17,16 +17,15 @@ export async function POST(request: NextRequest) {
 
     const result = await authService.refreshToken(refreshToken);
 
-    const authResponse = createAuthCookies(result.accessToken, result.refreshToken);
-
-    return authResponse.json({
-      success: true,
-      message: 'Token refreshed',
-      data: {
+    return createAuthCookies(
+      {
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
       },
-    });
+      result.accessToken,
+      result.refreshToken,
+      'Token refreshed'
+    );
   } catch (error: any) {
     return errorResponse(error.message || 'Token refresh failed', undefined, 401);
   }

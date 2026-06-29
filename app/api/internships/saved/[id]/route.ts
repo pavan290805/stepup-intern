@@ -3,14 +3,16 @@ import { connectDB } from '@/lib/db';
 import { errorResponse, successResponse, withAuth } from '@/middleware/auth';
 import { studentService } from '@/modules/student/student.service';
 import { savedInternshipService } from '@/modules/user/saved-internship.service';
+import { RouteParams } from '@/types';
 import { NextRequest } from 'next/server';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
     const authError = await withAuth(request, [USER_ROLES.STUDENT]);
     if (authError) return authError;
@@ -22,7 +24,7 @@ export async function DELETE(
       return errorResponse('Student profile not found', undefined, 404);
     }
 
-    await savedInternshipService.removeSavedInternship(studentProfile._id.toString(), params.id);
+    await savedInternshipService.removeSavedInternship(studentProfile._id.toString(), id);
 
     return successResponse(null, 'Internship removed from saved list');
   } catch (error: any) {
@@ -32,10 +34,11 @@ export async function DELETE(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: RouteParams }
 ) {
   try {
     await connectDB();
+    const { id } = await params;
 
     const authError = await withAuth(request, [USER_ROLES.STUDENT]);
     if (authError) return authError;
@@ -47,7 +50,7 @@ export async function GET(
       return errorResponse('Student profile not found', undefined, 404);
     }
 
-    const isSaved = await savedInternshipService.isSaved(studentProfile._id.toString(), params.id);
+    const isSaved = await savedInternshipService.isSaved(studentProfile._id.toString(), id);
 
     return successResponse({ isSaved });
   } catch (error: any) {

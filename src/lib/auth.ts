@@ -1,11 +1,11 @@
 import { JwtPayload } from '@/types';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'your_refresh_secret_key';
-const JWT_EXPIRE = process.env.JWT_EXPIRE || '15m';
-const JWT_REFRESH_EXPIRE = process.env.JWT_REFRESH_EXPIRE || '7d';
+const JWT_SECRET: Secret = process.env.JWT_SECRET || 'your_jwt_secret_key';
+const JWT_REFRESH_SECRET: Secret = process.env.JWT_REFRESH_SECRET || 'your_refresh_secret_key';
+const JWT_EXPIRE = (process.env.JWT_EXPIRE || '15m') as SignOptions['expiresIn'];
+const JWT_REFRESH_EXPIRE = (process.env.JWT_REFRESH_EXPIRE || '7d') as SignOptions['expiresIn'];
 
 export async function hashPassword(password: string): Promise<string> {
   const salt = await bcrypt.genSalt(10);
