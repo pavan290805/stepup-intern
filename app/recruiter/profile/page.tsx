@@ -1,17 +1,18 @@
 "use client";
-
+import { useEffect } from "react";
+import { apiFetch } from "@/lib/api";
 import { useState } from "react";
 import Navbar from "../../Components/Navbar";
 
 export default function RecruiterProfile() {
-  const [fullName, setFullName] = useState("Lalith Kumar");
-  const [email, setEmail] = useState("lalith@example.com");
-  const [jobTitle, setJobTitle] = useState("Senior Technical Recruiter");
-  const [phone, setPhone] = useState("+91 9876543210");
+const [fullName, setFullName] = useState("");
+const [email, setEmail] = useState("");
+const [jobTitle, setJobTitle] = useState("");
+const [phone, setPhone] = useState("");
 
-  const [companyName, setCompanyName] = useState("StepUp Intern");
-  const [headquarters, setHeadquarters] = useState("Hyderabad, India");
-  const [companyWebsite, setCompanyWebsite] = useState("www.stepupintern.com");
+const [companyName, setCompanyName] = useState("");
+const [headquarters, setHeadquarters] = useState("");
+const [companyWebsite, setCompanyWebsite] = useState("");
 
   const [currentPassword, setCurrentPassword] = useState("••••••••");
   const [newPassword, setNewPassword] = useState("");
@@ -19,6 +20,46 @@ export default function RecruiterProfile() {
   const [notifApplicants, setNotifApplicants] = useState(true);
   const [notifInterviews, setNotifInterviews] = useState(true);
   const [notifMarketing, setNotifMarketing] = useState(false);
+  useEffect(() => {
+  const loadProfile = async () => {
+    try {
+      const response = await apiFetch("/recruiters/profile");
+
+      const profile = response.data;
+
+      setFullName(profile.userId?.name || "");
+      setEmail(profile.userId?.email || "");
+      setJobTitle(profile.designation || "");
+      setPhone(profile.phoneNumber || "");
+
+      if (profile.companyId) {
+        setCompanyName(profile.companyId.name || "");
+        setHeadquarters(profile.companyId.headquarters || "");
+        setCompanyWebsite(profile.companyId.website || "");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  loadProfile();
+}, []);
+const handleSave = async () => {
+  try {
+    await apiFetch("/recruiters/profile", {
+      method: "PATCH",
+      body: JSON.stringify({
+        designation: jobTitle,
+        phoneNumber: phone,
+      }),
+    });
+
+    alert("Profile updated successfully");
+  } catch (error) {
+    console.error(error);
+    alert("Failed to update profile");
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -44,9 +85,9 @@ export default function RecruiterProfile() {
                   </svg>
                   Personal Information
                 </h2>
-                <button className="text-xs font-semibold text-blue-600 hover:text-blue-700 uppercase tracking-wider">
-                  Save Changes
-                </button>
+<button onClick={handleSave}>
+  Save Changes
+</button>
               </div>
 
               <div className="flex gap-5 items-start">
