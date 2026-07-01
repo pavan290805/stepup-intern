@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import Navbar from "../../../Components/Navbar";
 
@@ -11,553 +10,394 @@ const initialApplicants = [
     email: "rahul@gmail.com",
     phone: "+91 9876543210",
     status: "Applied",
+    university: "IIT Hyderabad",
+    gpa: "4.0",
     resume:
       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
   },
-
   {
     id: 2,
     name: "Priya Sharma",
     email: "priya@gmail.com",
     phone: "+91 9988776655",
     status: "Shortlisted",
+    university: "NIT Warangal",
+    gpa: "3.9",
+    resume:
+      "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+  },
+  {
+    id: 3,
+    name: "Alex Rivera",
+    email: "alex@gmail.com",
+    phone: "+91 9876501234",
+    status: "Applied",
+    university: "BITS Pilani",
+    gpa: "3.8",
     resume:
       "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
   },
 ];
+
 const internshipDetails = {
   title: "Frontend Developer Intern",
   company: "StepUp Intern",
+  id: "#JB-10294",
+  publishedOn: "June 12, 2024",
   location: "Hyderabad, India",
-  jobType: "Internship",
-  workspace: "Remote",
-  stipend: "₹10,000 / month",
+  stipend: "₹10,000 /mo",
   deadline: "26 Jun 2026",
-
+  duration: "3 Months",
+  totalViews: "1,402",
   overview:
-    "We are looking for a talented Frontend Developer Intern to join our team and work on modern web applications using React, Next.js and Tailwind CSS.",
-
+    "Join our core product team to build the future of recruitment tech. As a Frontend Developer Intern, you will be mentored by senior engineers to build responsive, high-performance web applications. You'll contribute to our internal UI library and help implement complex data visualization components.",
   responsibilities: [
-    "Develop responsive web pages",
-    "Build reusable React components",
-    "Work with APIs",
-    "Fix bugs and improve UI",
-    "Collaborate with team members",
+    "Collaborate with product designers to implement pixel-perfect UIs.",
+    "Optimize web pages for maximum speed and scalability.",
+    "Participate in code reviews and team stand-ups.",
   ],
-
-  skills: [
-    "HTML",
-    "CSS",
-    "JavaScript",
-    "React.js",
-    "Git & GitHub",
-  ],
-
-  learning: [
-    "Real-world project experience",
-    "Industry best practices",
-    "Team collaboration",
-    "Deployment workflows",
-  ],
-
-  perks: [
-    "Certificate",
-    "Letter of Recommendation",
-    "Flexible Hours",
-    "Remote Work",
-  ],
+  skills: ["React.js", "Tailwind CSS", "TypeScript", "Redux/Zustand", "Figma to Code"],
 };
 
 export default function InternshipDetailsPage() {
-
-  const [applicants, setApplicants] =
-    useState(initialApplicants);
-
-  const [openMenu, setOpenMenu] =
-    useState<number | null>(null);
-
-  const [showInterviewModal, setShowInterviewModal] =
-    useState(false);
-
-  const [selectedApplicant, setSelectedApplicant] =
-    useState<any>(null);
-
-  const [interviewDate, setInterviewDate] =
-    useState("");
-
-  const [interviewTime, setInterviewTime] =
-    useState("");
+  const [applicants, setApplicants] = useState(initialApplicants);
+  const [showInterviewModal, setShowInterviewModal] = useState(false);
+  const [selectedApplicant, setSelectedApplicant] = useState<any>(null);
+  const [interviewDate, setInterviewDate] = useState("");
+  const [interviewTime, setInterviewTime] = useState("");
   const [showResume, setShowResume] = useState(false);
-  const [selectedResume, setSelectedResume] =
-  useState("");
-    
+  const [selectedResume, setSelectedResume] = useState("");
 
-  const handleShortlist = (id: number) => {
-    setApplicants((prev: any) =>
-      prev.map((applicant: any) =>
-        applicant.id === id
-          ? {
-              ...applicant,
-              status: "Shortlisted",
-            }
-          : applicant
+  const totalApplicants = applicants.length;
+  const shortlisted = applicants.filter((a) => a.status === "Shortlisted").length;
+  const interviews = applicants.filter((a) => a.status === "Interview Scheduled").length;
+  const rejected = applicants.filter((a) => a.status === "Rejected").length;
+
+  const confirmInterview = () => {
+    setApplicants((prev) =>
+      prev.map((a) =>
+        a.id === selectedApplicant.id
+          ? { ...a, status: "Interview Scheduled", interviewDate, interviewTime }
+          : a
       )
     );
-
-    setOpenMenu(null);
+    setShowInterviewModal(false);
+    setInterviewDate("");
+    setInterviewTime("");
   };
 
-  const handleReject = (id: number) => {
-    setApplicants((prev: any) =>
-      prev.map((applicant: any) =>
-        applicant.id === id
-          ? {
-              ...applicant,
-              status: "Rejected",
-            }
-          : applicant
-      )
-    );
-    setOpenMenu(null);
+  const avatarColors: Record<string, string> = {
+    "Rahul Kumar": "bg-blue-500",
+    "Priya Sharma": "bg-green-500",
+    "Alex Rivera": "bg-purple-500",
   };
 
-  const handleScheduleInterview = (
-    applicant: any
-  ) => {
-    setSelectedApplicant(applicant);
-    setShowInterviewModal(true);
-    setOpenMenu(null);
-  };
+  return (
+    <div className="min-h-screen bg-[#F4F6FB] flex flex-col font-sans">
 
-  const handleRemoveApplicant = (
-    id: number
-  ) => {
-    setApplicants((prev: any) =>
-      prev.filter(
-        (applicant: any) =>
-          applicant.id !== id
-      )
-    );
-
-    setOpenMenu(null);
-  };
-
-  const handleSendEmail = (email: string) => {
-  window.location.href = `mailto:${email}`;
-};
-
-const confirmInterview = () => {
-  setApplicants((prev: any) =>
-    prev.map((applicant: any) =>
-      applicant.id === selectedApplicant.id
-        ? {
-            ...applicant,
-            status: "Interview Scheduled",
-            interviewDate,
-            interviewTime,
-          }
-        : applicant
-    )
-  );
-
-  setShowInterviewModal(false);
-  setInterviewDate("");
-  setInterviewTime("");
-};
-const totalApplicants = applicants.length;
-
-const shortlisted = applicants.filter(
-  (a: any) => a.status === "Shortlisted"
-).length;
-
-const interviews = applicants.filter(
-  (a: any) =>
-    a.status === "Interview Scheduled"
-).length;
-
-const rejected = applicants.filter(
-  (a: any) => a.status === "Rejected"
-).length;
-return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+      {/* Navbar */}
       <Navbar />
 
-<div className="p-8">
-    <h1 className="text-4xl font-bold">
-  {internshipDetails.title}
-</h1>
+      <div className="max-w-6xl mx-auto px-6 py-7 flex-1 w-full">
 
-<p className="text-gray-500 mt-2">
-  {internshipDetails.company}
-</p>
+        {/* Breadcrumb */}
+        <p className="text-xs text-gray-400 mb-2">
+          <span className="hover:underline cursor-pointer">Dashboard</span>
+          {" › "}
+          <span className="hover:underline cursor-pointer">Listings</span>
+          {" › "}
+          <span className="text-blue-500 hover:underline cursor-pointer">Frontend Developer Intern</span>
+        </p>
 
-<p className="text-gray-500">
-  {internshipDetails.location}
-</p>
-
-{/* Back Button */}
-<Link
-  href="/recruiter"
-  className="text-blue-600 font-medium"
->
-  ← Back to Listings
-</Link>
-
-  {/* Internship Header */}
-  <div className="bg-white border border-gray-200 rounded-xl p-6 mt-5">
-
-    <h1 className="text-3xl font-bold">
-      
-      Frontend Developer Intern
-    </h1>
-
-    <p className="text-gray-500 mt-2">
-      Computer Science • Remote • Hybrid
-    </p>
-
-    <div className="flex gap-4 mt-4">
-      <span className="bg-gray-100 px-3 py-1 rounded-full">
-        Posted: 10 Jun 2026
-      </span>
-
-      <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full">
-        Deadline: 25 Jun 2026
-      </span>
-    </div>
-
-  </div>
-
-  {/* ADD THE STATS CARDS HERE 👇 */}
-  <div className="grid md:grid-cols-4 gap-5 mt-6">
-
-    <div className="bg-white border rounded-xl p-5">
-      <p className="text-gray-500 text-sm">Total Applicants</p>
-      <h3 className="text-3xl font-bold mt-2">
-  {totalApplicants}
-</h3>
-    </div>
-
-    <div className="bg-white border rounded-xl p-5">
-      <p className="text-gray-500 text-sm">Shortlisted</p>
-      <h3 className="text-3xl font-bold mt-2 text-green-600">
-  {shortlisted}
-</h3>
-    </div>
-
-    <div className="bg-white border rounded-xl p-5">
-      <p className="text-gray-500 text-sm">Interviews</p>
-      <h3 className="text-3xl font-bold mt-2 text-blue-600">
-  {interviews}
-</h3>
-    </div>
-
-    <div className="bg-white border rounded-xl p-5">
-      <p className="text-gray-500 text-sm">Rejected</p>
-      <h3 className="text-3xl font-bold mt-2 text-red-600">
-  {rejected}
-</h3>
-    </div>
-
-  </div>
-{/* Applicants Section */}
-<div className="bg-white border border-gray-200 rounded-xl p-6 mt-6">
-
-  <h2 className="text-2xl font-semibold">
-    Applicants
-  </h2>
-
-  <p className="text-sm text-gray-500 mt-1 mb-6">
-    Review and manage talent pipeline
-  </p>
-
-  {/* Header Row */}
-  <div className="grid grid-cols-6 gap-4 px-4 py-3 text-xs font-semibold text-gray-500 border-b border-gray-200 mb-3">
-
-    <div>Candidate</div>
-
-    <div>Phone</div>
-
-    <div>Current Status</div>
-
-    <div></div>
-
-    <div></div>
-
-    <div>Actions</div>
-
-  </div>
-
-  <div className="space-y-3">
-
-    {applicants.map((applicant) => (
-
-      <div
-        key={applicant.id}
-        className="grid grid-cols-6 items-center gap-4 border border-gray-100 rounded-xl p-3"
-      >
-
-        {/* Candidate */}
-        <div className="flex items-center gap-3">
-
-          <div className="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center text-sm font-semibold">
-            {applicant.name
-              .split(" ")
-              .map((word) => word[0])
-              .join("")}
-          </div>
-
+        {/* Title Row */}
+        <div className="flex justify-between items-start mb-1">
           <div>
-
-            <p className="font-medium text-sm">
-              {applicant.name}
+            <h1 className="text-2xl font-bold text-gray-900">{internshipDetails.title}</h1>
+            <p className="text-xs text-gray-400 mt-1">
+              Published on{" "}
+              <span className="text-blue-500">{internshipDetails.publishedOn}</span>
+              {" • ID: "}
+              <span className="text-gray-500">{internshipDetails.id}</span>
             </p>
-
-            <p className="text-xs text-gray-500">
-              {applicant.email}
-            </p>
-
           </div>
 
+          <div className="flex gap-2 items-center">
+            <button className="flex items-center gap-1 border border-gray-300 bg-white px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+              ✏️ Edit
+            </button>
+            <button className="flex items-center gap-1.5 bg-gray-900 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-gray-800">
+              ↗ Share
+            </button>
+            <button className="flex items-center gap-1.5 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700">
+              ⭐ Feature Listing
+            </button>
+          </div>
         </div>
 
-        {/* Phone */}
-        <div>
+        {/* Stats Row */}
+        <div className="grid grid-cols-4 gap-4 mt-6 mb-6">
+          <div className="bg-white border border-gray-200 rounded-xl p-4">
+            <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-1">Total Applicants</p>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-bold text-gray-900">{totalApplicants}</span>
+              <span className="text-xs text-green-500 mb-1">▲ 12%</span>
+            </div>
+          </div>
 
-          <p className="text-xs text-gray-500">
-            {applicant.phone}
-          </p>
+          <div className="bg-white border border-gray-200 rounded-xl p-4">
+            <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-1">Shortlisted</p>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-bold text-gray-900">{shortlisted}</span>
+              <span className="text-xs text-gray-400 mb-1">38% Rate</span>
+            </div>
+          </div>
 
+          <div className="bg-white border border-gray-200 rounded-xl p-4">
+            <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-1">Interviews</p>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-bold text-gray-900">{interviews}</span>
+              <span className="text-xs text-green-500 mb-1">ACTIVE</span>
+            </div>
+          </div>
+
+          <div className="bg-white border border-l-4 border-l-red-400 border-gray-200 rounded-xl p-4">
+            <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-1">Rejected</p>
+            <div className="flex items-end gap-2">
+              <span className="text-3xl font-bold text-gray-900">{rejected}</span>
+              <span className="text-xs text-gray-400 mb-1">11% Rate</span>
+            </div>
+          </div>
         </div>
 
-        {/* Status */}
-        <div>
+        {/* Main Grid */}
+        <div className="grid lg:grid-cols-3 gap-6">
 
-          <span
-            className={`inline-block px-2 py-1 rounded-full text-xs ${
-              applicant.status === "Shortlisted"
-                ? "bg-green-100 text-green-700"
-                : applicant.status === "Rejected"
-                ? "bg-red-100 text-red-700"
-                : applicant.status === "Interview Scheduled"
-                ? "bg-purple-100 text-purple-700"
-                : applicant.status === "Completed"
-                ? "bg-purple-100 text-purple-700"
-                : "bg-gray-100 text-gray-700"
-            }`}
-          >
-            {applicant.status}
-          </span>
+          {/* LEFT */}
+          <div className="lg:col-span-2 space-y-5">
 
-        </div>
+            {/* Role Deep-Dive Card */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-7">
+              <div className="flex items-center gap-2 mb-5">
+                <span className="text-blue-500 text-lg">📄</span>
+                <h2 className="text-lg font-bold text-gray-900">Role Deep-Dive</h2>
+              </div>
 
-        {/* View Resume */}
-        <div>
+              {/* Position Overview */}
+              <p className="text-[10px] uppercase tracking-widest text-orange-500 font-semibold mb-2">
+                Position Overview
+              </p>
+              <p className="text-gray-600 text-sm leading-7 mb-6">
+                {internshipDetails.overview}
+              </p>
 
-          <button
-  onClick={() => {
-    setSelectedResume(applicant.resume);
-    setShowResume(true);
-  }}
-  className="bg-blue-50 text-blue-600 border border-blue-100 px-4 py-2 rounded-full text-xs font-medium hover:bg-blue-100"
->
-  View Resume
-</button>
+              {/* Required Skillset */}
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-3">
+                Required Skillset
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {internshipDetails.skills.map((skill) => (
+                  <span
+                    key={skill}
+                    className="border border-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs bg-gray-50 flex items-center gap-1"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 inline-block"></span>
+                    {skill}
+                  </span>
+                ))}
+              </div>
 
-        </div>
-
-        {/* Download */}
-        <div>
-
-          <a
-            href={applicant.resume}
-            download
-            className="bg-gray-50 border border-gray-200 px-4 py-2 rounded-full text-xs font-medium hover:bg-gray-100"
-          >
-            Download Resume
-          </a>
-
-        </div>
-
-        {/* Actions */}
-        <div className="relative">
-
-          <button
-            onClick={() =>
-              setOpenMenu(
-                openMenu === applicant.id
-                  ? null
-                  : applicant.id
-              )
-            }
-            className="bg-gray-50 border border-gray-200 px-4 py-2 rounded-full text-xs font-medium hover:bg-gray-100"
-          >
-            More ▼
-          </button>
-
-          {openMenu === applicant.id && (
-
-            <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
-
-              <button
-                onClick={() =>
-                  handleShortlist(applicant.id)
-                }
-                className="w-full text-left px-4 py-3 hover:bg-gray-50"
-              >
-                ⭐ Shortlist
-              </button>
-
-              <button
-                onClick={() =>
-                  handleScheduleInterview(applicant)
-                }
-                className="w-full text-left px-4 py-3 hover:bg-gray-50"
-              >
-                📅 Schedule Interview
-              </button>
-
-              <button
-                onClick={() =>
-                  handleReject(applicant.id)
-                }
-                className="w-full text-left px-4 py-3 hover:bg-red-50 text-red-600"
-              >
-                ❌ Reject Candidate
-              </button>
-
-              <button
-                onClick={() =>
-                  handleSendEmail(applicant.email)
-                }
-                className="w-full text-left px-4 py-3 hover:bg-gray-50"
-              >
-                ✉️ Send Email
-              </button>
-
-              <button
-                onClick={() =>
-                  handleRemoveApplicant(applicant.id)
-                }
-                className="w-full text-left px-4 py-3 hover:bg-red-50 text-red-600"
-              >
-                🗑️ Remove Application
-              </button>
-
+              {/* Key Responsibilities */}
+              <p className="text-[10px] uppercase tracking-widest text-gray-400 font-semibold mb-3">
+                Key Responsibilities
+              </p>
+              <ul className="space-y-2">
+                {internshipDetails.responsibilities.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-blue-600">
+                    <span className="mt-0.5 text-blue-400">✓</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-          )}
+            {/* Bottom Two Cards */}
+            <div className="grid md:grid-cols-2 gap-5">
+              <div className="bg-white border border-gray-200 rounded-2xl p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-blue-500">🏢</span>
+                  <h3 className="font-bold text-gray-900">Engineering Culture</h3>
+                </div>
+                <p className="text-gray-500 text-sm leading-6">
+                  We ship fast and maintain high quality. Our frontend stack is modern, our PR reviews are
+                  constructive, and our component library is rigorous.
+                </p>
+              </div>
 
+              <div className="bg-white border border-gray-200 rounded-2xl p-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-blue-500">📍</span>
+                  <h3 className="font-bold text-gray-900">Location</h3>
+                </div>
+                <p className="text-gray-500 text-sm mb-3">
+                  Hyderabad • Hybrid
+                </p>
+                {/* Map placeholder */}
+                <div className="w-full h-24 bg-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
+                  <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center text-gray-400 text-xs">
+                    🗺 Map View
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT */}
+          <div className="space-y-5">
+
+            {/* Listing Summary */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <h3 className="text-base font-bold text-gray-900 mb-4">Listing Summary</h3>
+
+              <div className="space-y-3 mb-5">
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-gray-400 text-sm flex items-center gap-2">💰 Stipend</span>
+                  <span className="font-bold text-gray-900">{internshipDetails.stipend}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-gray-400 text-sm flex items-center gap-2">🕒 Duration</span>
+                  <span className="font-semibold text-gray-900">{internshipDetails.duration}</span>
+                </div>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                  <span className="text-gray-400 text-sm flex items-center gap-2">📅 Deadline</span>
+                  <span className="font-semibold text-blue-600">{internshipDetails.deadline}</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="text-gray-400 text-sm flex items-center gap-2">👁 Total Views</span>
+                  <span className="font-bold text-gray-900">{internshipDetails.totalViews}</span>
+                </div>
+              </div>
+
+              <button className="w-full bg-blue-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
+                📊 View Full Report
+              </button>
+            </div>
+
+            {/* New Applicants */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-base font-bold text-gray-900">New Applicants</h3>
+                <span className="bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                  {totalApplicants} NEW
+                </span>
+              </div>
+
+              <div className="space-y-3 mb-4">
+                {applicants.slice(0, 3).map((applicant) => (
+                  <div key={applicant.id} className="flex items-center gap-3">
+                    <div
+                      className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-white text-xs flex-shrink-0 ${
+                        avatarColors[applicant.name] ?? "bg-gray-400"
+                      }`}
+                    >
+                      {applicant.name.split(" ").map((n) => n[0]).join("")}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm text-gray-900 leading-tight">{applicant.name}</p>
+                      <p className="text-xs text-gray-400">{applicant.university} • {applicant.gpa} GPA</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button className="w-full border border-blue-600 text-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-blue-50 flex items-center justify-center gap-2">
+                Review Pipeline 👥
+              </button>
+
+              <p className="text-center text-xs text-gray-400 mt-3 hover:text-blue-500 cursor-pointer">
+                View Archive
+              </p>
+            </div>
+          </div>
         </div>
-
       </div>
 
-    ))}
+      {/* Footer */}
+      <footer className="bg-white border-t border-gray-200 mt-8">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded font-bold">S</span>
+            <div>
+              <p className="text-sm font-bold text-gray-900">StepUp Intern</p>
+              <p className="text-xs text-gray-400">
+                © 2024{" "}
+                <span className="text-blue-500">StepUp Recruitment Solutions</span>
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-5 text-xs text-gray-400">
+            <span className="hover:text-blue-500 cursor-pointer">Privacy</span>
+            <span className="hover:text-blue-500 cursor-pointer">Terms</span>
+            <span className="hover:text-blue-500 cursor-pointer">Help Center</span>
+            <span className="hover:text-blue-500 cursor-pointer">System Status</span>
+          </div>
+        </div>
+      </footer>
 
-  </div>
+      {/* Interview Modal */}
+      {showInterviewModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-6 w-[450px]">
+            <h2 className="text-2xl font-bold mb-5">Schedule Interview</h2>
+            <input
+              type="date"
+              value={interviewDate}
+              onChange={(e) => setInterviewDate(e.target.value)}
+              className="w-full border rounded-lg p-3 mb-4"
+            />
+            <input
+              type="time"
+              value={interviewTime}
+              onChange={(e) => setInterviewTime(e.target.value)}
+              className="w-full border rounded-lg p-3 mb-5"
+            />
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowInterviewModal(false)}
+                className="border px-4 py-2 rounded-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmInterview}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+              >
+                Schedule
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-</div>
-{/* Interview Modal */}
-{showInterviewModal && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-
-    <div className="bg-white rounded-2xl p-6 w-[450px]">
-
-      <h2 className="text-2xl font-bold mb-5">
-        Schedule Interview
-      </h2>
-
-      <input
-        type="date"
-        value={interviewDate}
-        onChange={(e) =>
-          setInterviewDate(e.target.value)
-        }
-        className="w-full border rounded-lg p-3 mb-4"
-      />
-
-      <input
-        type="time"
-        value={interviewTime}
-        onChange={(e) =>
-          setInterviewTime(e.target.value)
-        }
-        className="w-full border rounded-lg p-3 mb-5"
-      />
-
-      <div className="flex justify-end gap-3">
-
-        <button
-          onClick={() =>
-            setShowInterviewModal(false)
-          }
-          className="border px-4 py-2 rounded-lg"
-        >
-          Cancel
-        </button>
-
-        <button
-          onClick={confirmInterview}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-        >
-          Schedule
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-)}
-{showResume && (
-  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-
-    <div className="bg-white w-[95%] h-[90vh] rounded-2xl overflow-hidden">
-
-      <div className="flex justify-between items-center p-5 border-b">
-
-        <h2 className="text-xl font-semibold">
-          Resume Preview
-        </h2>
-
-        <button
-          onClick={() => setShowResume(false)}
-          className="text-2xl"
-        >
-          ×
-        </button>
-
-      </div>
-
-      <iframe
-        src={selectedResume}
-        className="w-full h-[75vh]"
-      />
-
-      <div className="p-5 border-t flex justify-end gap-3">
-
-        <a
-          href={selectedResume}
-          download
-          className="bg-blue-600 text-white px-5 py-2 rounded-lg"
-        >
-          Download Resume
-        </a>
-
-        <button
-          onClick={() => setShowResume(false)}
-          className="border px-5 py-2 rounded-lg"
-        >
-          Close
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-)}
-
-      </div>
+      {/* Resume Modal */}
+      {showResume && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white w-[95%] h-[90vh] rounded-2xl overflow-hidden">
+            <div className="flex justify-between items-center p-5 border-b">
+              <h2 className="text-xl font-semibold">Resume Preview</h2>
+              <button onClick={() => setShowResume(false)} className="text-2xl">×</button>
+            </div>
+            <iframe src={selectedResume} className="w-full h-[75vh]" />
+            <div className="p-5 border-t flex justify-end gap-3">
+              <a href={selectedResume} download className="bg-blue-600 text-white px-5 py-2 rounded-lg">
+                Download Resume
+              </a>
+              <button onClick={() => setShowResume(false)} className="border px-5 py-2 rounded-lg">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
