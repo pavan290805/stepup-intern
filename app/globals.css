@@ -3,13 +3,15 @@
 :root {
   --background: #f5f8ff;
   --foreground: #0f172a;
+  --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Consolas", "SFMono-Regular", "Liberation Mono", monospace;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 html,
@@ -28,7 +30,7 @@ body {
   margin: 0;
   overflow-x: hidden;
   overscroll-behavior: none;
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
   font-size: 1rem;
   line-height: 1.5;
 }

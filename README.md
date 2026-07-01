@@ -1,3 +1,0 @@
-StepUp Intern
-Internship Platform
-
