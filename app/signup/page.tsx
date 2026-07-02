@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react";
 
 import {
   inputStyles,
@@ -23,7 +24,10 @@ import Link from "next/link";
 
 export default  function Signup() {
   const router = useRouter();
+  const [error, setError] = useState("");
   const [role, setRole] = useState<"student" | "recruiter">("student");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const isRecruiter = role === "recruiter";
 
@@ -42,10 +46,10 @@ const formData = new FormData(form);
     return;
       }
       const studentData = {
-        fullName: formData.get("fullName") as string,
+        name: formData.get("fullName") as string,
         email: formData.get("email") as string,
         password: formData.get("password") as string,
-        confirmPassword: formData.get("confirmPassword") as string,
+        role : "student"
       };
 
 
@@ -54,21 +58,17 @@ const formData = new FormData(form);
     } else {
 
       const recruiterData = {
-        companyName: formData.get("companyName") as string,
-        companyEmail: formData.get("companyEmail") as string,
-        companyWebsite: formData.get("companyWebsite") as string,
-        industry: formData.get("industry") as string,
-        contactPersonName: formData.get("contactPersonName") as string,
-        personalEmail: formData.get("personalEmail") as string,
+        name: formData.get("fullName") as string,
+        email: formData.get("email") as string,
         password: formData.get("password") as string,
-        confirmPassword: formData.get("confirmPassword") as string,
+        role : "recruiter"
       };
 
       await signupRecruiter(recruiterData);
     }
 
-  } catch (error) {
-    console.error(error);
+  } catch (err : any) {
+    setError(err.message);
   }
 };
   
@@ -157,65 +157,7 @@ const formData = new FormData(form);
               </button>
             </div>
 
-            {isRecruiter && (
-              <div className="grid gap-4 mb-4 md:grid-cols-2">
-                <div>
-                  <label className={labelStyles}>
-                    Company Name
-                  </label>
-
-                  <input
-                    type="text"
-                    name="companyName"
-                    placeholder="StepUp Technologies Pvt. Ltd."
-                    className={inputStyles}
-                    required
-                  />
-                  </div>
-
-                  <div>
-                  <label className={labelStyles}>
-                    Company Email
-                  </label>
-
-                  <input
-                    type="email"
-                    name="companyEmail"
-                    placeholder="hr@company.com"
-                    className={inputStyles}
-                    required
-                  />
-                  </div>
-
-                  <div>
-                  <label className={labelStyles}>
-                    Company Website
-                  </label>
-
-                  <input
-                    type="url"
-                    name="companyWebsite"
-                    placeholder="https://company.com"
-                    className={inputStyles}
-                    required
-                  />
-                  </div>
-
-                  <div>
-                  <label className={labelStyles}>
-                    Industry
-                  </label>
-
-                  <input
-                    type="text"
-                    name="industry"
-                    placeholder="Software, Finance, Healthcare"
-                    className={inputStyles}
-                    required
-                  />
-                  </div>
-                </div>
-            )}
+          
 
             {/* Full Name */}
             <div className="mb-4">
@@ -253,13 +195,22 @@ const formData = new FormData(form);
               Password
             </label>
 
+            <div className="relative">
             <input
-              type="password"
-              name="password"
-              placeholder="********"
-              className={inputStyles}
-              required
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="********"
+            className={inputStyles}
+            required
             />
+
+           <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+              </div>
           </div>
 
           {/* Confirm Password */}
@@ -268,14 +219,29 @@ const formData = new FormData(form);
               Confirm Password
             </label>
 
+            <div className="relative">
             <input
-              type="password"
-              name="confirmPassword"
-              placeholder="********"
-              className={inputStyles}
-              required
+            type={showConfirmPassword ? "text" : "password"}
+            name="confirmPassword"
+            placeholder="********"
+            className={inputStyles}
+            required
             />
+
+           <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+            {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+              </div>
+            
           </div>
+          {error && (
+  <p className="mt-2 text-sm text-red-500">
+    {error}
+  </p>
+)}
 
             {/* Create Account Button */}
             <button

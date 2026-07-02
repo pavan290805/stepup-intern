@@ -164,7 +164,13 @@ transition={{
   </motion.div>
 
 </motion.div>
-<div className="absolute top-32 right-45 z-30 flex gap-5">
+<motion.div
+  className="absolute top-32 right-45 z-30 flex gap-5"
+  initial={{ x: 80, opacity: 0 }}
+  whileInView={{ x: 0, opacity: 1 }}
+  transition={{ duration: 0.8, delay: 0.2 }}
+  viewport={{ once: true }}
+>
 
   {/* Students */}
   <div
@@ -197,6 +203,7 @@ transition={{
   </div>
 
   {/* Recruiters */}
+  
   <div
     className="
       w-65
@@ -225,8 +232,8 @@ transition={{
       </p>
     </div>
   </div>
+</motion.div>
 
-</div>
 
       </div>
     </section>

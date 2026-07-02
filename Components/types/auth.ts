@@ -4,19 +4,15 @@ export interface LoginData {
 }
 
 export interface StudentSignupData {
-  fullName: string;
+  name: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  role: string;
 }
 
 export interface RecruiterSignupData {
-  companyName: string;
-  companyEmail: string;
-  companyWebsite: string;
-  industry: string;
-  contactPersonName: string;
-  personalEmail: string;
+  name: string;
+  email: string;
   password: string;
-  confirmPassword: string;
+  role: string;
 }

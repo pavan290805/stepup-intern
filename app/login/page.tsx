@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react";
 import {
   inputStyles,
   primaryButtonStyles,
@@ -17,14 +18,19 @@ import {
 } from "../../Components/services/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
 
 
 export default function Login() {
   const router = useRouter();
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
+    try{
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
+    
 
     const email = formData.get("email");
     const password = formData.get("password");
@@ -35,7 +41,10 @@ export default function Login() {
     };
 
     await loginUser(loginData);
-  };
+  } catch (err: any) {
+    setError(err.message);
+  }
+};
 
   return (
     <div className="min-h-screen flex">
@@ -60,7 +69,7 @@ export default function Login() {
             width={420}
             height={420}
             priority
-            className="object-contain"
+            className="object-contain "
           />
         </div>
 
@@ -104,14 +113,28 @@ export default function Login() {
               Password
             </label>
 
+            <div className="relative">
             <input
-              name="password"
-              type="password"
-              placeholder="********"
-              className={inputStyles}
+            type={showPassword ? "text" : "password"}
+            name="password"
+            className={inputStyles}
+            placeholder="********"
+            required
             />
-          </div>
 
+           <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+              </div>
+          </div>
+          {error && (
+  <p className="mt-2 text-sm text-red-500">
+    {error}
+  </p>
+)}
           {/* Forgot Password */}
           <div className="flex justify-end mb-6">
             <button
