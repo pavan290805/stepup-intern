@@ -1,0 +1,6 @@
+{
+  "name": "StepUp Student Portal",
+  "description": "An interactive, beautiful full-stack student dashboard featuring an ATS Resume Checker, AI Career Assistant, Skill Gap Analyzer, Profile Manager, and Job Application Journey tracker.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
