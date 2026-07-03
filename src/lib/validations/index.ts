@@ -77,8 +77,8 @@ export const internshipFilterSchema = z.object({
   workMode: z.enum(['remote', 'hybrid', 'onsite']).optional(),
   company: z.string().optional(),
   status: z.enum(['draft', 'active', 'closed']).optional(),
-  page: z.number().default(1),
-  limit: z.number().default(10),
+  page: z.coerce.number().default(1),
+limit: z.coerce.number().default(10),
 });
 
 // Application Validations
