@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 export type RecruiterProfile = {
   name: string;
@@ -28,7 +28,32 @@ export type RecruiterProfile = {
   experienceHistory: Array<{ title: string; company: string; period: string }>;
 };
 
-const STORAGE_KEY = "stepup-recruiter-profile";
+type BackendRecruiterProfile = {
+  _id?: string;
+  id?: string;
+  userId?: {
+    name?: string;
+    email?: string;
+    profilePicture?: string;
+  } | string;
+  companyId?: {
+    name?: string;
+  } | string;
+  designation?: string;
+  phoneNumber?: string;
+  verificationStatus?: "pending" | "verified" | "rejected";
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+type ApiResponse<T> = {
+  success?: boolean;
+  message?: string;
+  data?: T;
+  errors?: string[];
+};
+
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
 
 const defaultProfile: RecruiterProfile = {
   name: "Elena Rodriguez",
@@ -59,99 +84,178 @@ const defaultProfile: RecruiterProfile = {
   ],
 };
 
-const readStoredProfile = (): RecruiterProfile => {
-  if (typeof window === "undefined") {
-    return defaultProfile;
+const buildApiUrl = (path: string) => `${API_BASE_URL}${path}`;
+
+const requestJson = async <T,>(path: string, init: RequestInit = {}): Promise<T> => {
+  const response = await fetch(buildApiUrl(path), {
+    ...init,
+    credentials: "include",
+    cache: "no-store",
+    headers: {
+      ...(init.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+      ...(init.headers ?? {}),
+    },
+  });
+
+  const payload = (await response.json().catch(() => null)) as ApiResponse<T> | null;
+
+  if (!response.ok || payload?.success === false) {
+    throw new Error(payload?.message || `Request failed with status ${response.status}`);
   }
 
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return defaultProfile;
-    }
-
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") {
-      return defaultProfile;
-    }
-
-    return {
-      name: typeof parsed.name === "string" ? parsed.name : defaultProfile.name,
-      role: typeof parsed.role === "string" ? parsed.role : defaultProfile.role,
-      company: typeof parsed.company === "string" ? parsed.company : defaultProfile.company,
-      location: typeof parsed.location === "string" ? parsed.location : defaultProfile.location,
-      email: typeof parsed.email === "string" ? parsed.email : defaultProfile.email,
-      phone: typeof parsed.phone === "string" ? parsed.phone : defaultProfile.phone,
-      website: typeof parsed.website === "string" ? parsed.website : defaultProfile.website,
-      industry: typeof parsed.industry === "string" ? parsed.industry : defaultProfile.industry,
-      headquarters: typeof parsed.headquarters === "string" ? parsed.headquarters : defaultProfile.headquarters,
-      about: typeof parsed.about === "string" ? parsed.about : defaultProfile.about,
-      teamSize: typeof parsed.teamSize === "number" ? parsed.teamSize : defaultProfile.teamSize,
-      openRoles: typeof parsed.openRoles === "number" ? parsed.openRoles : defaultProfile.openRoles,
-      activeListings: typeof parsed.activeListings === "number" ? parsed.activeListings : defaultProfile.activeListings,
-      picture: typeof parsed.picture === "string" ? parsed.picture : defaultProfile.picture,
-      candidatePipeline: typeof parsed.candidatePipeline === "number" ? parsed.candidatePipeline : defaultProfile.candidatePipeline,
-      placements: typeof parsed.placements === "number" ? parsed.placements : defaultProfile.placements,
-      applicantAlerts: typeof parsed.applicantAlerts === "boolean" ? parsed.applicantAlerts : defaultProfile.applicantAlerts,
-      interviewSummaries: typeof parsed.interviewSummaries === "boolean" ? parsed.interviewSummaries : defaultProfile.interviewSummaries,
-      marketingDigests: typeof parsed.marketingDigests === "boolean" ? parsed.marketingDigests : defaultProfile.marketingDigests,
-      twoFactorEnabled: typeof parsed.twoFactorEnabled === "boolean" ? parsed.twoFactorEnabled : defaultProfile.twoFactorEnabled,
-      lastAudit: typeof parsed.lastAudit === "string" ? parsed.lastAudit : defaultProfile.lastAudit,
-      keyExpertise: Array.isArray(parsed.keyExpertise) ? parsed.keyExpertise : defaultProfile.keyExpertise,
-      experienceHistory: Array.isArray(parsed.experienceHistory) ? parsed.experienceHistory : defaultProfile.experienceHistory,
-    };
-  } catch {
-    return defaultProfile;
-  }
+  return (payload?.data ?? (payload as T)) as T;
 };
 
-const writeStoredProfile = (profile: RecruiterProfile) => {
-  if (typeof window === "undefined") {
-    return;
+const normalizeRecruiterProfile = (profile: BackendRecruiterProfile | null | undefined): RecruiterProfile => {
+  if (!profile) {
+    return defaultProfile;
   }
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+  const companyName =
+    typeof profile.companyId === "object" && profile.companyId && "name" in profile.companyId
+      ? profile.companyId.name || defaultProfile.company
+      : defaultProfile.company;
+
+  const name =
+    typeof profile.userId === "object" && profile.userId && "name" in profile.userId
+      ? profile.userId.name || defaultProfile.name
+      : defaultProfile.name;
+
+  const email =
+    typeof profile.userId === "object" && profile.userId && "email" in profile.userId
+      ? profile.userId.email || defaultProfile.email
+      : defaultProfile.email;
+
+  const picture =
+    typeof profile.userId === "object" && profile.userId && "profilePicture" in profile.userId
+      ? profile.userId.profilePicture || defaultProfile.picture
+      : defaultProfile.picture;
+
+  return {
+    ...defaultProfile,
+    name,
+    picture,
+    role: profile.designation || defaultProfile.role,
+    company: companyName,
+    email,
+    phone: profile.phoneNumber || defaultProfile.phone,
+    lastAudit: profile.updatedAt ? `Last audit: ${new Date(profile.updatedAt).toLocaleString()}` : defaultProfile.lastAudit,
+  };
+};
+
+const toBackendProfileInput = (profile: RecruiterProfile) => ({
+  designation: profile.role.trim(),
+  phoneNumber: profile.phone.trim(),
+});
+
+const readStoredProfile = async () => {
+  const profile = await requestJson<BackendRecruiterProfile | null>("/api/recruiters/profile", {
+    method: "GET",
+  });
+
+  return normalizeRecruiterProfile(profile);
+};
+
+const writeStoredProfile = async (profile: RecruiterProfile) => {
+  const updatedProfile = await requestJson<BackendRecruiterProfile>("/api/recruiters/profile", {
+    method: "PATCH",
+    body: JSON.stringify(toBackendProfileInput(profile)),
+  });
+
+  return normalizeRecruiterProfile(updatedProfile);
 };
 
 let currentProfile: RecruiterProfile = defaultProfile;
+let profileLoaded = false;
+let profileLoading = false;
+let profileError: string | null = null;
+let profileEmpty = true;
 const subscribers = new Set<() => void>();
 
 const notifySubscribers = () => {
   subscribers.forEach((listener) => listener());
 };
 
-const refreshProfile = () => {
-  currentProfile = readStoredProfile();
+const setProfileState = (nextState: Partial<{ profile: RecruiterProfile; loading: boolean; error: string | null; empty: boolean }>) => {
+  if (nextState.profile) {
+    currentProfile = nextState.profile;
+  }
+
+  if (typeof nextState.loading === "boolean") {
+    profileLoading = nextState.loading;
+  }
+
+  if (Object.prototype.hasOwnProperty.call(nextState, "error")) {
+    profileError = nextState.error ?? null;
+  }
+
+  if (typeof nextState.empty === "boolean") {
+    profileEmpty = nextState.empty;
+  }
+
+  profileLoaded = true;
   notifySubscribers();
 };
 
-if (typeof window !== "undefined") {
-  window.addEventListener("storage", (event: StorageEvent) => {
-    if (event.key === STORAGE_KEY) {
-      refreshProfile();
-    }
-  });
-}
+const refreshProfile = async () => {
+  if (profileLoading) {
+    return;
+  }
 
-const updateProfile = (nextProfile: RecruiterProfile) => {
-  currentProfile = nextProfile;
-  writeStoredProfile(nextProfile);
+  profileLoading = true;
+  profileError = null;
   notifySubscribers();
+
+  try {
+    const profile = await readStoredProfile();
+    setProfileState({ profile, loading: false, error: null, empty: false });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to load recruiter profile";
+    setProfileState({ loading: false, error: message, empty: true });
+  }
+};
+
+const updateProfile = async (nextProfile: RecruiterProfile) => {
+  currentProfile = nextProfile;
+  profileError = null;
+  profileLoading = true;
+  notifySubscribers();
+
+  try {
+    const savedProfile = await writeStoredProfile(nextProfile);
+    setProfileState({ profile: savedProfile, loading: false, error: null, empty: false });
+    return savedProfile;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to update recruiter profile";
+    setProfileState({ loading: false, error: message, empty: profileEmpty });
+    throw error;
+  }
 };
 
 export const useRecruiterProfile = () => {
-  const profile = useSyncExternalStore(
-    (listener) => {
-      subscribers.add(listener);
-      return () => subscribers.delete(listener);
-    },
-    () => currentProfile,
-    () => currentProfile,
-  );
+  const [profile, setProfile] = useState<RecruiterProfile>(currentProfile);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(profileError);
+  const [empty, setEmpty] = useState(profileEmpty);
 
   useEffect(() => {
-    refreshProfile();
+    const listener = () => {
+      setProfile(currentProfile);
+      setLoading(profileLoading);
+      setError(profileError);
+      setEmpty(profileEmpty);
+    };
+
+    subscribers.add(listener);
+
+    if (!profileLoaded) {
+      void refreshProfile();
+    }
+
+    return () => {
+      subscribers.delete(listener);
+    };
   }, []);
 
-  return { profile, updateProfile };
+  return { profile, updateProfile, loading, error, empty };
 };

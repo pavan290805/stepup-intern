@@ -61,9 +61,27 @@ type InternshipListResponse = {
 const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
 
 const listeners = new Set<() => void>();
+const stateListeners = new Set<() => void>();
 let cachedInternships: Internship[] = [];
 let cacheInitialized = false;
 let loadPromise: Promise<void> | null = null;
+let authPromise: Promise<void> | null = null;
+
+type HookState = {
+  loading: boolean;
+  error: string | null;
+  empty: boolean;
+  authenticated: boolean;
+  initialized: boolean;
+};
+
+let hookState: HookState = {
+  loading: true,
+  error: null,
+  empty: true,
+  authenticated: false,
+  initialized: false,
+};
 
 const emptyForm: InternshipFormState = {
   title: "",
@@ -90,7 +108,32 @@ const emitChange = () => {
 const writeCachedInternships = (nextInternships: Internship[]) => {
   cachedInternships = nextInternships;
   cacheInitialized = true;
+  hookState = {
+    ...hookState,
+    empty: nextInternships.length === 0,
+  };
   emitChange();
+};
+
+const emitStateChange = () => {
+  stateListeners.forEach((listener) => listener());
+};
+
+const subscribeState = (listener: () => void) => {
+  stateListeners.add(listener);
+
+  return () => {
+    stateListeners.delete(listener);
+  };
+};
+
+const setHookState = (nextState: Partial<HookState>) => {
+  hookState = {
+    ...hookState,
+    ...nextState,
+  };
+
+  emitStateChange();
 };
 
 const subscribe = (listener: () => void) => {
@@ -121,6 +164,28 @@ const requestJson = async <T,>(path: string, init: RequestInit = {}): Promise<T>
   }
 
   return (payload?.data ?? (payload as T)) as T;
+};
+
+const isAuthError = (error: unknown) => error instanceof Error && /No token provided|Invalid or expired token|Insufficient permissions/i.test(error.message);
+
+const ensureAuthenticated = async () => {
+  if (authPromise) {
+    return authPromise;
+  }
+
+  authPromise = (async () => {
+    try {
+      await requestJson<unknown>("/api/auth/me", { method: "GET" });
+      setHookState({ authenticated: true });
+    } catch {
+      setHookState({ authenticated: false });
+    } finally {
+      authPromise = null;
+      setHookState({ initialized: true });
+    }
+  })();
+
+  return authPromise;
 };
 
 const mapWorkModeToType = (workMode?: BackendInternship["workMode"]): Internship["type"] => {
@@ -229,6 +294,8 @@ const loadInternships = async () => {
   }
 
   loadPromise = (async () => {
+    setHookState({ loading: true, error: null });
+
     try {
       const result = await requestJson<InternshipListResponse>("/api/internships?page=1&limit=10", {
         method: "GET",
@@ -236,10 +303,12 @@ const loadInternships = async () => {
 
       const internships = Array.isArray(result.internships) ? result.internships.map(mapBackendInternship) : [];
       writeCachedInternships(internships);
+      setHookState({ loading: false, error: null, empty: internships.length === 0 });
     } catch {
       if (!cacheInitialized) {
         writeCachedInternships([]);
       }
+      setHookState({ loading: false, empty: cachedInternships.length === 0 });
     } finally {
       loadPromise = null;
     }
@@ -290,8 +359,10 @@ const getServerSnapshot = () => SERVER_SNAPSHOT;
 
 export const useRecruiterInternships = () => {
   const internships = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const { loading, error, empty, authenticated } = useSyncExternalStore(subscribeState, () => hookState, () => hookState);
 
   useEffect(() => {
+    void ensureAuthenticated();
     void loadInternships();
   }, []);
 
@@ -327,11 +398,23 @@ export const useRecruiterInternships = () => {
     writeCachedInternships([temporaryListing, ...previousInternships]);
 
     void (async () => {
+      if (!authenticated) {
+        setHookState({ error: "Sign in to create internships." });
+        return;
+      }
+
       try {
         const createdListing = await createBackendInternship(form);
         writeCachedInternships([createdListing, ...previousInternships]);
+        setHookState({ error: null });
       } catch (error) {
-        console.error("Failed to create internship", error);
+        if (isAuthError(error)) {
+          setHookState({ authenticated: false, error: "Sign in to create internships." });
+          writeCachedInternships(previousInternships);
+          return;
+        }
+
+        setHookState({ error: error instanceof Error ? error.message : "Failed to create internship" });
         writeCachedInternships(previousInternships);
       }
     })();
@@ -360,13 +443,25 @@ export const useRecruiterInternships = () => {
     writeCachedInternships(nextInternships);
 
     void (async () => {
+      if (!authenticated) {
+        setHookState({ error: "Sign in to update internships." });
+        return;
+      }
+
       try {
         const updatedListing = await saveBackendInternship(id, form);
         writeCachedInternships(
           nextInternships.map((internship) => (internship.id === id ? updatedListing : internship)),
         );
+        setHookState({ error: null });
       } catch (error) {
-        console.error("Failed to update internship", error);
+        if (isAuthError(error)) {
+          setHookState({ authenticated: false, error: "Sign in to update internships." });
+          writeCachedInternships(previousInternships);
+          return;
+        }
+
+        setHookState({ error: error instanceof Error ? error.message : "Failed to update internship" });
         writeCachedInternships(previousInternships);
       }
     })();
@@ -374,7 +469,7 @@ export const useRecruiterInternships = () => {
 
   const promoteListing = (id: string) => {
     const previousInternships = getSnapshot();
-    const nextInternships = previousInternships.map((internship) => {
+    const nextInternships: Internship[] = previousInternships.map((internship) => {
       if (internship.id !== id) {
         return internship;
       }
@@ -392,6 +487,11 @@ export const useRecruiterInternships = () => {
     writeCachedInternships(nextInternships);
 
     void (async () => {
+      if (!authenticated) {
+        setHookState({ error: "Sign in to manage internships." });
+        return;
+      }
+
       try {
         const current = previousInternships.find((internship) => internship.id === id);
         if (!current) {
@@ -399,19 +499,26 @@ export const useRecruiterInternships = () => {
         }
 
         const updatedListing = await saveBackendInternship(id, current);
-        const nextState = nextInternships.map((internship) =>
+        const nextState: Internship[] = nextInternships.map((internship) =>
           internship.id === id
             ? {
                 ...updatedListing,
                 featured: internship.featured,
-                status: internship.status,
+                status: internship.status as InternshipStatus,
               }
             : internship,
         );
 
         writeCachedInternships(nextState);
+        setHookState({ error: null });
       } catch (error) {
-        console.error("Failed to promote internship", error);
+        if (isAuthError(error)) {
+          setHookState({ authenticated: false, error: "Sign in to manage internships." });
+          writeCachedInternships(previousInternships);
+          return;
+        }
+
+        setHookState({ error: error instanceof Error ? error.message : "Failed to manage internship" });
         writeCachedInternships(previousInternships);
       }
     })();
@@ -419,7 +526,7 @@ export const useRecruiterInternships = () => {
 
   const closeListing = (id: string) => {
     const previousInternships = getSnapshot();
-    const nextInternships = previousInternships.map((internship) =>
+    const nextInternships: Internship[] = previousInternships.map((internship) =>
       internship.id === id
         ? {
             ...internship,
@@ -432,6 +539,11 @@ export const useRecruiterInternships = () => {
     writeCachedInternships(nextInternships);
 
     void (async () => {
+      if (!authenticated) {
+        setHookState({ error: "Sign in to manage internships." });
+        return;
+      }
+
       try {
         const current = previousInternships.find((internship) => internship.id === id);
         if (!current) {
@@ -439,7 +551,7 @@ export const useRecruiterInternships = () => {
         }
 
         const updatedListing = await saveBackendInternship(id, current);
-        const nextState = nextInternships.map((internship) =>
+        const nextState: Internship[] = nextInternships.map((internship) =>
           internship.id === id
             ? {
                 ...updatedListing,
@@ -450,8 +562,15 @@ export const useRecruiterInternships = () => {
         );
 
         writeCachedInternships(nextState);
+        setHookState({ error: null });
       } catch (error) {
-        console.error("Failed to close internship", error);
+        if (isAuthError(error)) {
+          setHookState({ authenticated: false, error: "Sign in to manage internships." });
+          writeCachedInternships(previousInternships);
+          return;
+        }
+
+        setHookState({ error: error instanceof Error ? error.message : "Failed to manage internship" });
         writeCachedInternships(previousInternships);
       }
     })();
@@ -459,7 +578,7 @@ export const useRecruiterInternships = () => {
 
   const reopenListing = (id: string) => {
     const previousInternships = getSnapshot();
-    const nextInternships = previousInternships.map((internship) =>
+    const nextInternships: Internship[] = previousInternships.map((internship) =>
       internship.id === id
         ? {
             ...internship,
@@ -471,6 +590,11 @@ export const useRecruiterInternships = () => {
     writeCachedInternships(nextInternships);
 
     void (async () => {
+      if (!authenticated) {
+        setHookState({ error: "Sign in to manage internships." });
+        return;
+      }
+
       try {
         const current = previousInternships.find((internship) => internship.id === id);
         if (!current) {
@@ -478,7 +602,7 @@ export const useRecruiterInternships = () => {
         }
 
         const updatedListing = await saveBackendInternship(id, current);
-        const nextState = nextInternships.map((internship) =>
+        const nextState: Internship[] = nextInternships.map((internship) =>
           internship.id === id
             ? {
                 ...updatedListing,
@@ -489,8 +613,15 @@ export const useRecruiterInternships = () => {
         );
 
         writeCachedInternships(nextState);
+        setHookState({ error: null });
       } catch (error) {
-        console.error("Failed to reopen internship", error);
+        if (isAuthError(error)) {
+          setHookState({ authenticated: false, error: "Sign in to manage internships." });
+          writeCachedInternships(previousInternships);
+          return;
+        }
+
+        setHookState({ error: error instanceof Error ? error.message : "Failed to manage internship" });
         writeCachedInternships(previousInternships);
       }
     })();
@@ -501,10 +632,22 @@ export const useRecruiterInternships = () => {
     writeCachedInternships(previousInternships.filter((internship) => internship.id !== id));
 
     void (async () => {
+      if (!authenticated) {
+        setHookState({ error: "Sign in to delete internships." });
+        return;
+      }
+
       try {
         await deleteBackendInternship(id);
+        setHookState({ error: null });
       } catch (error) {
-        console.error("Failed to delete internship", error);
+        if (isAuthError(error)) {
+          setHookState({ authenticated: false, error: "Sign in to delete internships." });
+          writeCachedInternships(previousInternships);
+          return;
+        }
+
+        setHookState({ error: error instanceof Error ? error.message : "Failed to delete internship" });
         writeCachedInternships(previousInternships);
       }
     })();
@@ -515,10 +658,22 @@ export const useRecruiterInternships = () => {
     writeCachedInternships([]);
 
     void (async () => {
+      if (!authenticated) {
+        setHookState({ error: "Sign in to manage internships." });
+        return;
+      }
+
       try {
         await Promise.all(previousInternships.map((internship) => deleteBackendInternship(internship.id)));
+        setHookState({ error: null });
       } catch (error) {
-        console.error("Failed to clear internship listings", error);
+        if (isAuthError(error)) {
+          setHookState({ authenticated: false, error: "Sign in to manage internships." });
+          writeCachedInternships(previousInternships);
+          return;
+        }
+
+        setHookState({ error: error instanceof Error ? error.message : "Failed to clear internship listings" });
         writeCachedInternships(previousInternships);
       }
     })();
@@ -535,5 +690,8 @@ export const useRecruiterInternships = () => {
     reopenListing,
     removeListing,
     clearListings,
+    loading,
+    error,
+    empty,
   };
 };
