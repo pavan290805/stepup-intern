@@ -1,4 +1,4 @@
-import RecruiterProfile from "../../components/recruiter/RecruiterProfile";
+import RecruiterProfile from "../../Components/recruiter/RecruiterProfile";
 
 export default function ProfilePage() {
   return <RecruiterProfile />;

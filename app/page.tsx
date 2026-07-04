@@ -1,7 +1,11 @@
-"use client";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { getAuthenticatedRedirectPath } from "../src/lib/auth-session";
 
-import RecruiterDashboard from "../components/recruiter/RecruiterDashboard";
+export default async function Home() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("accessToken")?.value;
+  const redirectPath = getAuthenticatedRedirectPath(token);
 
-export default function Home() {
-  return <RecruiterDashboard />;
+  redirect(redirectPath || "/login");
 }

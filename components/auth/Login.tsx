@@ -1,5 +1,8 @@
 "use client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { loginUser } from "../../src/modules/auth/auth.client";
 type LoginProps = {
   setShowSignup: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -7,13 +10,29 @@ type LoginProps = {
 export default function Login({
   setShowSignup,
 }: LoginProps) {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const router = useRouter();
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError("");
 
     const formData = new FormData(event.currentTarget);
-    const email = formData.get("email");
+    const email = String(formData.get("email") || "").trim();
+    const password = String(formData.get("password") || "");
 
-    window.alert(`Login submitted for ${email || "your account"}.`);
+    try {
+      const result = await loginUser({ email, password });
+
+      if (result.user.role === "recruiter") {
+        router.replace("/recruiter");
+        return;
+      }
+
+      router.replace("/internships");
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Login failed");
+    }
   };
 
   return (
@@ -92,6 +111,7 @@ export default function Login({
               type="email"
               placeholder="arjun@example.com"
               className="w-full border border-gray-300 text-black rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#0880EF] placeholder:text-black/50"
+              required
             />
           </div>
 
@@ -105,8 +125,11 @@ export default function Login({
               type="password"
               placeholder="********"
               className="w-full border border-gray-300 text-black rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#0880EF] placeholder:text-black/50"
+              required
             />
           </div>
+
+          {error ? <p className="mt-2 text-sm text-red-500">{error}</p> : null}
 
           <div className="flex justify-end mb-6">
             <button

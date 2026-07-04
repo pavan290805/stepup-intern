@@ -1,4 +1,11 @@
+import { setServers } from 'dns';
 import mongoose from 'mongoose';
+
+try {
+  setServers(['8.8.8.8', '8.8.4.4']);
+} catch {
+  // Ignore resolver configuration errors and fall back to the existing Node DNS settings.
+}
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -25,6 +32,8 @@ export async function connectDB() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      serverSelectionTimeoutMS: 20000,
+      connectTimeoutMS: 20000,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {

@@ -1,18 +1,61 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { signupRecruiter, signupStudent } from "../../src/modules/auth/auth.client";
 
 type SignupProps = {
   setShowSignup: React.Dispatch<React.SetStateAction<boolean>>;
 };
 export default function Signup({ setShowSignup }: SignupProps) {
+  const router = useRouter();
   const [role, setRole] = useState<"student" | "recruiter">("student");
+  const [error, setError] = useState("");
 
   const isRecruiter = role === "recruiter";
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    window.alert(`${role === "student" ? "Student" : "Recruiter"} signup submitted.`);
+
+    setError("");
+
+    const formData = new FormData(event.currentTarget);
+    const password = String(formData.get("password") || "");
+    const confirmPassword = String(formData.get("confirmPassword") || "");
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    const payload = {
+      name: String(formData.get("name") || "").trim(),
+      email: String(formData.get("email") || "").trim(),
+      password,
+      ...(isRecruiter
+        ? {
+            companyName: String(formData.get("companyName") || "").trim(),
+            companyEmail: String(formData.get("companyEmail") || "").trim(),
+            companyWebsite: String(formData.get("companyWebsite") || "").trim(),
+            industry: String(formData.get("industry") || "").trim(),
+          }
+        : {}),
+    };
+
+    try {
+      const result = isRecruiter
+        ? await signupRecruiter(payload)
+        : await signupStudent(payload);
+
+      if (result.user.role === "recruiter") {
+        window.location.replace("/recruiter");
+        return;
+      }
+
+      window.location.replace("/internships");
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Signup failed");
+    }
   };
 
   return (
@@ -120,6 +163,7 @@ export default function Signup({ setShowSignup }: SignupProps) {
                   </label>
 
                   <input
+                    name="companyName"
                     type="text"
                     placeholder="StepUp Technologies Pvt. Ltd."
                     className="
@@ -143,6 +187,7 @@ export default function Signup({ setShowSignup }: SignupProps) {
                   </label>
 
                   <input
+                    name="companyEmail"
                     type="email"
                     placeholder="hr@company.com"
                     className="
@@ -166,6 +211,7 @@ export default function Signup({ setShowSignup }: SignupProps) {
                   </label>
 
                   <input
+                    name="companyWebsite"
                     type="url"
                     placeholder="https://company.com"
                     className="
@@ -189,6 +235,7 @@ export default function Signup({ setShowSignup }: SignupProps) {
                   </label>
 
                   <input
+                    name="industry"
                     type="text"
                     placeholder="Software, Finance, Healthcare"
                     className="
@@ -215,6 +262,7 @@ export default function Signup({ setShowSignup }: SignupProps) {
               </label>
 
               <input
+                name="name"
                 type="text"
                 placeholder={isRecruiter ? "Arjun Kumar" : "Arjun Kumar"}
                 className="
@@ -239,6 +287,7 @@ export default function Signup({ setShowSignup }: SignupProps) {
               </label>
 
               <input
+                name="email"
                 type="email"
                 placeholder="arjun@example.com"
                 className="
@@ -263,6 +312,7 @@ export default function Signup({ setShowSignup }: SignupProps) {
             </label>
 
             <input
+              name="password"
               type="password"
               placeholder="********"
               className="
@@ -287,6 +337,7 @@ export default function Signup({ setShowSignup }: SignupProps) {
             </label>
 
             <input
+              name="confirmPassword"
               type="password"
               placeholder="********"
               className="
@@ -321,6 +372,8 @@ export default function Signup({ setShowSignup }: SignupProps) {
                 : "Create Student Account"}
             </button>
           </form>
+
+          {error ? <p className="mt-3 text-sm text-red-500">{error}</p> : null}
           <div className="flex items-center my-4">
             <div className="flex-1 border-t"></div>
 

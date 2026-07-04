@@ -9,7 +9,8 @@ export async function validateRequestBody<T>(
   | { valid: false; data?: undefined; response: Response }
 > {
   try {
-    const body = await request.json();
+    const clonedRequest = request.clone();
+    const body = await clonedRequest.json();
     const result = schema.safeParse(body);
 
     if (!result.success) {

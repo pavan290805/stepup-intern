@@ -4,6 +4,7 @@ import { recruiterProfileSchema } from '@/lib/validations';
 import { errorResponse, successResponse, withAuth } from '@/middleware/auth';
 import { validateRequestBody } from '@/middleware/validation';
 import { recruiterService } from '@/modules/recruiter/recruiter.service';
+import User from '@/models/User';
 import { NextRequest } from 'next/server';
 
 export async function POST(request: NextRequest) {
@@ -38,7 +39,23 @@ export async function GET(request: NextRequest) {
     const profile = await recruiterService.getProfile(user.userId);
 
     if (!profile) {
-      return errorResponse('Recruiter profile not found', undefined, 404);
+      // Build a lightweight profile from the User document so the UI
+      // can display the logged-in user's basic details immediately.
+      const dbUser = await User.findById(user.userId).select('name email profilePicture createdAt updatedAt');
+
+      const fallbackProfile = {
+        userId: dbUser
+          ? { name: dbUser.name, email: dbUser.email, profilePicture: dbUser.profilePicture }
+          : undefined,
+        companyId: undefined,
+        designation: undefined,
+        phoneNumber: undefined,
+        verificationStatus: undefined,
+        createdAt: dbUser ? dbUser.createdAt : undefined,
+        updatedAt: dbUser ? dbUser.updatedAt : undefined,
+      } as any;
+
+      return successResponse(fallbackProfile as any);
     }
 
     return successResponse(profile);

@@ -1,4 +1,4 @@
-import InternshipApplicants from "../../../components/internships/InternshipApplicants";
+import InternshipApplicants from "../../../Components/internships/InternshipApplicants";
 
 export default function InternshipApplicantsPage() {
   return (
