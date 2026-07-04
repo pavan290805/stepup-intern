@@ -318,6 +318,11 @@ const loadInternships = async () => {
 };
 
 const saveBackendInternship = async (id: string, form: InternshipFormState) => {
+  // Client-side validation to match backend rules
+  if (!form.title || form.title.trim().length === 0) throw new Error('Title is required');
+  if (!form.description || form.description.trim().length < 20) throw new Error('Description must be at least 20 characters');
+  if (!form.location || form.location.trim().length === 0) throw new Error('Location is required');
+
   const result = await requestJson<BackendInternship>(`/api/internships/${id}`, {
     method: "PATCH",
     body: JSON.stringify(mapFormToBackendInput(form)),
@@ -327,6 +332,11 @@ const saveBackendInternship = async (id: string, form: InternshipFormState) => {
 };
 
 const createBackendInternship = async (form: InternshipFormState) => {
+  // Client-side validation to prevent backend 400s
+  if (!form.title || form.title.trim().length === 0) throw new Error('Title is required');
+  if (!form.description || form.description.trim().length < 20) throw new Error('Description must be at least 20 characters');
+  if (!form.location || form.location.trim().length === 0) throw new Error('Location is required');
+
   const result = await requestJson<BackendInternship>("/api/internships", {
     method: "POST",
     body: JSON.stringify(mapFormToBackendInput(form)),
@@ -390,7 +400,8 @@ export const useRecruiterInternships = () => {
       stipend: form.stipend.trim(),
       deadline: form.deadline,
       description: form.description.trim(),
-      status: "Draft",
+      // optimistic: mark as Active so it appears in lists immediately
+      status: "Active",
       featured: false,
       createdAt: new Date().toISOString(),
     };

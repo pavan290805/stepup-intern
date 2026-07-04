@@ -4,7 +4,6 @@ type InternshipListingCardProps = {
   internship: Internship;
   formatDate: (value: string) => string;
   onEdit: (internship: Internship) => void;
-  onFeature: (id: string) => void;
   onClose: (id: string) => void;
   onReopen: (id: string) => void;
   onDelete?: (id: string) => void;
@@ -63,13 +62,7 @@ export default function InternshipListingCard({
           >
             Edit
           </button>
-          <button
-            type="button"
-            onClick={() => onFeature(internship.id)}
-            className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-amber-300 hover:text-amber-600"
-          >
-            {internship.featured ? "Remove Feature" : "Feature"}
-          </button>
+          {/* Feature button removed — listings are published directly */}
           {internship.status === "Closed" ? (
             <button
               type="button"

@@ -408,7 +408,7 @@ export default function RecruiterPage() {
                     internship={internship}
                     formatDate={formatDate}
                     onEdit={startEditing}
-                    onFeature={promoteListing}
+                    
                     onClose={closeListing}
                     onReopen={reopenListing}
                     onViewApplicants={handleViewApplicants}

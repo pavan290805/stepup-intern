@@ -207,7 +207,6 @@ export default function EditInternshipsPage({ mode = "edit" }: EditInternshipsPa
                 internship={internship}
                 formatDate={formatDate}
                 onEdit={startEditing}
-                onFeature={promoteListing}
                 onClose={closeListing}
                 onReopen={reopenListing}
               />
