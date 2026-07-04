@@ -24,10 +24,13 @@ import { useState } from "react";
 export default function Login() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
-    try{
+    
     event.preventDefault();
+    setError("");
+    setLoading(true);
 
     const formData = new FormData(event.currentTarget);
     
@@ -39,10 +42,12 @@ export default function Login() {
       email: typeof email === "string" ? email : "",
       password: typeof password === "string" ? password : "",
     };
-
+    try{
     await loginUser(loginData);
   } catch (err: any) {
     setError(err.message);
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -102,8 +107,10 @@ export default function Login() {
             <input
               name="email"
               type="email"
+              autoComplete="username"
               placeholder="arjun@example.com"
               className={inputStyles}
+              required
             />
           </div>
 
@@ -117,6 +124,7 @@ export default function Login() {
             <input
             type={showPassword ? "text" : "password"}
             name="password"
+            autoComplete="current-password"
             className={inputStyles}
             placeholder="********"
             required
@@ -148,9 +156,11 @@ export default function Login() {
           {/* Login Button */}
           <button
             type="submit"
-            className={primaryButtonStyles}
+            disabled={loading}
+            className={`${primaryButtonStyles} ${
+              loading ? "opacity-60 cursor-not-allowed" : ""}`}
           >
-            Sign In
+            {loading ? "Signing In..." : "Sign In"}
           </button>
 
           {/* Divider */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -25,26 +25,31 @@ import Link from "next/link";
 export default  function Signup() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
   const [role, setRole] = useState<"student" | "recruiter">("student");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const isRecruiter = role === "recruiter";
 
   const handleSubmit = async (
   event: React.FormEvent<HTMLFormElement>
-) => {
+  ) => {
   event.preventDefault();
-
-const form = event.currentTarget;
-const formData = new FormData(form);
-
-  try {
-    if (role === "student") {
-      if(formData.get("password") !== formData.get("confirmPassword")){
-    alert("Passwords do not match");
-    return;
+  setError("");
+  setSuccess("");
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+  if(formData.get("password") !== formData.get("confirmPassword")){
+        setError("Passwords do not match");
+        return;
       }
+  setLoading(true);
+  try {
+    
+    if (role === "student") {
       const studentData = {
         name: formData.get("fullName") as string,
         email: formData.get("email") as string,
@@ -52,23 +57,36 @@ const formData = new FormData(form);
         role : "student"
       };
 
-
       await signupStudent(studentData);
+      setSuccess("Student account created successfully!");
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
 
     } else {
-
+      
       const recruiterData = {
-        name: formData.get("fullName") as string,
-        email: formData.get("email") as string,
+        name: formData.get("contactPersonName") as string,
+        email: formData.get("personalEmail") as string,
         password: formData.get("password") as string,
         role : "recruiter"
       };
-
       await signupRecruiter(recruiterData);
+      setSuccess("Recruiter account created successfully!");
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
+      
     }
 
-  } catch (err : any) {
-    setError(err.message);
+  } catch (error) {
+  if (error instanceof Error) {
+    setError(error.message);
+  } else {
+    setError("Something went wrong");
+  }
+  } finally {
+    setLoading(false);
   }
 };
   
@@ -129,12 +147,20 @@ const formData = new FormData(form);
               : "Join StepUp and start your journey"}
           </p>
 
-          <form onSubmit={handleSubmit}>
+          <form ref={formRef} onSubmit={handleSubmit}>
             {/* Role Selection */}
             <div className="grid grid-cols-2 gap-3 mb-6">
               <button
                 type="button"
-                onClick={() => setRole("student")}
+                onClick={() => {
+                if (role !== "student") {
+                  setRole("student");
+                  formRef.current?.reset();
+                  setError("");
+                  setShowPassword(false);
+                  setShowConfirmPassword(false);
+                }
+              }}
                 className={`border-2 rounded-lg py-3 font-semibold ${
                   role === "student"
                     ? "border-[#0880EF] bg-blue-50 text-[#0880EF]"
@@ -146,7 +172,15 @@ const formData = new FormData(form);
 
               <button
                 type="button"
-                onClick={() => setRole("recruiter")}
+                onClick={() => {
+                if (role !== "recruiter") {
+                  setRole("recruiter");
+                  formRef.current?.reset();
+                  setError("");
+                  setShowPassword(false);
+                  setShowConfirmPassword(false);
+                }
+              }}
                 className={`border-2 rounded-lg py-3 font-semibold ${
                   role === "recruiter"
                     ? "border-[#0880EF] bg-blue-50 text-[#0880EF]"
@@ -168,6 +202,7 @@ const formData = new FormData(form);
               <input
                 type="text"
                 name={isRecruiter ? "contactPersonName" : "fullName"}
+                autoComplete="name"
                 placeholder={isRecruiter ? "Arjun Kumar" : "Arjun Kumar"}
                 className={inputStyles}
                 required
@@ -183,6 +218,7 @@ const formData = new FormData(form);
               <input
                 type="email"
                 name={isRecruiter ? "personalEmail" : "email"}
+                autoComplete="email"
                 placeholder={isRecruiter ? "arjun@company.com" : "arjun@example.com"}
                 className={inputStyles}
                 required
@@ -199,6 +235,7 @@ const formData = new FormData(form);
             <input
             type={showPassword ? "text" : "password"}
             name="password"
+            autoComplete="new-password"
             placeholder="********"
             className={inputStyles}
             required
@@ -223,6 +260,7 @@ const formData = new FormData(form);
             <input
             type={showConfirmPassword ? "text" : "password"}
             name="confirmPassword"
+            autoComplete="new-password"
             placeholder="********"
             className={inputStyles}
             required
@@ -238,19 +276,27 @@ const formData = new FormData(form);
             
           </div>
           {error && (
-  <p className="mt-2 text-sm text-red-500">
-    {error}
-  </p>
-)}
+          <p className="text-red-500 text-sm mb-3">
+          {error}
+          </p>
+            )}
+          {success && (
+            <p className="text-green-600 text-sm mb-3">
+              {success}
+              </p>
+            )}
 
             {/* Create Account Button */}
             <button
               type="submit"
-              className={primaryButtonStyles}
-            >
-              {isRecruiter
-                ? "Create Recruiter Account"
-                : "Create Student Account"}
+              disabled={loading}
+              className={`${primaryButtonStyles} ${
+              loading ? "opacity-60 cursor-not-allowed" : ""}`}
+              >
+              {loading? "Creating Account...": 
+              isRecruiter
+              ? "Create Recruiter Account"
+              : "Create Student Account"}
             </button>
           </form>
           <div className="flex items-center my-4">

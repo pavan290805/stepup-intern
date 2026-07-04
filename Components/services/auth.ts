@@ -39,11 +39,12 @@ export const signupStudent = async (
   const result = await response.json();
 
 if (!response.ok) {
-  throw new Error(
-    result.errors?.join(", ") ||
-    result.message ||
-    "Student signup failed"
-  );
+  const errorMessage =
+    Array.isArray(result.errors) && result.errors.length > 0
+      ? result.errors.join(", ")
+      : result.message || "Signup failed";
+
+  throw new Error(errorMessage);
 }
 
 return result;
@@ -66,11 +67,12 @@ export const signupRecruiter = async (
   const result = await response.json();
 
 if (!response.ok) {
-  throw new Error(
-    result.errors?.join(", ") ||
-    result.message ||
-    "Student signup failed"
-  );
+  const errorMessage =
+    Array.isArray(result.errors) && result.errors.length > 0
+      ? result.errors.join(", ")
+      : result.message || "Signup failed";
+
+  throw new Error(errorMessage);
 }
 
 return result;
