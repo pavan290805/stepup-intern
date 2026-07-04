@@ -5,11 +5,25 @@ import { errorResponse, successResponse, withAuth } from '@/middleware/auth';
 import { validateQueryParams, validateRequestBody } from '@/middleware/validation';
 import { internshipService } from '@/modules/internship/internship.service';
 import { recruiterService } from '@/modules/recruiter/recruiter.service';
+import Company from '@/models/Company';
+import User from '@/models/User';
 import { NextRequest } from 'next/server';
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
 
 export async function POST(request: NextRequest) {
   try {
     await connectDB();
+
+    try {
+      const rawBody = await request.clone().text();
+      // eslint-disable-next-line no-console
+      console.log('[DEBUG] /api/internships POST raw body:', rawBody);
+    } catch (e) {
+      // ignore
+    }
 
     const authError = await withAuth(request, [USER_ROLES.RECRUITER]);
     if (authError) return authError;
@@ -19,7 +33,36 @@ export async function POST(request: NextRequest) {
     const { valid, data, response } = await validateRequestBody(request, internshipSchema);
     if (!valid) return response;
 
-    const recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
+    let recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
+
+    if (!recruiterProfile) {
+      // Try to auto-create a minimal company and recruiter profile so recruiters
+      // created before this feature can still post internships.
+      try {
+        const dbUser = await User.findById(user.userId).select('name email');
+        const company = await Company.create({
+          name: dbUser ? `${dbUser.name}'s Company` : 'Unknown Company',
+          industry: 'Unknown',
+          website: 'https://example.com',
+          description: 'Auto-created placeholder company for recruiter',
+          companySize: '1-50',
+          headquarters: 'Unknown',
+        });
+
+        await recruiterService.createProfile(user.userId, {
+          companyId: company._id.toString(),
+          designation: 'Recruiter',
+          phoneNumber: '+10000000000',
+        });
+
+        recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
+      } catch (err) {
+        // log but do not expose internals
+        // eslint-disable-next-line no-console
+        console.warn('Failed to auto-create recruiter profile:', getErrorMessage(err, 'Unknown error'));
+      }
+    }
+
     if (!recruiterProfile) {
       return errorResponse('Recruiter profile not found', undefined, 404);
     }
@@ -27,11 +70,13 @@ export async function POST(request: NextRequest) {
     const internship = await internshipService.createInternship(recruiterProfile._id.toString(), {
       ...(data as any),
       companyId: recruiterProfile.companyId,
+      // Publish immediately so newly created internships appear in listings
+      status: 'active',
     });
 
     return successResponse(internship, 'Internship created successfully', 201);
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to create internship', undefined, 400);
+  } catch (error) {
+    return errorResponse(getErrorMessage(error, 'Failed to create internship'), undefined, 400);
   }
 }
 
@@ -56,7 +101,7 @@ export async function GET(request: NextRequest) {
         pages: Math.ceil(result.total / data.limit),
       },
     });
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch internships', undefined, 500);
+  } catch (error) {
+    return errorResponse(getErrorMessage(error, 'Failed to fetch internships'), undefined, 500);
   }
 }

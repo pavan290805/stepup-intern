@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5f8ff;
+  --foreground: #0f172a;
   --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   --font-mono: "Consolas", "SFMono-Regular", "Liberation Mono", monospace;
 }
@@ -17,12 +17,13 @@
 html,
 body {
   min-height: 100%;
-  background: #ffffff;
+  background: linear-gradient(180deg, #f8fbff 0%, #f5f8ff 100%);
   color: var(--foreground);
 }
 
 html {
   overscroll-behavior: none;
+  font-size: clamp(14px, 1.05vw, 18px);
 }
 
 body {

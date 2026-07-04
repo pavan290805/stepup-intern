@@ -1,6 +1,12 @@
 import { comparePassword, generateAccessToken, generateRefreshToken, hashPassword } from '@/lib/auth';
 import { LoginInput, RegisterInput } from '@/lib/validations';
 import User, { IUser } from '@/models/User';
+import Company from '@/models/Company';
+import { recruiterService } from '@/modules/recruiter/recruiter.service';
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
 
 export const authService = {
   async register(input: RegisterInput): Promise<{ user: IUser; accessToken: string; refreshToken: string }> {
@@ -33,6 +39,32 @@ export const authService = {
     // Store refresh token
     user.refreshToken = refreshToken;
     await user.save();
+
+    // If the user is a recruiter, attempt to create a minimal company and recruiter profile.
+    if (input.role === 'recruiter') {
+      (async () => {
+        try {
+          const company = await Company.create({
+            name: `${user.name}'s Company`,
+            industry: 'Unknown',
+            website: 'https://example.com',
+            description: 'Auto-created placeholder company',
+            companySize: '1-50',
+            headquarters: 'Unknown',
+          });
+
+          await recruiterService.createProfile(user._id.toString(), {
+            companyId: company._id.toString(),
+            designation: 'Recruiter',
+            phoneNumber: '+10000000000',
+          });
+        } catch (err) {
+          // Do not block registration on profile creation errors; log for later investigation.
+          // eslint-disable-next-line no-console
+          console.warn('Auto-create recruiter profile failed:', getErrorMessage(err, 'Unknown error'));
+        }
+      })();
+    }
 
     return { user, accessToken, refreshToken };
   },
