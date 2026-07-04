@@ -2,6 +2,8 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 
+/* ─── Frontend state types (unchanged from original) ─────────────────────── */
+
 type Skill = { id: string; name: string; category: "Frontend" | "Backend" | "Tools" | "ML/AI" };
 type Project = { id: string; name: string; description: string; technologies: string[]; github?: string };
 type Cert = { id: string; name: string; organization: string; date: string };
@@ -10,6 +12,107 @@ type Internship = { id: string; company: string; role: string; duration: string;
 type Academic = { university: string; degree: string; graduationYear: string; gpa: string };
 
 const uid = (prefix = "id") => `${prefix}_${Math.random().toString(36).slice(2, 9)}`;
+
+/* ─── Backend API shapes ──────────────────────────────────────────────────────
+ * These reflect the StudentProfile Mongoose model (src/models/StudentProfile.ts)
+ * and the Zod schema (src/lib/validations/index.ts → studentProfileSchema).
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+interface BackendProfile {
+  userId: { name: string; email: string; profilePicture?: string };
+  headline?: string;
+  bio?: string;
+  education: Array<{
+    school: string;
+    degree: string;
+    field: string;
+    startDate: string;
+    endDate?: string;
+  }>;
+  skills: string[];
+  projects?: Array<{ title: string; description: string; link?: string }>;
+  certifications: string[];
+  achievements: string[];
+  experience?: Array<{
+    company: string;
+    position: string; // NOTE: backend uses "position"; frontend uses "role"
+    duration: string;
+    description?: string;
+  }>;
+  resumeUrl?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  profileCompletion: number;
+}
+
+/**
+ * Fields accepted by the Zod schema for POST / PATCH /api/students/profile.
+ * See src/lib/validations/index.ts → studentProfileSchema.
+ *
+ * TODO: The following frontend fields have no backend equivalent yet and cannot
+ * be persisted until the Zod schema and StudentProfile model are extended:
+ *   - achievements (currently string[], needs { title, description } objects)
+ *   - experience / internship history (not in Zod schema at all)
+ *   - projects (not in Zod schema at all)
+ *   - phone, location (not in the model)
+ *   - gpa (not in the model)
+ *   - project technologies[] (not in the projects sub-document)
+ *   - skill category (not stored; inferred client-side from keyword matching)
+ */
+interface BackendProfilePayload {
+  headline?: string;
+  bio?: string;
+  resumeUrl?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  education?: Array<{
+    school: string;
+    degree: string;
+    field: string;
+    startDate: string;
+    endDate?: string;
+  }>;
+  skills?: string[];
+  certifications?: string[];
+}
+
+/* ─── Minimal fetch helper ────────────────────────────────────────────────────
+ * Returns a discriminated union so callers can handle success and error
+ * without try/catch noise at every call site.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+type FetchResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; message: string; status: number };
+
+async function apiFetch<T>(
+  path: string,
+  init?: RequestInit
+): Promise<FetchResult<T>> {
+  try {
+    const res = await fetch(path, { credentials: "include", ...init });
+    const json = (await res.json()) as { success: boolean; message?: string; data?: T };
+    if (json.success && json.data !== undefined) return { ok: true, data: json.data };
+    return { ok: false, message: json.message ?? "Request failed", status: res.status };
+  } catch {
+    return { ok: false, message: "Network error. Please try again.", status: 0 };
+  }
+}
+
+/* ─── Skill category inference (keyword heuristic) ───────────────────────────
+ * Backend stores skills as plain strings; category is a client-side concept.
+ * This runs only on GET responses to reconstruct the Skill[] shape.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+function inferSkillCategory(name: string): Skill["category"] {
+  const n = name.toLowerCase();
+  if (/react|vue|angular|svelte|html|css|tailwind|sass|next\.?js|gatsby|typescript|javascript/.test(n)) return "Frontend";
+  if (/node|express|django|flask|python|java|php|ruby|rails|go|rust|sql|mongo|postgres|mysql|graphql/.test(n)) return "Backend";
+  if (/tensorflow|pytorch|keras|scikit|sklearn|pandas|numpy|nlp|transformer|llm/.test(n)) return "ML/AI";
+  return "Tools";
+}
+
+/* ─── Sub-components (100% unchanged from original) ──────────────────────── */
 
 function Modal({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
@@ -289,64 +392,94 @@ function PreviewModal({
   );
 }
 
+/* ─── Notification banners ────────────────────────────────────────────────── */
+
+function ErrorBanner({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+  return (
+    <div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+      <span>{message}</span>
+      <button onClick={onDismiss} className="shrink-0 font-medium hover:text-red-900">✕</button>
+    </div>
+  );
+}
+
+function SuccessBanner({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+  return (
+    <div className="mb-4 flex items-start justify-between gap-3 rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+      <span>{message}</span>
+      <button onClick={onDismiss} className="shrink-0 font-medium hover:text-green-900">✕</button>
+    </div>
+  );
+}
+
+/* ─── Loading skeleton ────────────────────────────────────────────────────── */
+
+function ProfileSkeleton() {
+  return (
+    <div className="min-h-screen bg-gray-50 animate-pulse">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        <div className="mb-6 h-10 w-64 rounded-2xl bg-gray-200" />
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-6">
+            <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-gray-200">
+              <div className="flex items-center gap-4">
+                <div className="h-28 w-28 rounded-full bg-gray-200" />
+                <div className="space-y-2 flex-1">
+                  <div className="h-5 w-32 rounded bg-gray-200" />
+                  <div className="h-4 w-24 rounded bg-gray-200" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="lg:col-span-2 space-y-6">
+            <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-gray-200 h-40" />
+            <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-gray-200 h-56" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Main component ──────────────────────────────────────────────────────── */
+
 export default function ProfileManagement() {
-  // ── API integration state ─────────────────────────────────────────────────
+  // ── Async / API state ──────────────────────────────────────────────────────
   const [isLoading, setIsLoading] = useState(true);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const [profileLoaded, setProfileLoaded] = useState(false);
-
-  // ── PATCH /api/students/profile save state ────────────────────────────────
   const [isSaving, setIsSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [isFirstTime, setIsFirstTime] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  // ── Existing UI state (dummy defaults kept as fallback during loading) ────
+  // ── Profile fields (defaults empty; populated from API on mount) ───────────
   const [editMode, setEditMode] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [name, setName] = useState("Alex Rivera");
-  const [studentTitle, setStudentTitle] = useState("Final Year Computer Science Student");
-  const [email, setEmail] = useState("alex.rivera@university.edu");
-  const [phone, setPhone] = useState("+1 (555) 123-4567");
-  const [location, setLocation] = useState("San Francisco, CA");
-  const [university, setUniversity] = useState("Stanford University");
+  const [name, setName] = useState("");
+  const [studentTitle, setStudentTitle] = useState("");
+  const [email, setEmail] = useState("");
+  // TODO: phone and location are frontend-only – no backend field exists yet.
+  // Add to StudentProfile model and studentProfileSchema before persisting.
+  const [phone, setPhone] = useState("");
+  const [location, setLocation] = useState("");
+  const [university, setUniversity] = useState("");
+  // bio is stored in the backend but has no UI input field yet.
+  const [bio, setBio] = useState("");
 
-  const [skills, setSkills] = useState<Skill[]>([
-    { id: uid("s"), name: "React",       category: "Frontend" },
-    { id: uid("s"), name: "Tailwind CSS", category: "Frontend" },
-    { id: uid("s"), name: "Node.js",      category: "Backend"  },
-    { id: uid("s"), name: "Python",       category: "Backend"  },
-    { id: uid("s"), name: "Git",          category: "Tools"    },
-    { id: uid("s"), name: "TensorFlow",   category: "ML/AI"    },
-  ]);
+  const [skills, setSkills] = useState<Skill[]>([]);
   const [showAddSkill, setShowAddSkill] = useState(false);
   const [newSkillName, setNewSkillName] = useState("");
   const [newSkillCat, setNewSkillCat] = useState<Skill["category"]>("Frontend");
 
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      id: uid("p"),
-      name: "EcoTrack Mobile App",
-      description: "Cross-platform sustainability tracker built with Flutter and Firebase.",
-      technologies: ["Flutter", "Firebase"],
-      github: "https://github.com/example/ecotrack",
-    },
-    {
-      id: uid("p"),
-      name: "SmartRecruit AI",
-      description: "NLP-based resume parser that extracts skills with custom transformers.",
-      technologies: ["Python", "Transformers"],
-      github: "https://github.com/example/smartrecruit",
-    },
-  ]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showProjectModal, setShowProjectModal] = useState(false);
 
-  const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const [resumeName, setResumeName] = useState<string | null>(null);
-  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [resumeUrl, setResumeUrl] = useState<string | null>(null);
 
-  const [linkedIn, setLinkedIn] = useState("https://www.linkedin.com/in/alex-rivera");
-  const [githubUrl, setGithubUrl] = useState("https://github.com/alexrivera");
+  const [linkedIn, setLinkedIn] = useState("");
+  const [githubUrl, setGithubUrl] = useState("");
 
   const [certs, setCerts] = useState<Cert[]>([]);
   const [editingCert, setEditingCert] = useState<Cert | null>(null);
@@ -361,252 +494,16 @@ export default function ProfileManagement() {
   const [showInternModal, setShowInternModal] = useState(false);
 
   const [academic, setAcademic] = useState<Academic>({
-    university: "Stanford University",
-    degree: "B.S. in Computer Science",
-    graduationYear: "2024",
-    gpa: "3.92/4.0",
+    university: "", degree: "", graduationYear: "", gpa: "",
   });
   const [editingAcademic, setEditingAcademic] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
-  // ── GET /api/students/profile ─────────────────────────────────────────────
-  useEffect(() => {
-    async function loadProfile() {
-      setIsLoading(true);
-      setFetchError(null);
-
-      try {
-        const res = await fetch("/api/students/profile", {
-          method: "GET",
-          credentials: "include", // sends the accessToken cookie automatically
-        });
-
-        const json = await res.json();
-
-        if (!res.ok) {
-          if (res.status === 404) {
-            // ── Profile does not exist yet → create a blank one ──────────────
-            // POST /api/students/profile with an empty body creates the record
-            // in MongoDB. All fields are optional in studentProfileSchema so {}
-            // is a valid payload. After creation the component renders with the
-            // existing default useState values (Alex Rivera etc.) as placeholders
-            // until the student fills in real data and hits Save.
-            const createRes = await fetch("/api/students/profile", {
-              method: "POST",
-              credentials: "include",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({}), // empty — all schema fields are optional
-            });
-
-            const createJson = await createRes.json();
-
-            if (!createRes.ok) {
-              // POST failed (e.g. 401 token expired between GET and POST, or
-              // 400 "Student profile already exists" due to a race condition).
-              setFetchError(
-                createJson.message || "Failed to create profile. Please refresh and try again."
-              );
-              return;
-            }
-
-            // POST 201 — profile created. The new document has empty arrays and
-            // no text fields set. We intentionally do NOT seed state here so the
-            // user sees the default placeholder values and knows to fill them in.
-            // profileLoaded = true lets the main content render.
-            setProfileLoaded(true);
-            return; // skip the GET-success seeding block below
-          }
-
-          // ── Any other error (401, 403, 500) — surface to the user ─────────
-          setFetchError(json.message || "Failed to load profile.");
-          return;
-        }
-
-        // ── Success: seed existing state from API data ──────────────────────
-        const d = json.data;
-
-        // Personal information (populated from User model via .populate())
-        if (d.userId?.name)   setName(d.userId.name);
-        if (d.userId?.email)  setEmail(d.userId.email);
-        if (d.userId?.profilePicture) setProfileImage(d.userId.profilePicture);
-
-        // Headline maps to the frontend's studentTitle field
-        if (d.headline)       setStudentTitle(d.headline);
-
-        // University comes from the first education entry
-        if (d.education?.[0]?.school) setUniversity(d.education[0].school);
-
-        // Resume: store just the filename portion of the Cloudinary URL
-        if (d.resumeUrl) {
-          const filename = d.resumeUrl.split("/").pop() ?? d.resumeUrl;
-          setResumeName(filename);
-          setResumeUrl(d.resumeUrl);
-        }
-
-        // Professional links
-        if (d.linkedinUrl)    setLinkedIn(d.linkedinUrl);
-        if (d.githubUrl)      setGithubUrl(d.githubUrl);
-
-        // Skills: the backend returns a flat string[]. We map each string to
-        // the frontend Skill type using the existing category logic.
-        if (d.skills?.length) {
-          const CATEGORY_MAP: Record<string, Skill["category"]> = {
-            react: "Frontend", vue: "Frontend", angular: "Frontend",
-            html: "Frontend", css: "Frontend", tailwind: "Frontend",
-            javascript: "Frontend", typescript: "Frontend", "next.js": "Frontend",
-            node: "Backend", python: "Backend", django: "Backend",
-            flask: "Backend", express: "Backend", sql: "Backend",
-            mongodb: "Backend", postgresql: "Backend", java: "Backend",
-            git: "Tools", docker: "Tools", kubernetes: "Tools",
-            figma: "Tools", github: "Tools", aws: "Tools",
-            tensorflow: "ML/AI", pytorch: "ML/AI", scikit: "ML/AI",
-            keras: "ML/AI", nlp: "ML/AI",
-          };
-          const mapped: Skill[] = (d.skills as string[]).map((s: string) => {
-            const key = s.toLowerCase();
-            const cat = Object.entries(CATEGORY_MAP).find(([k]) =>
-              key.includes(k)
-            )?.[1] ?? "Tools";
-            return { id: uid("s"), name: s, category: cat };
-          });
-          setSkills(mapped);
-        }
-
-        // Certifications: backend returns string[] — map to Cert objects
-        if (d.certifications?.length) {
-          const mappedCerts: Cert[] = (d.certifications as string[]).map((c: string) => ({
-            id: uid("c"),
-            name: c,
-            organization: "",
-            date: "",
-          }));
-          setCerts(mappedCerts);
-        }
-
-        // Achievements: backend returns string[] — map to Achievement objects
-        if (d.achievements?.length) {
-          const mappedAch: Achievement[] = (d.achievements as string[]).map((a: string) => ({
-            id: uid("a"),
-            title: a,
-            description: "",
-          }));
-          setAchievements(mappedAch);
-        }
-
-        // Internship/experience: backend uses { company, position, duration, description }
-        if (d.experience?.length) {
-          const mappedInternships: Internship[] = d.experience.map((e: {
-            company: string; position: string; duration: string; description?: string;
-          }) => ({
-            id: uid("i"),
-            company: e.company,
-            role: e.position,
-            duration: e.duration,
-            description: e.description ?? "",
-          }));
-          setInternships(mappedInternships);
-        }
-
-        // Education: map first entry to the Academic state object
-        if (d.education?.[0]) {
-          const edu = d.education[0];
-          setAcademic({
-            university: edu.school ?? "",
-            degree: edu.degree ?? "",
-            graduationYear: edu.endDate ?? "",
-            gpa: "", // GPA does not exist in the backend model yet
-          });
-        }
-
-        setProfileLoaded(true);
-      } catch {
-        // Network failure or JSON parse error
-        setFetchError("Could not connect to the server. Please check your connection and try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadProfile();
-  }, []); // runs once on mount
-
-  // ── PATCH /api/students/profile ───────────────────────────────────────────
-  async function saveProfile() {
-    setIsSaving(true);
-    setSaveError(null);
-    setSaveSuccess(false);
-
-    // ── Build request body from current state ─────────────────────────────
-    // Only include fields the backend's studentProfileSchema accepts.
-    // Fields with no backend equivalent (phone, location, gpa) are omitted.
-    const body: Record<string, unknown> = {
-      headline: studentTitle.trim(),
-      resumeUrl: resumeUrl, // Send resumeUrl; if null, it implies removal if backend supports it, otherwise undefined
-      linkedinUrl: linkedIn.trim() || undefined,
-      githubUrl: githubUrl.trim() || undefined,
-      // skills: flat string array — strip the category which is frontend-only
-      skills: skills.map((s) => s.name),
-      // certifications: backend stores string[], use the cert name field
-      certifications: certs.map((c) => c.name).filter(Boolean),
-      // achievements: backend stores string[], use the achievement title field
-      achievements: achievements.map((a) => a.title).filter(Boolean),
-      // education: map the Academic state object to the backend shape
-      education: [
-        {
-          school: academic.university.trim(),
-          degree: academic.degree.trim(),
-          field: academic.degree.trim(), // field is required by schema — use degree as fallback
-          startDate: "2020-01-01",       // startDate is required by schema — placeholder until frontend collects it
-          endDate: academic.graduationYear.trim() || undefined,
-        },
-      ].filter((e) => e.school && e.degree), // omit if empty
-      // experience: map Internship[] to the backend shape
-      // Backend field is `position`, frontend field is `role`.
-      experience: internships.map((i) => ({
-        company: i.company,
-        position: i.role,
-        duration: i.duration,
-        description: i.description ?? "",
-      })),
-    };
-
-    // Remove undefined values so the backend doesn't receive empty optional fields
-    Object.keys(body).forEach((k) => {
-      if (body[k] === undefined) delete body[k];
-    });
-
-    try {
-      const res = await fetch("/api/students/profile", {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        // json.errors is a string[] from Zod (e.g. ["linkedinUrl: Invalid url"])
-        // json.message is the top-level error message
-        const detail = json.errors?.join("\n") ?? json.message ?? "Failed to save profile.";
-        setSaveError(detail);
-        return;
-      }
-
-      // ── Success ─────────────────────────────────────────────────────────
-      setSaveSuccess(true);
-      setEditMode(false);
-
-      // Auto-dismiss the success banner after 4 seconds
-      setTimeout(() => setSaveSuccess(false), 4000);
-    } catch {
-      setSaveError("Could not connect to the server. Please check your connection and try again.");
-    } finally {
-      setIsSaving(false);
-    }
-  }
+  // Server-reported completion wins over local calculation once loaded.
+  const [serverCompletion, setServerCompletion] = useState<number | null>(null);
 
   const profileStrength = useMemo(() => {
+    if (serverCompletion !== null) return serverCompletion;
     const required = [name, email, phone, location, university, studentTitle];
     const filled = required.filter((v) => v.trim() !== "").length;
     const personalScore = (filled / required.length) * 40;
@@ -614,7 +511,240 @@ export default function ProfileManagement() {
     const projectScore = Math.min(projects.length, 4) / 4 * 20;
     const resumeScore = resumeName ? 15 : 0;
     return Math.round(Math.min(100, personalScore + skillScore + projectScore + resumeScore));
-  }, [name, email, phone, location, university, studentTitle, skills.length, projects.length, resumeName]);
+  }, [serverCompletion, name, email, phone, location, university, studentTitle, skills.length, projects.length, resumeName]);
+
+  // ─── Hydrate component state from a backend GET response ─────────────────
+
+  function hydrateFromBackend(data: BackendProfile) {
+    setName(data.userId?.name ?? "");
+    setEmail(data.userId?.email ?? "");
+    setStudentTitle(data.headline ?? "");
+    setBio(data.bio ?? "");
+
+    const edu = data.education?.[0];
+    setUniversity(edu?.school ?? "");
+    setAcademic({
+      university: edu?.school ?? "",
+      degree: edu?.degree ?? "",
+      graduationYear: edu?.endDate ?? "",
+      gpa: "", // TODO: GPA is not stored in the backend – frontend-only for now
+    });
+
+    // Skills: plain string[] → Skill[] with client-side category inference
+    setSkills(
+      (data.skills ?? []).map((skillName) => ({
+        id: uid("s"),
+        name: skillName,
+        category: inferSkillCategory(skillName),
+      }))
+    );
+
+    // Projects: {title, description, link} → {name, description, github, technologies}
+    setProjects(
+      (data.projects ?? []).map((p) => ({
+        id: uid("p"),
+        name: p.title,
+        description: p.description,
+        technologies: [], // TODO: technologies[] is not stored in the backend yet
+        github: p.link ?? "",
+      }))
+    );
+
+    // Certifications: stored as "Name - Organization" readable strings.
+    // TODO: cert date is not stored – frontend-only until schema is extended.
+    setCerts(
+      (data.certifications ?? []).map((raw) => {
+        const sep = raw.lastIndexOf(" - ");
+        return {
+          id: uid("c"),
+          name: sep !== -1 ? raw.slice(0, sep) : raw,
+          organization: sep !== -1 ? raw.slice(sep + 3) : "",
+          date: "",
+        };
+      })
+    );
+
+    // Achievements: stored as plain title strings.
+    // TODO: achievement description is not stored – frontend-only until schema is extended.
+    setAchievements(
+      (data.achievements ?? []).map((raw) => ({ id: uid("a"), title: raw }))
+    );
+
+    // Experience → internship history (backend "position" = frontend "role")
+    setInternships(
+      (data.experience ?? []).map((e) => ({
+        id: uid("i"),
+        company: e.company,
+        role: e.position,
+        duration: e.duration,
+        description: e.description,
+      }))
+    );
+
+    const url = data.resumeUrl ?? null;
+    setResumeUrl(url);
+    setResumeName(url ? decodeURIComponent(url.split("/").pop() ?? "resume") : null);
+
+    setLinkedIn(data.linkedinUrl ?? "");
+    setGithubUrl(data.githubUrl ?? "");
+    setServerCompletion(data.profileCompletion ?? 0);
+  }
+
+  // ─── Build payload for POST / PATCH ──────────────────────────────────────
+
+  function buildPayload(): BackendProfilePayload {
+    const payload: BackendProfilePayload = {
+      // Skills stored as plain string[] (category is frontend-only)
+      skills: skills.map((s) => s.name).filter(Boolean),
+      // Certifications: "Name - Organization" readable strings
+      certifications: certs.map((c) =>
+        c.organization ? `${c.name} - ${c.organization}` : c.name
+      ),
+    };
+
+    if (studentTitle.trim()) payload.headline = studentTitle.trim().slice(0, 100);
+    if (bio.trim()) payload.bio = bio.trim().slice(0, 500);
+    if (resumeUrl) payload.resumeUrl = resumeUrl;
+    // Prepend https:// if the user omitted the protocol – Zod's z.string().url()
+    // rejects bare domains like "linkedin.com/in/user" with a 400 error.
+    const normalizeUrl = (u: string) => {
+      const t = u.trim();
+      if (!t) return undefined;
+      return /^https?:\/\//i.test(t) ? t : `https://${t}`;
+    };
+    const normalLinkedIn = normalizeUrl(linkedIn);
+    const normalGithub = normalizeUrl(githubUrl);
+    if (normalLinkedIn) payload.linkedinUrl = normalLinkedIn;
+    if (normalGithub) payload.githubUrl = normalGithub;
+
+    if (academic.university.trim() || academic.degree.trim()) {
+      payload.education = [{
+        school: academic.university.trim(),
+        degree: academic.degree.trim(),
+        // TODO: field-of-study and startDate have no UI inputs – using placeholder values
+        field: "Computer Science",
+        startDate: "2020-01-01",
+        endDate: academic.graduationYear.trim() || undefined,
+      }];
+    }
+
+    // TODO: achievements, experience (internship history), and projects are NOT in
+    // studentProfileSchema (src/lib/validations/index.ts), so Zod strips them before
+    // they reach the database. Extend the schema and StudentProfile model to persist them.
+
+    return payload;
+  }
+
+  // ─── Load profile on mount ────────────────────────────────────────────────
+
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      setIsLoading(true);
+      const result = await apiFetch<BackendProfile>("/api/students/profile");
+      if (cancelled) return;
+
+      if (result.ok) {
+        setIsFirstTime(false);
+        hydrateFromBackend(result.data);
+      } else if (result.status === 404) {
+        setIsFirstTime(true); // No profile yet – will POST on first save
+      } else if (result.status === 401 || result.status === 403) {
+        setError(result.message);
+      } else {
+        setError("Failed to load profile. Please refresh the page.");
+      }
+      setIsLoading(false);
+    })();
+
+    return () => { cancelled = true; };
+  }, []);
+
+  // ─── Save profile (create first time or update) ───────────────────────────
+
+  async function handleSave() {
+    setIsSaving(true);
+    setError(null);
+    setSuccess(null);
+
+    const result = await apiFetch<BackendProfile>("/api/students/profile", {
+      method: isFirstTime ? "POST" : "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(buildPayload()),
+    });
+
+    if (result.ok) {
+      setIsFirstTime(false);
+      setServerCompletion(result.data.profileCompletion);
+      setEditMode(false);
+      setSuccess(isFirstTime ? "Profile created!" : "Profile updated successfully.");
+    } else {
+      setError(result.message);
+    }
+
+    setIsSaving(false);
+  }
+
+  // ─── Resume upload ────────────────────────────────────────────────────────
+
+  const onResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.currentTarget.files?.[0];
+    if (!file) return;
+
+    // Client-side validation mirrors the server rules in app/api/students/resume/route.ts
+    if (file.size > 5 * 1024 * 1024) {
+      setError("File too large. Maximum size is 5 MB.");
+      return;
+    }
+    const allowed = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!allowed.includes(file.type)) {
+      setError("Invalid file type. Only PDF and DOC/DOCX files are allowed.");
+      return;
+    }
+
+    setIsUploadingResume(true);
+    setError(null);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      // Must NOT set Content-Type manually – browser adds the multipart boundary.
+      const res = await fetch("/api/students/resume", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+      const json = (await res.json()) as { success: boolean; message?: string; data?: { resumeUrl: string } };
+
+      if (json.success && json.data?.resumeUrl) {
+        const url = json.data.resumeUrl;
+        setResumeUrl(url);
+        setResumeName(file.name);
+        // Immediately persist the new URL on the profile record
+        await apiFetch("/api/students/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ resumeUrl: url }),
+        });
+        setSuccess("Resume uploaded successfully.");
+      } else {
+        setError(json.message ?? "Resume upload failed.");
+      }
+    } catch {
+      setError("Resume upload failed. Please try again.");
+    } finally {
+      setIsUploadingResume(false);
+      e.currentTarget.value = ""; // allow re-selecting the same file
+    }
+  };
+
+  // ─── Skill helpers (unchanged logic) ─────────────────────────────────────
 
   const addSkill = () => {
     if (!newSkillName.trim()) return;
@@ -625,6 +755,8 @@ export default function ProfileManagement() {
   };
 
   const removeSkill = (id: string) => setSkills((c) => c.filter((s) => s.id !== id));
+
+  // ─── Project helpers (unchanged logic) ───────────────────────────────────
 
   const openNewProject = () => {
     setEditingProject({ id: uid("p"), name: "", description: "", technologies: [], github: "" });
@@ -643,54 +775,7 @@ export default function ProfileManagement() {
 
   const deleteProject = (id: string) => setProjects((c) => c.filter((p) => p.id !== id));
 
-  const onResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.currentTarget.files?.[0];
-    if (!file) return;
-
-    if (file.size > 5 * 1024 * 1024) {
-      setSaveError("Resume file size must be less than 5MB.");
-      return;
-    }
-    const allowedTypes = [
-      "application/pdf",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ];
-    if (!allowedTypes.includes(file.type)) {
-      setSaveError("Invalid file type. Only PDF and DOC files are allowed.");
-      return;
-    }
-
-    setIsUploadingResume(true);
-    setSaveError(null);
-    setSaveSuccess(false);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/students/resume", {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        setSaveError(json.message || "Failed to upload resume.");
-        return;
-      }
-
-      setResumeUrl(json.data.resumeUrl);
-      setResumeName(file.name);
-    } catch (err) {
-      setSaveError("Network error while uploading resume.");
-    } finally {
-      setIsUploadingResume(false);
-      e.target.value = ""; // Reset input so the same file can be uploaded again
-    }
-  };
+  // ─── Cert helpers (unchanged logic) ──────────────────────────────────────
 
   const openNewCert = () => {
     setEditingCert({ id: uid("c"), name: "", organization: "", date: "" });
@@ -709,6 +794,8 @@ export default function ProfileManagement() {
 
   const deleteCert = (id: string) => setCerts((c) => c.filter((x) => x.id !== id));
 
+  // ─── Achievement helpers (unchanged logic) ────────────────────────────────
+
   const openNewAchievement = () => {
     setEditingAchievement({ id: uid("a"), title: "", description: "" });
     setShowAchievementModal(true);
@@ -725,6 +812,8 @@ export default function ProfileManagement() {
   };
 
   const deleteAchievement = (id: string) => setAchievements((c) => c.filter((x) => x.id !== id));
+
+  // ─── Internship helpers (unchanged logic) ─────────────────────────────────
 
   const openNewIntern = () => {
     setEditingIntern({ id: uid("i"), company: "", role: "", duration: "", description: "" });
@@ -743,50 +832,20 @@ export default function ProfileManagement() {
 
   const deleteIntern = (id: string) => setInternships((c) => c.filter((x) => x.id !== id));
 
+  // ─── Render ───────────────────────────────────────────────────────────────
+
+  if (isLoading) return <ProfileSkeleton />;
+
   return (
     <div className="min-h-screen bg-gray-50">
-
-      {/* ── Loading skeleton ───────────────────────────────────────────────── */}
-      {isLoading && (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 w-64 rounded-2xl bg-gray-200" />
-            <div className="h-4 w-48 rounded-2xl bg-gray-200" />
-            <div className="grid gap-6 lg:grid-cols-3">
-              <div className="h-64 rounded-[32px] bg-gray-200" />
-              <div className="lg:col-span-2 space-y-4">
-                <div className="h-40 rounded-[32px] bg-gray-200" />
-                <div className="h-40 rounded-[32px] bg-gray-200" />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Error banner ───────────────────────────────────────────────────── */}
-      {!isLoading && fetchError && (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
-            <p className="font-semibold mb-1">Could not load profile</p>
-            <p>{fetchError}</p>
-          </div>
-        </div>
-      )}
-
-      {/* ── Main content (hidden while loading or when there is a fetch error) */}
-      {!isLoading && !fetchError && (
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
 
-        {/* ── Save feedback banners (only visible after a save attempt) ── */}
-        {saveSuccess && (
-          <div className="mb-4 rounded-2xl border border-green-200 bg-green-50 px-5 py-3 text-sm text-green-700">
-            ✓ Profile saved successfully.
-          </div>
-        )}
-        {saveError && (
-          <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-5 py-3 text-sm text-red-700 whitespace-pre-line">
-            <p className="font-semibold mb-1">Could not save profile</p>
-            <p>{saveError}</p>
+        {/* Notification banners */}
+        {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
+        {success && <SuccessBanner message={success} onDismiss={() => setSuccess(null)} />}
+        {isFirstTime && !error && (
+          <div className="mb-4 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+            Welcome! Fill in your details and click <strong>Create profile</strong> to get started.
           </div>
         )}
 
@@ -800,6 +859,10 @@ export default function ProfileManagement() {
             <button onClick={() => setEditMode((c) => !c)}
               className="rounded-2xl border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 shadow-sm hover:bg-gray-50">
               {editMode ? "View profile" : "Edit profile"}
+            </button>
+            <button onClick={handleSave} disabled={isSaving}
+              className="rounded-2xl bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-60">
+              {isSaving ? "Saving…" : isFirstTime ? "Create profile" : "Save changes"}
             </button>
             <button onClick={() => setShowPreview(true)}
               className="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
@@ -821,7 +884,7 @@ export default function ProfileManagement() {
                     {profileImage ? (
                       <img src={profileImage} alt="Profile" className="h-full w-full object-cover" />
                     ) : (
-                      <span>{name.charAt(0)}</span>
+                      <span>{name.charAt(0) || "?"}</span>
                     )}
                   </div>
                   {editMode && (
@@ -862,16 +925,10 @@ export default function ProfileManagement() {
                       </label>
                     ))}
                     <div className="flex flex-wrap gap-3">
-                      <button
-                        onClick={() => { setSaveError(null); setSaveSuccess(false); setEditMode(false); }}
-                        disabled={isSaving}
-                        className="rounded-2xl border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50">
-                        Cancel
-                      </button>
-                      <button
-                        onClick={saveProfile}
-                        disabled={isSaving}
-                        className="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+                      <button onClick={() => setEditMode(false)}
+                        className="rounded-2xl border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Cancel</button>
+                      <button onClick={handleSave} disabled={isSaving}
+                        className="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60">
                         {isSaving ? "Saving…" : "Save"}
                       </button>
                     </div>
@@ -888,15 +945,18 @@ export default function ProfileManagement() {
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <div className="font-semibold text-gray-900">Resume</div>
-                      <p className="text-sm text-gray-500">{resumeName ?? "No resume uploaded"}</p>
+                      <p className="text-sm text-gray-500">
+                        {isUploadingResume ? "Uploading…" : (resumeName ?? "No resume uploaded")}
+                      </p>
                     </div>
-                    <label className={`rounded-2xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 cursor-pointer ${isUploadingResume ? "opacity-50 pointer-events-none" : ""}`}>
+                    <label className={`rounded-2xl px-4 py-2 text-sm font-medium text-white cursor-pointer ${isUploadingResume ? "bg-blue-400 pointer-events-none" : "bg-blue-600 hover:bg-blue-700"}`}>
                       {isUploadingResume ? "Uploading…" : "Upload"}
-                      <input type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={onResumeUpload} className="hidden" disabled={isUploadingResume} />
+                      <input type="file" accept="application/pdf,.doc,.docx" onChange={onResumeUpload} className="hidden" disabled={isUploadingResume} />
                     </label>
                   </div>
                   {resumeName && (
-                    <button onClick={() => { setResumeName(null); setResumeUrl(null); }} className="text-left text-sm text-blue-600 underline">
+                    <button onClick={() => { setResumeName(null); setResumeUrl(null); }}
+                      className="text-left text-sm text-blue-600 underline">
                       Remove resume
                     </button>
                   )}
@@ -1123,7 +1183,9 @@ export default function ProfileManagement() {
               </div>
               <div className="mt-6">
                 {editingAcademic ? (
-                  <AcademicEditor initial={academic} onSave={(a) => { setAcademic(a); setEditingAcademic(false); }} onCancel={() => setEditingAcademic(false)} />
+                  <AcademicEditor initial={academic}
+                    onSave={(a) => { setAcademic(a); setEditingAcademic(false); }}
+                    onCancel={() => setEditingAcademic(false)} />
                 ) : (
                   <div className="space-y-3 text-sm text-gray-700">
                     <div className="font-medium text-gray-900">{academic.university}</div>
@@ -1137,7 +1199,6 @@ export default function ProfileManagement() {
           </div>
         </div>
       </div>
-      )} {/* end !isLoading && !fetchError */}
 
       {/* ── Modals ── */}
 
@@ -1245,7 +1306,7 @@ export default function ProfileManagement() {
               <label key={field} className="block text-sm text-gray-700">
                 {label}
                 <input
-                  value={(editingIntern as Record<string, string>)[field]}
+                  value={(editingIntern as unknown as Record<string, string>)[field]}
                   onChange={(e) => setEditingIntern({ ...editingIntern, [field]: e.target.value })}
                   className="mt-2 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-2 text-sm"
                 />
