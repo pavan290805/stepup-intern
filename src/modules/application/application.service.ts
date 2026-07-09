@@ -35,7 +35,13 @@ export const applicationService = {
     const skip = (page - 1) * limit;
 
     const applications = await Application.find({ studentId })
-      .populate('internshipId')
+      .populate({
+        path: 'internshipId',
+        populate: [
+          { path: 'companyId', select: 'name logoUrl' },
+          { path: 'recruiterId', select: 'designation' },
+        ],
+      })
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -54,7 +60,13 @@ export const applicationService = {
     const skip = (page - 1) * limit;
 
     const applications = await Application.find({ internshipId })
-      .populate('studentId')
+      .populate({
+        path: 'studentId',
+        populate: {
+          path: 'userId',
+          select: 'name email profilePicture',
+        },
+      })
       .skip(skip)
       .limit(limit)
       .sort({ appliedAt: -1 });
@@ -72,7 +84,21 @@ export const applicationService = {
   },
 
   async getApplicationById(applicationId: string): Promise<IApplication | null> {
-    return Application.findById(applicationId).populate('internshipId').populate('studentId');
+    return Application.findById(applicationId)
+      .populate({
+        path: 'internshipId',
+        populate: [
+          { path: 'companyId', select: 'name logoUrl' },
+          { path: 'recruiterId', select: 'designation' },
+        ],
+      })
+      .populate({
+        path: 'studentId',
+        populate: {
+          path: 'userId',
+          select: 'name email profilePicture',
+        },
+      });
   },
 
   async withdrawApplication(applicationId: string): Promise<IApplication | null> {

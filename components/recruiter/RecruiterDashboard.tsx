@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Internship,
   InternshipFormState,
@@ -13,7 +14,6 @@ import EmptyListingsState from "../internships/EmptyListingsState";
 import InternshipListingCard from "../internships/InternshipListingCard";
 import RecruiterStatsGrid from "./RecruiterStatsGrid";
 import Header from "../layout/Header";
-import InternshipApplicantsPage from "../internships/InternshipApplicants";
 
 const internshipTypes: Internship["type"][] = ["Full-time", "Part-time", "Remote", "Hybrid"];
 
@@ -35,6 +35,7 @@ const formatDate = (value: string) => {
 };
 
 export default function RecruiterPage() {
+  const router = useRouter();
   const {
     internships,
     emptyForm,
@@ -44,6 +45,8 @@ export default function RecruiterPage() {
     closeListing,
     reopenListing,
     removeListing,
+    loading,
+    error,
   } = useRecruiterInternships();
   const { profile } = useRecruiterProfile();
   const { applicants } = useApplicants();
@@ -51,8 +54,6 @@ export default function RecruiterPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [viewingApplicants, setViewingApplicants] = useState(false);
-  const [selectedInternship, setSelectedInternship] = useState<Internship | null>(null);
   useEffect(() => {
     if (typeof window !== "undefined") {
       const open = window.localStorage.getItem("open_manage_internships");
@@ -186,13 +187,13 @@ export default function RecruiterPage() {
     }
 
     if (editingId) {
-      updateListing(editingId, form);
+      void updateListing(editingId, form);
       resetForm();
       setShowCreateForm(false);
       return;
     }
 
-    createListing(form);
+    void createListing(form);
     resetForm();
     setShowCreateForm(false);
   };
@@ -212,24 +213,11 @@ export default function RecruiterPage() {
   };
 
   const handleViewApplicants = (internship: Internship) => {
-    setSelectedInternship(internship);
-    setViewingApplicants(true);
-  };
-
-  const handleBackFromApplicants = () => {
-    setViewingApplicants(false);
-    setSelectedInternship(null);
+    router.push(`/internships/applicants?internshipId=${internship.id}`);
   };
 
   return (
-    <>
-      {viewingApplicants && selectedInternship ? (
-        <InternshipApplicantsPage
-          internship={selectedInternship}
-          onBack={handleBackFromApplicants}
-        />
-      ) : (
-        <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
+    <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
       <Header onCreate={openCreateForm} />
 
       <main className="mx-auto max-w-[1600px] space-y-6 px-4 py-6 sm:px-6 lg:px-10 xl:px-12">
@@ -256,6 +244,11 @@ export default function RecruiterPage() {
             </div>
 
             <RecruiterStatsGrid stats={dashboardStats} />
+            {error ? (
+              <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {error}
+              </p>
+            ) : null}
           </div>
 
           {showCreateForm && (
@@ -424,8 +417,11 @@ export default function RecruiterPage() {
           </section>
         </section>
       </main>
+      {loading ? (
+        <div className="fixed bottom-4 right-4 rounded-full bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-lg">
+          Syncing with backend...
         </div>
-      )}
-    </>
+      ) : null}
+    </div>
   );
 }

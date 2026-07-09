@@ -1,12 +1,22 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  apiDelete,
+  apiGet,
+  apiPatch,
+  apiPost,
+  type ApplicationApiItem,
+  type InterviewApiItem,
+  type InternshipApiItem,
+} from "@/lib/api";
 
 export type ApplicationStatus = "Applied" | "Shortlisted" | "Rejected" | "Scheduled" | "Completed";
 
 export type Applicant = {
   id: string;
   internshipId: string;
+  applicationId: string;
   name: string;
   email: string;
   phone: string;
@@ -25,325 +35,232 @@ export type InterviewSchedule = {
   status: "Scheduled" | "Completed" | "Cancelled";
 };
 
-const APPLICANTS_STORAGE_KEY = "stepup-applicants";
-const INTERVIEWS_STORAGE_KEY = "stepup-interviews";
-
-const applicantListeners = new Set<() => void>();
-const interviewListeners = new Set<() => void>();
-
-let cachedApplicants: Applicant[] = [];
-let cachedInterviews: InterviewSchedule[] = [];
-let applicantsCacheInitialized = false;
-let interviewsCacheInitialized = false;
-
-const createId = () => {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
+const capitalizeStatus = (status?: string): ApplicationStatus => {
+  switch (status) {
+    case "shortlisted":
+      return "Shortlisted";
+    case "rejected":
+      return "Rejected";
+    case "withdrawn":
+      return "Rejected";
+    case "interview_scheduled":
+      return "Scheduled";
+    case "selected":
+      return "Completed";
+    case "applied":
+    case "under_review":
+    default:
+      return "Applied";
   }
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 };
 
-// Helper function to get first internship ID from storage
-const getFirstInternshipId = (): string | null => {
-  if (typeof window === "undefined") {
-    return null;
-  }
-  
-  try {
-    const internshipsRaw = window.localStorage.getItem("stepup-internship-listings");
-    if (internshipsRaw) {
-      const internships = JSON.parse(internshipsRaw);
-      if (Array.isArray(internships) && internships.length > 0) {
-        return internships[0].id;
-      }
+const buildDisplayName = (student: ApplicationApiItem["studentId"]) => {
+  if (typeof student === "object" && student) {
+    if (typeof student.userId === "object" && student.userId) {
+      return student.userId.name || student.name || student.userId.email || student.email || "Candidate";
     }
-  } catch {
-    return null;
-  }
-  return null;
-};
 
-// Function to generate sample applicants with correct internship ID
-const generateSampleApplicants = (): Applicant[] => {
-  const internshipId = getFirstInternshipId() || "frontend-1"; // Fallback to "frontend-1"
-  
-  return [
-    {
-      id: createId(),
-      internshipId: internshipId,
-      name: "Rahul Kumar",
-      email: "rahul@gmail.com",
-      phone: "+91 98765 43210",
-      resumeUrl: "/resumes/rahul-kumar.pdf",
-      status: "Applied",
-      appliedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: createId(),
-      internshipId: internshipId,
-      name: "Priya Sharma",
-      email: "priya@gmail.com",
-      phone: "+91 97654 32109",
-      resumeUrl: "/resumes/priya-sharma.pdf",
-      status: "Scheduled",
-      appliedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      scheduledInterviewDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: createId(),
-      internshipId: internshipId,
-      name: "Arjun Patel",
-      email: "arjun.patel@gmail.com",
-      phone: "+91 99876 54321",
-      resumeUrl: "/resumes/arjun-patel.pdf",
-      status: "Shortlisted",
-      appliedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: createId(),
-      internshipId: internshipId,
-      name: "Neha Verma",
-      email: "neha.verma@gmail.com",
-      phone: "+91 98765 12345",
-      resumeUrl: "/resumes/neha-verma.pdf",
-      status: "Applied",
-      appliedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: createId(),
-      internshipId: internshipId,
-      name: "Vikram Singh",
-      email: "vikram.singh@gmail.com",
-      phone: "+91 96543 21098",
-      resumeUrl: "/resumes/vikram-singh.pdf",
-      status: "Rejected",
-      appliedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: createId(),
-      internshipId: internshipId,
-      name: "Anjali Dubey",
-      email: "anjali.dubey@gmail.com",
-      phone: "+91 95432 10987",
-      resumeUrl: "/resumes/anjali-dubey.pdf",
-      status: "Applied",
-      appliedAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: createId(),
-      internshipId: internshipId,
-      name: "Rohan Desai",
-      email: "rohan.desai@gmail.com",
-      phone: "+91 94321 09876",
-      resumeUrl: "/resumes/rohan-desai.pdf",
-      status: "Shortlisted",
-      appliedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: createId(),
-      internshipId: internshipId,
-      name: "Divya Gupta",
-      email: "divya.gupta@gmail.com",
-      phone: "+91 97890 12345",
-      resumeUrl: "/resumes/divya-gupta.pdf",
-      status: "Completed",
-      appliedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-      scheduledInterviewDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: createId(),
-      internshipId: internshipId,
-      name: "Sanjay Rao",
-      email: "sanjay.rao@gmail.com",
-      phone: "+91 98901 23456",
-      resumeUrl: "/resumes/sanjay-rao.pdf",
-      status: "Shortlisted",
-      appliedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-    },
-    {
-      id: createId(),
-      internshipId: internshipId,
-      name: "Isha Malhotra",
-      email: "isha.malhotra@gmail.com",
-      phone: "+91 96543 87654",
-      resumeUrl: "/resumes/isha-malhotra.pdf",
-      status: "Applied",
-      appliedAt: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-    },
-  ];
-};
-
-const readStoredApplicants = (): Applicant[] => {
-  if (typeof window === "undefined") {
-    return cachedApplicants;
+    return student.name || student.email || "Candidate";
   }
 
-  const rawValue = window.localStorage.getItem(APPLICANTS_STORAGE_KEY);
-  if (!rawValue) {
-    // Initialize with sample data on first load
-    if (!applicantsCacheInitialized) {
-      // Always regenerate with current internship ID
-      const samples = generateSampleApplicants();
-      window.localStorage.setItem(APPLICANTS_STORAGE_KEY, JSON.stringify(samples));
-      return samples;
+  return "Candidate";
+};
+
+const buildDisplayEmail = (student: ApplicationApiItem["studentId"]) => {
+  if (typeof student === "object" && student) {
+    if (typeof student.userId === "object" && student.userId) {
+      return student.userId.email || student.email || "Not provided";
     }
-    return [];
+
+    return student.email || "Not provided";
   }
 
-  try {
-    const parsedValue = JSON.parse(rawValue) as Applicant[];
-    return Array.isArray(parsedValue) ? parsedValue : [];
-  } catch {
-    return [];
-  }
+  return "Not provided";
 };
 
-const readStoredInterviews = (): InterviewSchedule[] => {
-  if (typeof window === "undefined") {
-    return cachedInterviews;
-  }
+const buildDisplayPhone = () => "Not provided";
 
-  const rawValue = window.localStorage.getItem(INTERVIEWS_STORAGE_KEY);
-  if (!rawValue) {
-    return [];
-  }
+const mapInterviews = (interviews: InterviewApiItem[]) =>
+  interviews.map<InterviewSchedule>((interview) => {
+    const application = typeof interview.applicationId === "object" ? interview.applicationId : null;
+    const internship = application && typeof application.internshipId === "object" ? application.internshipId : null;
 
-  try {
-    const parsedValue = JSON.parse(rawValue) as InterviewSchedule[];
-    return Array.isArray(parsedValue) ? parsedValue : [];
-  } catch {
-    return [];
-  }
-};
-
-const writeStoredApplicants = (nextApplicants: Applicant[]) => {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  cachedApplicants = nextApplicants;
-  applicantsCacheInitialized = true;
-  window.localStorage.setItem(APPLICANTS_STORAGE_KEY, JSON.stringify(nextApplicants));
-  applicantListeners.forEach((listener) => listener());
-};
-
-const writeStoredInterviews = (nextInterviews: InterviewSchedule[]) => {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  cachedInterviews = nextInterviews;
-  interviewsCacheInitialized = true;
-  window.localStorage.setItem(INTERVIEWS_STORAGE_KEY, JSON.stringify(nextInterviews));
-  interviewListeners.forEach((listener) => listener());
-};
-
-const subscribeApplicants = (listener: () => void) => {
-  applicantListeners.add(listener);
-  return () => {
-    applicantListeners.delete(listener);
-  };
-};
-
-const subscribeInterviews = (listener: () => void) => {
-  interviewListeners.add(listener);
-  return () => {
-    interviewListeners.delete(listener);
-  };
-};
-
-const getApplicantsSnapshot = () => {
-  if (typeof window === "undefined") {
-    return cachedApplicants;
-  }
-
-  if (!applicantsCacheInitialized) {
-    cachedApplicants = readStoredApplicants();
-    applicantsCacheInitialized = true;
-  }
-
-  return cachedApplicants;
-};
-
-const getInterviewsSnapshot = () => {
-  if (typeof window === "undefined") {
-    return cachedInterviews;
-  }
-
-  if (!interviewsCacheInitialized) {
-    cachedInterviews = readStoredInterviews();
-    interviewsCacheInitialized = true;
-  }
-
-  return cachedInterviews;
-};
-
-const SERVER_SNAPSHOT: Applicant[] = [];
-const INTERVIEWS_SERVER_SNAPSHOT: InterviewSchedule[] = [];
-
-export const useApplicants = () => {
-  const applicants = useSyncExternalStore(subscribeApplicants, getApplicantsSnapshot, () => SERVER_SNAPSHOT);
-  const interviews = useSyncExternalStore(subscribeInterviews, getInterviewsSnapshot, () => INTERVIEWS_SERVER_SNAPSHOT);
-
-  const getInternshipApplicants = (internshipId: string) => {
-    return applicants.filter((applicant) => applicant.internshipId === internshipId);
-  };
-
-  const getInternshipInterviews = (internshipId: string) => {
-    return interviews.filter((interview) => interview.internshipId === internshipId);
-  };
-
-  const updateApplicantStatus = (applicantId: string, status: ApplicationStatus) => {
-    const currentApplicants = getApplicantsSnapshot();
-    const updated = currentApplicants.map((applicant) =>
-      applicant.id === applicantId ? { ...applicant, status } : applicant,
-    );
-    writeStoredApplicants(updated);
-  };
-
-  const shortlistApplicant = (applicantId: string) => {
-    updateApplicantStatus(applicantId, "Shortlisted");
-  };
-
-  const rejectApplicant = (applicantId: string) => {
-    updateApplicantStatus(applicantId, "Rejected");
-  };
-
-  const scheduleInterview = (applicantId: string, internshipId: string, date: string, time: string) => {
-    const currentApplicants = getApplicantsSnapshot();
-    const updated: Applicant[] = currentApplicants.map((applicant) =>
-      applicant.id === applicantId
-        ? { ...applicant, status: "Scheduled" as const, scheduledInterviewDate: `${date}T${time}` }
-        : applicant,
-    );
-    writeStoredApplicants(updated);
-
-    const currentInterviews = getInterviewsSnapshot();
-    const newInterview: InterviewSchedule = {
-      id: createId(),
-      applicantId,
-      internshipId,
-      date,
-      time,
-      status: "Scheduled",
+    return {
+      id: interview._id,
+      applicantId: application?._id || String(interview.applicationId),
+      internshipId: internship?._id || "",
+      date: interview.scheduledAt.split("T")[0] || interview.scheduledAt,
+      time: new Date(interview.scheduledAt).toISOString().slice(11, 16),
+      status:
+        interview.status === "completed"
+          ? "Completed"
+          : interview.status === "cancelled"
+            ? "Cancelled"
+            : "Scheduled",
     };
-    writeStoredInterviews([...currentInterviews, newInterview]);
-  };
+  });
 
-  const deleteApplication = (applicantId: string) => {
-    const currentApplicants = getApplicantsSnapshot();
-    const filtered = currentApplicants.filter((applicant) => applicant.id !== applicantId);
-    writeStoredApplicants(filtered);
-  };
+const mapApplicants = (applications: ApplicationApiItem[], interviews: InterviewSchedule[]) =>
+  applications.map<Applicant>((application) => {
+    const student = application.studentId;
+    const internship = typeof application.internshipId === "object" ? application.internshipId : null;
+    const matchingInterview = interviews.find((interview) => interview.applicantId === application._id);
+    const statusFromApplication = capitalizeStatus(application.status);
 
-  const sendEmail = (applicantId: string, subject: string, message: string) => {
-    // This would integrate with an email service
-    console.log(`Email sent to applicant ${applicantId}:`, { subject, message });
-  };
+    return {
+      id: application._id,
+      internshipId: internship?._id || String(application.internshipId),
+      applicationId: application._id,
+      name: buildDisplayName(student),
+      email: buildDisplayEmail(student),
+      phone: buildDisplayPhone(),
+      resumeUrl: application.resumeUrl || "/resumes/rahul-kumar.pdf",
+      status: matchingInterview?.status === "Completed" ? "Completed" : matchingInterview ? "Scheduled" : statusFromApplication,
+      appliedAt: application.appliedAt || application.createdAt || new Date().toISOString(),
+      scheduledInterviewDate: matchingInterview ? `${matchingInterview.date}T${matchingInterview.time}:00.000Z` : undefined,
+    };
+  });
+
+type BackendSnapshot = {
+  applicants: Applicant[];
+  interviews: InterviewSchedule[];
+};
+
+export function useApplicants() {
+  const [snapshot, setSnapshot] = useState<BackendSnapshot>({ applicants: [], interviews: [] });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      await apiGet("/api/auth/me");
+      const recruiterInterviews = await apiGet<{ interviews: InterviewApiItem[]; internships: InternshipApiItem[] }>(
+        "/api/recruiters/interviews"
+      );
+
+      const interviewList = mapInterviews(recruiterInterviews.interviews);
+      const applicantBuckets = await Promise.all(
+        recruiterInterviews.internships.map((internship) =>
+          apiGet<{ applications: ApplicationApiItem[] }>(`/api/internships/${internship._id}/applications?page=1&limit=100`)
+        )
+      );
+
+      const applicants = applicantBuckets.flatMap((bucket) => mapApplicants(bucket.applications, interviewList));
+
+      setSnapshot({ applicants, interviews: interviewList });
+    } catch (err) {
+      setSnapshot({ applicants: [], interviews: [] });
+      setError(err instanceof Error ? err.message : "Failed to load applicant data");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const applicants = snapshot.applicants;
+  const interviews = snapshot.interviews;
+
+  const getInternshipApplicants = useCallback(
+    (internshipId: string) => applicants.filter((applicant) => applicant.internshipId === internshipId),
+    [applicants]
+  );
+
+  const getInternshipInterviews = useCallback(
+    (internshipId: string) => interviews.filter((interview) => interview.internshipId === internshipId),
+    [interviews]
+  );
+
+  const updateApplicantStatus = useCallback(
+    async (applicantId: string, status: ApplicationStatus) => {
+      const backendStatus =
+        status === "Shortlisted"
+          ? "shortlisted"
+          : status === "Rejected"
+            ? "rejected"
+            : status === "Completed"
+              ? "selected"
+              : status === "Scheduled"
+                ? "interview_scheduled"
+                : "applied";
+
+      await apiPatch(`/api/applications/${applicantId}`, { status: backendStatus });
+      await refresh();
+    },
+    [refresh]
+  );
+
+  const shortlistApplicant = useCallback(
+    async (applicantId: string) => {
+      await updateApplicantStatus(applicantId, "Shortlisted");
+    },
+    [updateApplicantStatus]
+  );
+
+  const rejectApplicant = useCallback(
+    async (applicantId: string) => {
+      await updateApplicantStatus(applicantId, "Rejected");
+    },
+    [updateApplicantStatus]
+  );
+
+  const scheduleInterview = useCallback(
+    async (applicantId: string, internshipId: string, date: string, time: string) => {
+      const selectedApplicant = applicants.find((applicant) => applicant.id === applicantId && applicant.internshipId === internshipId);
+      if (!selectedApplicant) {
+        throw new Error("Applicant not found");
+      }
+
+      const scheduledAt = new Date(`${date}T${time}:00.000Z`).toISOString();
+      await apiPost("/api/interviews", {
+        applicationId: selectedApplicant.applicationId,
+        scheduledAt,
+        mode: "online",
+      });
+      await apiPatch(`/api/applications/${selectedApplicant.applicationId}`, { status: "interview_scheduled" });
+      await refresh();
+    },
+    [applicants, refresh]
+  );
+
+  const deleteApplication = useCallback(
+    async (applicantId: string) => {
+      const selectedApplicant = applicants.find((applicant) => applicant.id === applicantId);
+      if (!selectedApplicant) {
+        return;
+      }
+
+      await apiDelete(`/api/applications/${selectedApplicant.applicationId}`);
+      await refresh();
+    },
+    [applicants, refresh]
+  );
+
+  const sendEmail = useCallback((applicantId: string, subject: string, message: string) => {
+    const selectedApplicant = applicants.find((applicant) => applicant.id === applicantId);
+    if (!selectedApplicant) {
+      return;
+    }
+
+    const body = encodeURIComponent(message);
+    const mailto = `mailto:${selectedApplicant.email}?subject=${encodeURIComponent(subject)}&body=${body}`;
+    window.open(mailto, "_blank");
+  }, [applicants]);
+
+  const shortlistCount = useMemo(() => applicants.filter((applicant) => applicant.status === "Shortlisted").length, [applicants]);
 
   return {
     applicants,
     interviews,
+    shortlistCount,
+    loading,
+    error,
+    refresh,
     getInternshipApplicants,
     getInternshipInterviews,
     updateApplicantStatus,
@@ -353,4 +270,4 @@ export const useApplicants = () => {
     deleteApplication,
     sendEmail,
   };
-};
+}

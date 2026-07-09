@@ -13,14 +13,9 @@ import {
   labelStyles,
   linkStyles,
 } from "../../Components/constants/styles";
-import{
-signupStudent,
-signupRecruiter,
-handleGoogleLogin,
-handleLinkedInLogin
-} from "../../Components/services/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { registerRecruiter, registerStudent } from "@/lib/api";
 
 export default  function Signup() {
   const router = useRouter();
@@ -54,10 +49,9 @@ export default  function Signup() {
         name: formData.get("fullName") as string,
         email: formData.get("email") as string,
         password: formData.get("password") as string,
-        role : "student"
       };
 
-      await signupStudent(studentData);
+      await registerStudent(studentData);
       setSuccess("Student account created successfully!");
       setTimeout(() => {
         router.push("/login");
@@ -69,9 +63,8 @@ export default  function Signup() {
         name: formData.get("contactPersonName") as string,
         email: formData.get("personalEmail") as string,
         password: formData.get("password") as string,
-        role : "recruiter"
       };
-      await signupRecruiter(recruiterData);
+      await registerRecruiter(recruiterData);
       setSuccess("Recruiter account created successfully!");
       setTimeout(() => {
         router.push("/login");
@@ -312,7 +305,7 @@ export default  function Signup() {
           {/* Google Signup */}
           <button
             type="button"
-            onClick={handleGoogleLogin}
+            onClick={() => setError("Google signup is not connected yet.")}
             className={socialButtonStyles}
           >
             <Image
@@ -324,9 +317,9 @@ export default  function Signup() {
 
             Continue with Google
           </button>
-          <button
+<button
   type="button"
-  onClick={handleLinkedInLogin}
+  onClick={() => setError("LinkedIn signup is not connected yet.")}
   className={`${socialButtonStyles} mt-3`}
 >
   <Image

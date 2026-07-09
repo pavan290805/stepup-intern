@@ -11,14 +11,10 @@ import {
   labelStyles,
   linkStyles,
 } from "../../Components/constants/styles";
-import {
-    loginUser,
-    handleGoogleLogin,
-    handleLinkedInLogin,
-} from "../../Components/services/auth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import { login } from "@/lib/api";
 
 
 export default function Login() {
@@ -43,7 +39,8 @@ export default function Login() {
       password: typeof password === "string" ? password : "",
     };
     try{
-    await loginUser(loginData);
+    const result = await login(loginData);
+    router.push(result.user.role === "recruiter" ? "/recruiter" : "/internships");
   } catch (err: any) {
     setError(err.message);
   } finally {
@@ -177,7 +174,7 @@ export default function Login() {
           {/* Google Login */}
           <button
             type="button"
-            onClick={handleGoogleLogin}
+            onClick={() => setError("Google login is not connected yet.")}
             className={socialButtonStyles}
           >
             <Image
@@ -193,7 +190,7 @@ export default function Login() {
           {/* LinkedIn Login */}
           <button
             type="button"
-            onClick={handleLinkedInLogin}
+            onClick={() => setError("LinkedIn login is not connected yet.")}
             className={`${socialButtonStyles} mt-3`}
           >
             <Image
