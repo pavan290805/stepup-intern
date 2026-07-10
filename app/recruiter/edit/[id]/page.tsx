@@ -1,28 +1,62 @@
 "use client";
 
-import { useState } from "react";
-import Navbar from "../../../Components/Navbar";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 
 export default function EditInternshipPage() {
-  const [title, setTitle] =
-    useState("Frontend Developer Intern");
+  const router = useRouter();
+  const params = useParams<{ id: string }>();
+  const internshipId = params.id;
 
-  const [duration, setDuration] =
-    useState("3 Months");
+  const [title, setTitle] = useState("");
+  const [duration, setDuration] = useState("");
+  const [stipend, setStipend] = useState("");
+  const [description, setDescription] = useState("");
+  const [deadline, setDeadline] = useState("");
 
-  const [stipend, setStipend] =
-    useState("₹10,000");
+  useEffect(() => {
+    const loadInternship = async () => {
+      try {
+        const response = await apiFetch(`/internships/${internshipId}`);
+        const internship = response?.data;
 
-  const [description, setDescription] =
-    useState(
-      "We are looking for a talented Frontend Developer Intern to join our team."
-    );
+        setTitle(internship?.title || "");
+        setDuration(internship?.duration || "");
+        setStipend(
+          typeof internship?.stipend === "number" ? `₹${internship.stipend.toLocaleString()}` : ""
+        );
+        setDescription(internship?.description || "");
+        setDeadline(
+          internship?.deadline ? new Date(internship.deadline).toISOString().slice(0, 10) : ""
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
 
-  const [deadline, setDeadline] =
-    useState("2026-06-26");
+    if (internshipId) {
+      loadInternship();
+    }
+  }, [internshipId]);
 
-  const handleSave = () => {
-    alert("Internship Updated Successfully!");
+  const handleSave = async () => {
+    try {
+      await apiFetch(`/internships/${internshipId}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          title,
+          duration,
+          stipend: Number(stipend.replace(/[^\d]/g, "")) || 0,
+          description,
+          deadline: deadline ? new Date(deadline).toISOString() : undefined,
+        }),
+      });
+
+      router.push(`/recruiter/internships/${internshipId}`);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

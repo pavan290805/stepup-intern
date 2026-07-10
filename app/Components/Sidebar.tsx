@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
 
   const menuClass = (path: string) =>
     `flex items-center px-4 py-3 rounded-xl transition ${
@@ -77,7 +80,10 @@ export default function Sidebar() {
             Active Listings
           </p>
 
-          <button className="mt-4 bg-white text-blue-600 px-4 py-2 rounded-lg font-medium">
+          <button
+            onClick={() => router.push("/recruiter/create-internship")}
+            className="mt-4 bg-white text-blue-600 px-4 py-2 rounded-lg font-medium"
+          >
             Create Internship
           </button>
 
@@ -87,7 +93,18 @@ export default function Sidebar() {
 
       {/* Logout */}
       <div className="absolute bottom-6 left-4 right-4">
-        <button className="w-full border border-gray-200 rounded-xl py-3 text-red-500 hover:bg-red-50">
+        <button
+          onClick={async () => {
+            try {
+              await apiFetch("/auth/logout", { method: "POST" });
+              localStorage.removeItem("accessToken");
+              router.push("/");
+            } catch (error) {
+              console.error(error);
+            }
+          }}
+          className="w-full border border-gray-200 rounded-xl py-3 text-red-500 hover:bg-red-50"
+        >
           Logout
         </button>
       </div>

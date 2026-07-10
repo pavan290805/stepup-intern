@@ -34,6 +34,66 @@ export const interviewService = {
       .limit(limit);
   },
 
+  async getUpcomingInterviewsForRecruiter(recruiterId: string, limit: number = 10): Promise<IInterview[]> {
+    return this.getInterviewsForRecruiter(recruiterId, { limit, status: 'scheduled' });
+  },
+
+  async getInterviewsForRecruiter(
+    recruiterId: string,
+    options: { limit?: number; status?: 'scheduled' | 'completed' | 'cancelled' | 'all' } = {}
+  ): Promise<IInterview[]> {
+    const query: Record<string, unknown> = {};
+
+    if (options.status && options.status !== 'all') {
+      query.status = options.status;
+    }
+
+    if (!options.status || options.status === 'scheduled') {
+      query.scheduledAt = { $gte: new Date() };
+    }
+
+    const interviews = await Interview.find(query)
+      .populate({
+        path: 'applicationId',
+        populate: {
+          path: 'internshipId',
+          populate: {
+            path: 'companyId',
+          },
+        },
+      })
+      .sort({ scheduledAt: options.status === 'completed' ? -1 : 1 })
+      .limit(options.limit ?? 10);
+
+    return interviews.filter((interview) => {
+      const application: any = interview.applicationId;
+      return application?.internshipId?.recruiterId?.toString() === recruiterId;
+    });
+  },
+
+  async getUpcomingInterviewsForRecruiterLegacy(recruiterId: string, limit: number = 10): Promise<IInterview[]> {
+    const interviews = await Interview.find({
+      status: 'scheduled',
+      scheduledAt: { $gte: new Date() },
+    })
+      .populate({
+        path: 'applicationId',
+        populate: {
+          path: 'internshipId',
+          populate: {
+            path: 'companyId',
+          },
+        },
+      })
+      .sort({ scheduledAt: 1 })
+      .limit(limit);
+
+    return interviews.filter((interview) => {
+      const application: any = interview.applicationId;
+      return application?.internshipId?.recruiterId?.toString() === recruiterId;
+    });
+  },
+
   async completeInterview(interviewId: string, feedback: string, rating: number): Promise<IInterview | null> {
     return Interview.findByIdAndUpdate(
       interviewId,

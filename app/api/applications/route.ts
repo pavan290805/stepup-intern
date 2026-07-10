@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
-    const authError = await withAuth(request, [USER_ROLES.STUDENT]);
+    const authError = await withAuth(request);
     if (authError) return authError;
 
     const user = (request as any).user;
@@ -53,6 +53,25 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
+    const internshipId = searchParams.get('internshipId');
+
+    if (user.role !== USER_ROLES.STUDENT) {
+      if (!internshipId) {
+        return errorResponse('internshipId is required for recruiter application listing', undefined, 400);
+      }
+
+      const result = await applicationService.getApplicationsByInternshipId(internshipId, { page, limit });
+
+      return successResponse({
+        applications: result.applications,
+        pagination: {
+          total: result.total,
+          page,
+          limit,
+          pages: Math.ceil(result.total / limit),
+        },
+      });
+    }
 
     const studentProfile = await studentService.getStudentByUserId(user.userId);
     if (!studentProfile) {

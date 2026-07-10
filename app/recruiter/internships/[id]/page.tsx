@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 import Navbar from "../../../Components/Navbar";
 
 const initialApplicants = [
@@ -39,7 +42,7 @@ const initialApplicants = [
   },
 ];
 
-const internshipDetails = {
+const initialInternshipDetails = {
   title: "Frontend Developer Intern",
   company: "StepUp Intern",
   id: "#JB-10294",
@@ -60,7 +63,12 @@ const internshipDetails = {
 };
 
 export default function InternshipDetailsPage() {
+  const router = useRouter();
+  const params = useParams<{ id: string }>();
+  const internshipId = params.id;
+
   const [applicants, setApplicants] = useState(initialApplicants);
+  const [internshipDetails, setInternshipDetails] = useState(initialInternshipDetails);
   const [showInterviewModal, setShowInterviewModal] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState<any>(null);
   const [interviewDate, setInterviewDate] = useState("");
@@ -68,28 +76,136 @@ export default function InternshipDetailsPage() {
   const [showResume, setShowResume] = useState(false);
   const [selectedResume, setSelectedResume] = useState("");
 
+  useEffect(() => {
+    const loadInternship = async () => {
+      try {
+        console.log("Internship ID:", internshipId);
+        const internshipResponse = await apiFetch(`/internships/${internshipId}`);
+        const internship = internshipResponse?.data;
+
+        setInternshipDetails({
+          title: internship?.title || initialInternshipDetails.title,
+          company: internship?.companyId?.name || initialInternshipDetails.company,
+          id: internship?._id ? `#${String(internship._id).slice(-6).toUpperCase()}` : initialInternshipDetails.id,
+          publishedOn: internship?.createdAt
+            ? new Date(internship.createdAt).toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" })
+            : initialInternshipDetails.publishedOn,
+          location: internship?.location || initialInternshipDetails.location,
+          stipend: typeof internship?.stipend === "number" ? `₹${internship.stipend.toLocaleString()} /mo` : initialInternshipDetails.stipend,
+          deadline: internship?.deadline
+            ? new Date(internship.deadline).toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" })
+            : initialInternshipDetails.deadline,
+          duration: internship?.duration || initialInternshipDetails.duration,
+          totalViews: Intl.NumberFormat("en-US").format(internship?.views || 0),
+          overview: internship?.description || initialInternshipDetails.overview,
+          responsibilities: initialInternshipDetails.responsibilities,
+          skills: internship?.skillsRequired?.length ? internship.skillsRequired : initialInternshipDetails.skills,
+        });
+
+        const applicantsResponse = await apiFetch(`/applications?internshipId=${internshipId}&limit=50`);
+        const backendApplicants = applicantsResponse?.data?.applications || [];
+
+        setApplicants(
+          backendApplicants.map((application: any) => {
+            const studentUser = application.studentId?.userId;
+            const applicantName = studentUser?.name || studentUser?.email || "Applicant";
+
+            return {
+              id: application._id,
+              name: applicantName,
+              email: studentUser?.email || "",
+              phone: studentUser?.phoneNumber || "",
+              status:
+                application.status === "shortlisted"
+                  ? "Shortlisted"
+                  : application.status === "interview_scheduled"
+                    ? "Interview Scheduled"
+                    : application.status === "rejected"
+                      ? "Rejected"
+                      : "Applied",
+              university: application.studentId?.education?.[0]?.school || "Student Profile",
+              gpa: `${application.studentId?.profileCompletion || 0}% Complete`,
+              resume: application.studentId?.resumeUrl || "",
+            };
+          })
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (internshipId) {
+      loadInternship();
+    }
+  }, [internshipId]);
+
   const totalApplicants = applicants.length;
   const shortlisted = applicants.filter((a) => a.status === "Shortlisted").length;
   const interviews = applicants.filter((a) => a.status === "Interview Scheduled").length;
   const rejected = applicants.filter((a) => a.status === "Rejected").length;
 
-  const confirmInterview = () => {
-    setApplicants((prev) =>
-      prev.map((a) =>
-        a.id === selectedApplicant.id
-          ? { ...a, status: "Interview Scheduled", interviewDate, interviewTime }
-          : a
-      )
-    );
-    setShowInterviewModal(false);
-    setInterviewDate("");
-    setInterviewTime("");
+  const confirmInterview = async () => {
+    if (!selectedApplicant || !interviewDate || !interviewTime) {
+      return;
+    }
+
+    try {
+      await apiFetch("/interviews", {
+        method: "POST",
+        body: JSON.stringify({
+          applicationId: selectedApplicant.id,
+          scheduledAt: new Date(`${interviewDate}T${interviewTime}`).toISOString(),
+          mode: "online",
+        }),
+      });
+
+      setApplicants((prev) =>
+        prev.map((a) =>
+          a.id === selectedApplicant.id
+            ? { ...a, status: "Interview Scheduled", interviewDate, interviewTime }
+            : a
+        )
+      );
+      setShowInterviewModal(false);
+      setInterviewDate("");
+      setInterviewTime("");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const avatarColors: Record<string, string> = {
     "Rahul Kumar": "bg-blue-500",
     "Priya Sharma": "bg-green-500",
     "Alex Rivera": "bg-purple-500",
+  };
+
+  const handleEdit = () => {
+    router.push(`/recruiter/edit/${internshipId}`);
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleFeatureListing = () => {
+    router.push("/recruiter/analytics");
+  };
+
+  const handleViewFullReport = () => {
+    router.push("/recruiter/analytics");
+  };
+
+  const handleReviewPipeline = () => {
+    router.push("/recruiter/interviews");
+  };
+
+  const handleViewArchive = () => {
+    router.push("/recruiter");
   };
 
   return (
@@ -122,13 +238,13 @@ export default function InternshipDetailsPage() {
           </div>
 
           <div className="flex gap-2 items-center">
-            <button className="flex items-center gap-1 border border-gray-300 bg-white px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
+            <button onClick={handleEdit} className="flex items-center gap-1 border border-gray-300 bg-white px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-50">
               ✏️ Edit
             </button>
-            <button className="flex items-center gap-1.5 bg-gray-900 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-gray-800">
+            <button onClick={handleShare} className="flex items-center gap-1.5 bg-gray-900 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-gray-800">
               ↗ Share
             </button>
-            <button className="flex items-center gap-1.5 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700">
+            <button onClick={handleFeatureListing} className="flex items-center gap-1.5 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-blue-700">
               ⭐ Feature Listing
             </button>
           </div>
@@ -277,7 +393,7 @@ export default function InternshipDetailsPage() {
                 </div>
               </div>
 
-              <button className="w-full bg-blue-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
+              <button onClick={handleViewFullReport} className="w-full bg-blue-600 text-white py-2.5 rounded-xl text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-2">
                 📊 View Full Report
               </button>
             </div>
@@ -309,11 +425,11 @@ export default function InternshipDetailsPage() {
                 ))}
               </div>
 
-              <button className="w-full border border-blue-600 text-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-blue-50 flex items-center justify-center gap-2">
+              <button onClick={handleReviewPipeline} className="w-full border border-blue-600 text-blue-600 py-2.5 rounded-xl text-sm font-medium hover:bg-blue-50 flex items-center justify-center gap-2">
                 Review Pipeline 👥
               </button>
 
-              <p className="text-center text-xs text-gray-400 mt-3 hover:text-blue-500 cursor-pointer">
+              <p onClick={handleViewArchive} className="text-center text-xs text-gray-400 mt-3 hover:text-blue-500 cursor-pointer">
                 View Archive
               </p>
             </div>

@@ -1,6 +1,7 @@
 import { RecruiterProfileInput } from '@/lib/validations';
 import RecruiterProfile, { IRecruiterProfile } from '@/models/RecruiterProfile';
-
+import "@/models/User";
+import "@/models/Company";
 export const recruiterService = {
   async createProfile(userId: string, input: RecruiterProfileInput): Promise<IRecruiterProfile> {
     const existingProfile = await RecruiterProfile.findOne({ userId });

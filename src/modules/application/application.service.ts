@@ -54,7 +54,13 @@ export const applicationService = {
     const skip = (page - 1) * limit;
 
     const applications = await Application.find({ internshipId })
-      .populate('studentId')
+      .populate({
+        path: 'studentId',
+        populate: {
+          path: 'userId',
+          select: 'name email profilePicture',
+        },
+      })
       .skip(skip)
       .limit(limit)
       .sort({ appliedAt: -1 });

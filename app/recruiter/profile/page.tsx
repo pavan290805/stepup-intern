@@ -38,6 +38,10 @@ const [companyWebsite, setCompanyWebsite] = useState("");
         setCompanyWebsite(profile.companyId.website || "");
       }
     } catch (error) {
+      if (error instanceof Error && error.message.includes("404")) {
+        return;
+      }
+
       console.error(error);
     }
   };

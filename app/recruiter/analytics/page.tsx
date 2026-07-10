@@ -1,61 +1,9 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "../../Components/Navbar";
-
-const statCards = [
-  {
-    label: "Total Applicants",
-    value: "12,482",
-    change: "+34.2% vs last month",
-    changeType: "up",
-    icon: (
-      <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-4a4 4 0 11-8 0 4 4 0 018 0zm6 4a2 2 0 11-4 0 2 2 0 014 0zM5 16a2 2 0 11-4 0 2 2 0 014 0z" />
-      </svg>
-    ),
-  },
-  {
-    label: "Hiring Velocity",
-    value: "18 Days",
-    change: "−2 days (Faster)",
-    changeType: "up",
-    icon: (
-      <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-      </svg>
-    ),
-  },
-  {
-    label: "Offer Accept Rate",
-    value: "88.4%",
-    change: "Stable",
-    changeType: "neutral",
-    icon: (
-      <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-  },
-  {
-    label: "Active Roles",
-    value: "42",
-    change: "12 closing soon",
-    changeType: "warn",
-    icon: (
-      <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
-];
-
-const velocityData = [
-  { month: "Jan", days: 22 },
-  { month: "Feb", days: 26 },
-  { month: "Mar", days: 20 },
-  { month: "Apr", days: 18 },
-  { month: "May", days: 24 },
-  { month: "Jun", days: 14 },
-  { month: "Jul", days: 19 },
-];
+import { apiFetch } from "@/lib/api";
 
 const sources = [
   { label: "University Recruiting", count: 5200, color: "bg-blue-600" },
@@ -72,16 +20,163 @@ const funnelStages = [
   { label: "Offered", value: 118, sub: "28.6% Conversion", dark: true },
 ];
 
-const hotPipelines = [
-  { role: "Software Engineering Intern", dept: "Technology", apps: 214, velocity: "12 Days", status: "Active" },
-  { role: "Product Design Intern", dept: "Experience", apps: 86, velocity: "24 Days", status: "Active" },
-  { role: "Marketing Strategy Intern", dept: "Growth", apps: 142, velocity: "15 Days", status: "Paused" },
-];
 
-const maxVelocity = Math.max(...velocityData.map((d) => d.days));
+
 const maxSource = Math.max(...sources.map((s) => s.count));
 
 export default function AnalyticsPage() {
+  const router = useRouter();
+  const [internships, setInternships] = useState<any[]>([]);
+  const [selectedRange, setSelectedRange] = useState("Last 30 Days");
+
+  useEffect(() => {
+    const loadAnalytics = async () => {
+      try {
+        const profileResponse = await apiFetch("/recruiters/profile");
+        const companyId =
+          profileResponse?.data?.companyId?._id ||
+          profileResponse?.data?.companyId?.id ||
+          profileResponse?.data?.companyId;
+
+        if (!companyId) {
+          return;
+        }
+        console.log("Company ID:", companyId);
+        const internshipsResponse = await apiFetch(`/internships?company=${companyId}&limit=100`);
+        const data = internshipsResponse?.data?.internships || [];
+        console.log("Internships:", data); 
+        setInternships(data);
+      } catch (error) {
+        if (!(error instanceof Error && error.message.includes("404"))) {
+          console.error(error);
+        }
+      }
+    };
+
+    loadAnalytics();
+  }, []);
+
+  const totalApplicants = internships.reduce((sum, internship) => sum + (internship.applicationsCount || 0), 0);
+  const activeRoles = internships.filter((internship) => internship.status === "active").length;
+  const avgDaysToDeadline = internships.length
+    ? Math.max(
+        0,
+        Math.round(
+          internships.reduce((sum, internship) => {
+            const days = Math.max(0, Math.ceil((new Date(internship.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+            return sum + days;
+          }, 0) / internships.length
+        )
+      )
+    : 18;
+
+  const statCards = [
+    {
+      label: "Total Applicants",
+      value: totalApplicants ? totalApplicants.toLocaleString() : "12,482",
+      change: internships.length ? "Live from backend" : "+34.2% vs last month",
+      changeType: "up",
+      icon: (
+        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m9-4a4 4 0 11-8 0 4 4 0 018 0zm6 4a2 2 0 11-4 0 2 2 0 014 0zM5 16a2 2 0 11-4 0 4 4 0 014 0z" />
+        </svg>
+      ),
+    },
+    {
+      label: "Hiring Velocity",
+      value: `${avgDaysToDeadline} Days`,
+      change: internships.length ? "Derived from active openings" : "−2 days (Faster)",
+      changeType: "up",
+      icon: (
+        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      ),
+    },
+    {
+      label: "Offer Accept Rate",
+      value: internships.length ? `${Math.min(100, Math.max(0, Math.round((activeRoles / Math.max(1, internships.length)) * 100)))}%` : "88.4%",
+      change: internships.length ? "From current recruiter pipeline" : "Stable",
+      changeType: "neutral",
+      icon: (
+        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
+      label: "Active Roles",
+      value: String(activeRoles || 42),
+      change: internships.length ? `${internships.filter((internship) => internship.status === "closed").length} closing soon` : "12 closing soon",
+      changeType: "warn",
+      icon: (
+        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      ),
+    },
+  ];
+
+const velocityData = internships.map((internship) => ({
+  month: new Date(internship.createdAt).toLocaleString("default", {
+    month: "short",
+  }),
+  days: Math.max(
+    0,
+    Math.ceil(
+      (new Date(internship.deadline).getTime() -
+        new Date(internship.createdAt).getTime()) /
+        (1000 * 60 * 60 * 24)
+    )
+  ),
+}));
+
+const maxVelocity =
+  velocityData.length > 0
+    ? Math.max(...velocityData.map((d) => d.days))
+    : 1;
+    const hotPipelines = internships
+  .slice()
+  .sort((a, b) => (b.applicationsCount || 0) - (a.applicationsCount || 0))
+  .slice(0, 3)
+  .map((internship) => ({
+    role: internship.title,
+    dept: internship.location || internship.companyId?.name || "",
+    apps: internship.applicationsCount || 0,
+    velocity: `${Math.max(
+      0,
+      Math.ceil(
+        (new Date(internship.deadline).getTime() - Date.now()) /
+          (1000 * 60 * 60 * 24)
+      )
+    )} Days`,
+    status:
+      internship.status === "active"
+        ? "Active"
+        : internship.status === "closed"
+        ? "Closed"
+        : "Draft",
+  }));
+  const handleExport = () => {
+    const rows = [
+      ["Metric", "Value"],
+      ["Selected Range", selectedRange],
+      ["Total Applicants", String(totalApplicants)],
+      ["Active Roles", String(activeRoles)],
+      ["Avg Days To Deadline", String(avgDaysToDeadline)],
+    ];
+    
+
+    const csv = rows.map((row) => row.map((value) => `"${value.replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "recruitment-analytics.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
@@ -91,14 +186,15 @@ export default function AnalyticsPage() {
         <div className="flex items-start justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Recruitment Analytics</h1>
-            <p className="text-sm text-gray-500 mt-1">Real time performance metrics for Summer 2024 Internship cycle.</p>
+            <p className="text-sm text-gray-500 mt-1">Real-time analytics generated from your recruiter account.</p>
           </div>
           <div className="flex items-center gap-2">
             {["Last 30 Days", "Quarterly", "Yearly"].map((label, i) => (
               <button
                 key={label}
+                onClick={() => setSelectedRange(label)}
                 className={`px-4 py-2 text-sm rounded-lg border transition ${
-                  i === 0
+                  selectedRange === label
                     ? "bg-white border-gray-300 text-gray-800 font-medium shadow-sm"
                     : "border-transparent text-gray-500 hover:text-gray-700"
                 }`}
@@ -106,7 +202,7 @@ export default function AnalyticsPage() {
                 {label}
               </button>
             ))}
-            <button className="flex items-center gap-1.5 px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 shadow-sm hover:bg-gray-50 transition ml-2">
+            <button onClick={handleExport} className="flex items-center gap-1.5 px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 shadow-sm hover:bg-gray-50 transition ml-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
@@ -224,7 +320,7 @@ export default function AnalyticsPage() {
         <div className="bg-white border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-base font-semibold text-gray-900">Hot Pipelines</h2>
-            <button className="text-sm text-blue-600 hover:underline font-medium">View All Roles</button>
+            <button onClick={() => router.push("/recruiter")} className="text-sm text-blue-600 hover:underline font-medium">View All Roles</button>
           </div>
           <table className="w-full">
             <thead>
@@ -260,7 +356,7 @@ export default function AnalyticsPage() {
                     </span>
                   </td>
                   <td className="py-4">
-                    <button className="text-sm text-blue-600 hover:underline font-medium">Details</button>
+                    <button onClick={() => router.push("/recruiter/interviews")} className="text-sm text-blue-600 hover:underline font-medium">Details</button>
                   </td>
                 </tr>
               ))}

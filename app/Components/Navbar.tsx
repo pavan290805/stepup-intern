@@ -1,8 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 
 export default function Navbar() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await apiFetch("/auth/logout", {
+        method: "POST",
+      });
+      localStorage.removeItem("accessToken");
+      router.push("/");
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <nav className="bg-white border-b border-gray-200 h-16 px-6 flex items-center justify-between shadow-sm">
 
@@ -65,9 +81,12 @@ export default function Navbar() {
           ⚙️
         </button>
 
-        <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm">
+        <button
+          onClick={handleLogout}
+          className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-sm"
+        >
           👤
-        </div>
+        </button>
 
       </div>
 

@@ -43,8 +43,9 @@ export async function GET(request: NextRequest) {
 
     return successResponse(profile);
   } catch (error: any) {
-    return errorResponse(error.message || 'Failed to get profile', undefined, 500);
-  }
+  console.error("PROFILE ERROR:", error);
+  return errorResponse(error.message || "Failed to get profile", undefined, 500);
+}
 }
 
 export async function PATCH(request: NextRequest) {

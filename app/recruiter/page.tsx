@@ -1,8 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "../Components/Navbar";
+import { apiFetch } from "@/lib/api";
 
 const initialInternships = [
   {
@@ -115,9 +117,101 @@ const activityFeed = [
 ];
 
 export default function RecruiterPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [internships, setInternships] = useState(initialInternships);
+
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        const profileResponse = await apiFetch("/recruiters/profile");
+        const recruiterProfile = profileResponse?.data;
+        const companyId = recruiterProfile?.companyId?._id || recruiterProfile?.companyId?.id || recruiterProfile?.companyId;
+
+        if (!companyId) {
+          return;
+        }
+
+        const internshipsResponse = await apiFetch(`/internships?company=${companyId}&limit=50`);
+        const backendInternships = internshipsResponse?.data?.internships || [];
+
+        setInternships(
+          backendInternships.map((internship: any) => ({
+            id: internship._id,
+            title: internship.title,
+            domain: internship.companyId?.name || internship.location || "",
+            type: `${internship.location || ""}${internship.workMode ? ` • ${internship.workMode}` : ""}`.trim(),
+            duration: internship.duration,
+            stipend: `₹${Number(internship.stipend || 0).toLocaleString()}`,
+            applicants: internship.applicationsCount || 0,
+            daysLeft: Math.max(
+              0,
+              Math.ceil((new Date(internship.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+            ),
+            status: internship.status === "closed" ? "Closed" : internship.status === "draft" ? "Draft" : "Active",
+            postedAgo: formatPostedAgo(internship.createdAt),
+            tags: internship.skillsRequired || [],
+            description: internship.description,
+          }))
+        );
+      } catch (error) {
+        if (!(error instanceof Error && (error as Error & { status?: number }).status === 404)) {
+          console.error(error);
+        }
+      }
+    };
+
+    loadDashboard();
+  }, []);
+
+  const handleClose = async (id: number | string) => {
+    try {
+      await apiFetch(`/internships/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: "closed" }),
+      });
+
+      setInternships((prev) =>
+        prev.map((item) =>
+          String(item.id) === String(id) ? { ...item, status: "Closed" } : item
+        )
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDelete = async (id: number | string) => {
+    try {
+      await apiFetch(`/internships/${id}`, {
+        method: "DELETE",
+      });
+
+      setInternships((prev) => prev.filter((item) => String(item.id) !== String(id)));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleViewAllPosts = () => {
+    setFilter("All");
+    setSearch("");
+  };
+
+  const handleFeatureLatest = () => {
+    if (latestPosting) {
+      router.push(`/recruiter/edit/${latestPosting.id}`);
+    }
+  };
+
+  const handleViewHistory = () => {
+    router.push("/recruiter/interviews");
+  };
+
+  const handleUpdatePost = () => {
+    router.push("/recruiter/create-internship");
+  };
 
   const totalListings = internships.length;
   const activeListings = internships.filter((i) => i.status === "Active").length;
@@ -136,17 +230,16 @@ export default function RecruiterPage() {
   const latestPosting = filteredInternships[0];
   const otherPostings = filteredInternships.slice(1);
 
-  const handleClose = (id: number) => {
-    setInternships((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, status: "Closed" } : item
-      )
-    );
-  };
+  function formatPostedAgo(value: string | Date) {
+    const date = new Date(value);
+    const diffDays = Math.max(0, Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24)));
 
-  const handleDelete = (id: number) => {
-    setInternships((prev) => prev.filter((item) => item.id !== id));
-  };
+    if (diffDays === 0) return "today";
+    if (diffDays === 1) return "1 day ago";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    const weeks = Math.floor(diffDays / 7);
+    return weeks === 1 ? "1 week ago" : `${weeks} weeks ago`;
+  }
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -262,7 +355,7 @@ export default function RecruiterPage() {
                   Your Latest Posting
                 </h2>
               </div>
-              <button className="text-sm text-blue-600 hover:underline">
+              <button onClick={handleViewAllPosts} className="text-sm text-blue-600 hover:underline">
                 View all posts
               </button>
             </div>
@@ -366,7 +459,7 @@ export default function RecruiterPage() {
                         </svg>
                         Edit
                       </Link>
-                      <button className="flex items-center gap-1.5 bg-purple-100 text-purple-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-200 transition">
+                      <button onClick={handleFeatureLatest} className="flex items-center gap-1.5 bg-purple-100 text-purple-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-200 transition">
                         <svg
                           width="14"
                           height="14"
@@ -456,7 +549,7 @@ export default function RecruiterPage() {
                 <h3 className="font-semibold text-gray-900 text-sm">
                   Activity Feed
                 </h3>
-                <button className="text-gray-400 hover:text-gray-600">
+                <button onClick={handleViewHistory} className="text-gray-400 hover:text-gray-600">
                   <svg
                     width="16"
                     height="16"
@@ -488,7 +581,7 @@ export default function RecruiterPage() {
                   </div>
                 ))}
               </div>
-              <button className="w-full mt-4 text-sm text-blue-600 border border-blue-200 rounded-lg py-2 hover:bg-blue-50 transition">
+              <button onClick={handleViewHistory} className="w-full mt-4 text-sm text-blue-600 border border-blue-200 rounded-lg py-2 hover:bg-blue-50 transition">
                 View Full History
               </button>
             </div>
@@ -513,7 +606,7 @@ export default function RecruiterPage() {
                 Listings with a "Day in the Life" section get 35% more quality
                 applicants. Try adding one to your Frontend post!
               </p>
-              <button className="mt-4 w-full bg-white text-blue-600 text-sm font-medium py-2 rounded-lg hover:bg-blue-50 transition">
+              <button onClick={handleUpdatePost} className="mt-4 w-full bg-white text-blue-600 text-sm font-medium py-2 rounded-lg hover:bg-blue-50 transition">
                 Update Post
               </button>
             </div>

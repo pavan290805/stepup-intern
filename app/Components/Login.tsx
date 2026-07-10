@@ -1,5 +1,8 @@
 "use client";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { apiFetch } from "@/lib/api";
 type LoginProps = {
   setShowSignup: React.Dispatch<React.SetStateAction<boolean>>;
 };
@@ -7,13 +10,40 @@ type LoginProps = {
 export default function Login({
   setShowSignup,
 }: LoginProps) {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
-    const email = formData.get("email");
+    const email = String(formData.get("email") || "").trim();
+    const password = String(formData.get("password") || "");
 
-    window.alert(`Login submitted for ${email || "your account"}.`);
+    setIsSubmitting(true);
+    setErrorMessage("");
+
+    try {
+      const response = await apiFetch("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      if (response?.data?.accessToken) {
+        localStorage.setItem("accessToken", response.data.accessToken);
+      }
+
+      const role = response?.data?.user?.role;
+      router.push(role === "recruiter" ? "/recruiter/profile" : "/");
+    } catch (error: any) {
+      setErrorMessage(error.message || "Login failed");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -82,6 +112,12 @@ export default function Login({
             Sign in to your StepUp account
           </p>
 
+          {errorMessage && (
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errorMessage}
+            </div>
+          )}
+
           <div className="mb-4">
             <label className="block mb-2 text-sm text-black">
               Email Address
@@ -119,9 +155,10 @@ export default function Login({
 
           <button
             type="submit"
-            className="w-full bg-[#0880EF] text-white py-3 rounded-lg font-semibold"
+            className="w-full bg-[#0880EF] text-white py-3 rounded-lg font-semibold disabled:opacity-70"
+            disabled={isSubmitting}
           >
-            Sign In
+            {isSubmitting ? "Signing in..." : "Sign In"}
           </button>
 
           <div className="flex items-center my-6">
