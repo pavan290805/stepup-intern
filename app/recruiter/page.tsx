@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import RecruiterDashboard from "../../Components/recruiter/RecruiterDashboard";
+import RecruiterDashboard from "../../recruiter/RecruiterDashboard";
 import { getAuthRoleFromToken } from "../../src/lib/auth-session";
 
 export default async function RecruiterPage() {

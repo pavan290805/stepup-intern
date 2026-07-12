@@ -1,4 +1,4 @@
-import RecruiterInterviews from "../../Components/recruiter/RecruiterInterviews";
+import RecruiterInterviews from "../../recruiter/RecruiterInterviews";
 
 export default function InterviewsPage() {
   return <RecruiterInterviews />;

@@ -1,4 +1,4 @@
-import CloseInternshipsPage from "../../../Components/internships/CloseInternshipsPage";
+import CloseInternshipsPage from "../../../internships/CloseInternshipsPage";
 
 export default function ClosedInternshipsPage() {
   return <CloseInternshipsPage />;

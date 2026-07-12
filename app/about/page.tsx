@@ -1,4 +1,4 @@
-import Header from "../../Components/layout/Header";
+import Header from "../../layout/Header";
 
 export default function AboutPage() {
   return (
