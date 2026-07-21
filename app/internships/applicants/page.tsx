@@ -1,5 +1,3 @@
-import InternshipApplicants from "../../../internships/InternshipApplicants";
-
 export default function InternshipApplicantsPage() {
   return (
     <div className="min-h-screen bg-[#F5F8FF] px-4 py-24 sm:px-6 lg:px-8">
