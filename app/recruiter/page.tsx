@@ -1,4 +1,12 @@
+<<<<<<< Updated upstream
 "use client";
+=======
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { RecruiterInternshipProvider } from "../../Components/context/RecruiterInternshipContext";
+import RecruiterDashboard from "../../Components/recruiter/RecruiterDashboard";
+import { getAuthRoleFromToken } from "../../src/lib/auth-session";
+>>>>>>> Stashed changes
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -245,6 +253,7 @@ export default function RecruiterPage() {
     <div className="min-h-screen bg-[#F8FAFC]">
       <Navbar />
 
+<<<<<<< Updated upstream
       <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
@@ -615,4 +624,11 @@ export default function RecruiterPage() {
       </div>
     </div>
   );
+=======
+return (
+  <RecruiterInternshipProvider>
+    <RecruiterDashboard />
+  </RecruiterInternshipProvider>
+);
+>>>>>>> Stashed changes
 }
