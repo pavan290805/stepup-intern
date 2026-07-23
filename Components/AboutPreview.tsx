@@ -15,6 +15,7 @@ export default function AboutPreview() {
     src="/about-bg.png"
     alt="Background"
     fill
+    sizes="(max-width: 1024px) 100vw, 50vw"
     className="object-cover object-right"
   />
 

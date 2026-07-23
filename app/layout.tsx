@@ -5,6 +5,13 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'StepUp Intern',
   description: 'Recruiter and internship management dashboard for StepUp Intern',
+  icons: {
+    icon: [
+      { url: '/Product_logos/logo.svg', type: 'image/svg+xml' },
+      { url: '/Product_logos/favicon.ico' },
+    ],
+    shortcut: '/Product_logos/favicon.ico',
+  },
 };
 
 interface RootLayoutProps {
