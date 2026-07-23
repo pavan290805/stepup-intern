@@ -3,7 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "../layout/Header";
 import { useApplicants } from "../hooks/useApplicants";
+<<<<<<< HEAD
 import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
+=======
+import { useRecruiterInternships } from "../hooks/useRecruiterInternships";
+
+>>>>>>> origin/master
 type InterviewCard = {
   id: string;
   company: string;
@@ -19,7 +24,11 @@ export default function InterviewsPage() {
   const [alerts, setAlerts] = useState<Array<{ id: string; title: string; time: string; avatar?: string }>>([]);
 
   const { interviews, applicants } = useApplicants();
+<<<<<<< HEAD
 const { internships } = useRecruiterInternshipContext();
+=======
+  const { internships } = useRecruiterInternships();
+>>>>>>> origin/master
 
   const activeInternships = useMemo(
     () => internships.filter((item) => item.status === "Active" || item.status === "Promoted"),

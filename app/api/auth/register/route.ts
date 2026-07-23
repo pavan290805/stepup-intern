@@ -17,6 +17,10 @@ export async function POST(request: NextRequest) {
 
     const result = await authService.register(data as any);
 
+    if (!valid) {
+      return response;
+    }
+
     return createAuthCookies(
       {
         user: {
@@ -33,6 +37,6 @@ export async function POST(request: NextRequest) {
       'User registered successfully'
     );
   } catch (error: any) {
-    return errorResponse(error.message || 'Registration failed', undefined, 400);
+    return errorResponse(error?.message || 'Registration failed', undefined, 400);
   }
 }

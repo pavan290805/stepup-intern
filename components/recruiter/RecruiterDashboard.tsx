@@ -8,7 +8,11 @@ import {
   InternshipFormState,
   useRecruiterInternships,
 } from "../hooks/useRecruiterInternships";
+<<<<<<< HEAD
 import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
+=======
+import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
+>>>>>>> origin/master
 import { useApplicants } from "../hooks/useApplicants";
 import EmptyListingsState from "../internships/EmptyListingsState";
 import InternshipListingCard from "../internships/InternshipListingCard";
@@ -36,6 +40,7 @@ const formatDate = (value: string) => {
 
 export default function RecruiterPage() {
   const router = useRouter();
+<<<<<<< HEAD
 const {
   internships,
   emptyForm,
@@ -49,6 +54,21 @@ const {
   error,
   setSelectedInternship,
 } = useRecruiterInternshipContext();
+=======
+  const {
+    internships,
+    emptyForm,
+    createListing,
+    updateListing,
+    promoteListing,
+    closeListing,
+    reopenListing,
+    removeListing,
+    loading,
+    error,
+  } = useRecruiterInternships();
+  const { profile } = useRecruiterProfile();
+>>>>>>> origin/master
   const { applicants } = useApplicants();
   const [form, setForm] = useState<InternshipFormState>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -212,10 +232,16 @@ const {
     setShowCreateForm(true);
   };
 
+<<<<<<< HEAD
 const handleViewApplicants = (internship: Internship) => {
   setSelectedInternship(internship);
   router.push(`/internships/applicants?internshipId=${internship.id}`);
 };
+=======
+  const handleViewApplicants = (internship: Internship) => {
+    router.push(`/internships/applicants?internshipId=${internship.id}`);
+  };
+>>>>>>> origin/master
 
   return (
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">

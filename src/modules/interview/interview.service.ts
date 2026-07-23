@@ -20,6 +20,22 @@ export const interviewService = {
     return Interview.findOne({ applicationId }).populate('applicationId');
   },
 
+  async getInterviewsByApplicationIds(applicationIds: string[]): Promise<IInterview[]> {
+    if (applicationIds.length === 0) {
+      return [];
+    }
+
+    return Interview.find({ applicationId: { $in: applicationIds } })
+      .populate({
+        path: 'applicationId',
+        populate: [
+          { path: 'studentId' },
+          { path: 'internshipId', populate: [{ path: 'companyId' }, { path: 'recruiterId' }] },
+        ],
+      })
+      .sort({ scheduledAt: -1 });
+  },
+
   async updateInterview(interviewId: string, input: any): Promise<IInterview | null> {
     return Interview.findByIdAndUpdate(interviewId, input, { new: true }).populate('applicationId');
   },

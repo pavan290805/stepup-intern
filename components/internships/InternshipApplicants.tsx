@@ -2,15 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link";
+<<<<<<< HEAD
 import { useRouter } from "next/navigation";
 import type { Internship } from "../hooks/useRecruiterInternships";
 import { useApplicants } from "../hooks/useApplicants";
 import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
+=======
+import type { Internship } from "../hooks/useRecruiterInternships";
+import { useApplicants } from "../hooks/useApplicants";
+>>>>>>> origin/master
 import ApplicantCard from "./ApplicantCard";
 import ScheduleInterviewModal from "./ScheduleInterviewModal";
 import SendEmailModal from "./SendEmailModal";
 import ViewResumeModal from "./ViewResumeModal";
 
+<<<<<<< HEAD
 export default function InternshipApplicantsPage() {
   const { selectedInternship } = useRecruiterInternshipContext();
   const router = useRouter();
@@ -25,6 +31,17 @@ export default function InternshipApplicantsPage() {
 
   const internship = selectedInternship;
 
+=======
+type InternshipApplicantsPageProps = {
+  internship: Internship;
+  onBack: () => void;
+};
+
+export default function InternshipApplicantsPage({
+  internship,
+  onBack,
+}: InternshipApplicantsPageProps) {
+>>>>>>> origin/master
   const {
     getInternshipApplicants,
     getInternshipInterviews,
@@ -43,6 +60,7 @@ export default function InternshipApplicantsPage() {
     "schedule" | "email" | "view-resume" | null
   >(null);
 
+<<<<<<< HEAD
   const selectedApplicant = applicants.find(
     (a) => a.id === selectedApplicantId
   );
@@ -92,6 +110,49 @@ const handleAction = (action: string, applicantId: string) => {
       break;
   }
 };
+=======
+  const selectedApplicant = applicants.find((a) => a.id === selectedApplicantId);
+
+  const handleAction = (action: string, applicantId: string) => {
+    setSelectedApplicantId(applicantId);
+
+    switch (action) {
+      case "schedule":
+        setModalType("schedule");
+        break;
+      case "email":
+        setModalType("email");
+        break;
+      case "view-resume":
+        setModalType("view-resume");
+        break;
+      case "shortlist":
+        shortlistApplicant(applicantId);
+        break;
+      case "reject":
+        rejectApplicant(applicantId);
+        break;
+      case "delete":
+        if (
+          window.confirm(
+            "Are you sure you want to remove this application? This action cannot be undone."
+          )
+        ) {
+          deleteApplication(applicantId);
+        }
+        break;
+      case "download-resume":
+        const applicant = applicants.find((a) => a.id === applicantId);
+        if (applicant) {
+          const link = document.createElement("a");
+          link.href = applicant.resumeUrl;
+          link.download = `${applicant.name}-resume.pdf`;
+          link.click();
+        }
+        break;
+    }
+  };
+>>>>>>> origin/master
 
   const handleScheduleInterview = (date: string, time: string) => {
     if (selectedApplicantId) {
@@ -156,7 +217,11 @@ const handleAction = (action: string, applicantId: string) => {
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-10 xl:px-12">
           <button
+<<<<<<< HEAD
             onClick={() => router.back()}
+=======
+            onClick={onBack}
+>>>>>>> origin/master
             className="mb-4 text-sm font-medium text-blue-600 hover:text-blue-700 transition"
           >
             ← Back to Listings

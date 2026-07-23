@@ -33,6 +33,6 @@ export async function POST(request: NextRequest) {
       'Logged in successfully'
     );
   } catch (error: any) {
-    return errorResponse(error.message || 'Login failed', undefined, 401);
+    return errorResponse(error?.message || 'Login failed', undefined, 401);
   }
 }

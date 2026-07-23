@@ -5,9 +5,14 @@ import { FormEvent, useMemo, useState } from "react";
 import {
   Internship,
   InternshipFormState,
+<<<<<<< HEAD
 } from "../hooks/useRecruiterInternships";
 
 import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
+=======
+  useRecruiterInternships,
+} from "../hooks/useRecruiterInternships";
+>>>>>>> origin/master
 import EmptyListingsState from "./EmptyListingsState";
 import InternshipListingCard from "./InternshipListingCard";
 import RecruiterStatsGrid from "../recruiter/RecruiterStatsGrid";
@@ -68,6 +73,7 @@ const getPageCopy = (mode: InternshipsPageMode) => {
 import Header from "../layout/Header";
 
 export default function EditInternshipsPage({ mode = "edit" }: EditInternshipsPageProps) {
+<<<<<<< HEAD
 const {
   internships,
   stats,
@@ -77,6 +83,17 @@ const {
   closeListing,
   reopenListing,
 } = useRecruiterInternshipContext();
+=======
+  const {
+    internships,
+    stats,
+    emptyForm,
+    updateListing,
+    promoteListing,
+    closeListing,
+    reopenListing,
+  } = useRecruiterInternships();
+>>>>>>> origin/master
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [form, setForm] = useState<InternshipFormState>(emptyForm);

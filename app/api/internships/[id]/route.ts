@@ -5,6 +5,7 @@ import { errorResponse, successResponse, withAuth } from '@/middleware/auth';
 import { validateRequestBody } from '@/middleware/validation';
 import { internshipService } from '@/modules/internship/internship.service';
 import { recruiterService } from '@/modules/recruiter/recruiter.service';
+import RecruiterProfile from '@/models/RecruiterProfile';
 import { RouteParams } from '@/types';
 import { NextRequest } from 'next/server';
 
@@ -41,16 +42,53 @@ export async function PATCH(
 
     const user = (request as any).user;
 
+    // debug: log current user
+    // eslint-disable-next-line no-console
+    console.log('[DEBUG] DELETE /api/internships/:id current user:', { userId: user?.userId, role: user?.role });
+
+    // debug: log current user
+    // eslint-disable-next-line no-console
+    console.log('[DEBUG] PATCH /api/internships/:id current user:', { userId: user?.userId, role: user?.role });
+
     const { valid, data, response } = await validateRequestBody(request, internshipSchema.partial());
     if (!valid) return response;
 
     // Verify ownership if recruiter
     if (user.role === USER_ROLES.RECRUITER) {
-      const recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
       const internship = await internshipService.getInternshipById(id);
+      // normalize recruiter id (can be populated object or ObjectId)
+      const internshipRecruiterId = internship
+        ? (typeof internship.recruiterId === 'object' && internship.recruiterId?._id
+            ? internship.recruiterId._id.toString()
+            : internship.recruiterId?.toString())
+        : null;
+      // eslint-disable-next-line no-console
+      console.log('[DEBUG] PATCH /api/internships/:id fetched internship:', internship ? { id: internship._id?.toString(), recruiterId: internshipRecruiterId } : null);
 
-      if (internship && internship.recruiterId.toString() !== recruiterProfile?._id.toString()) {
-        return errorResponse('Not authorized to update this internship', undefined, 403);
+      // First try the recruiter's profile lookup
+      const recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
+      // eslint-disable-next-line no-console
+      console.log('[DEBUG] PATCH /api/internships/:id recruiterProfile:', recruiterProfile ? { id: recruiterProfile._id?.toString(), userId: recruiterProfile.userId?.toString() } : null);
+
+      if (recruiterProfile) {
+        if (internship && internshipRecruiterId !== recruiterProfile._id.toString()) {
+          // eslint-disable-next-line no-console
+          console.warn('[DEBUG] PATCH ownership mismatch', { internshipRecruiterId, recruiterProfileId: recruiterProfile._id?.toString(), currentUserId: user.userId });
+          return errorResponse('Not authorized to update this internship', undefined, 403);
+        }
+      } else {
+        // Fallback: if recruiter profile is missing for the current user, resolve the internship's
+        // recruiter profile and compare its userId to the current user.
+        if (internship) {
+          const ownerProfile = await RecruiterProfile.findById(internship.recruiterId).select('userId');
+          // eslint-disable-next-line no-console
+          console.log('[DEBUG] PATCH ownerProfile (fallback):', ownerProfile ? { id: ownerProfile._id?.toString(), userId: ownerProfile.userId?.toString() } : null);
+          if (ownerProfile && ownerProfile.userId?.toString() !== user.userId) {
+            // eslint-disable-next-line no-console
+            console.warn('[DEBUG] PATCH fallback ownership mismatch', { ownerUserId: ownerProfile.userId?.toString(), currentUserId: user.userId });
+            return errorResponse('Not authorized to update this internship', undefined, 403);
+          }
+        }
       }
     }
 
@@ -81,11 +119,37 @@ export async function DELETE(
 
     // Verify ownership if recruiter
     if (user.role === USER_ROLES.RECRUITER) {
-      const recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
       const internship = await internshipService.getInternshipById(id);
+      // normalize recruiter id (can be populated object or ObjectId)
+      const internshipRecruiterIdDel = internship
+        ? (typeof internship.recruiterId === 'object' && internship.recruiterId?._id
+            ? internship.recruiterId._id.toString()
+            : internship.recruiterId?.toString())
+        : null;
+      // eslint-disable-next-line no-console
+      console.log('[DEBUG] DELETE /api/internships/:id fetched internship:', internship ? { id: internship._id?.toString(), recruiterId: internshipRecruiterIdDel } : null);
 
-      if (internship && internship.recruiterId.toString() !== recruiterProfile?._id.toString()) {
-        return errorResponse('Not authorized to delete this internship', undefined, 403);
+      const recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
+      // eslint-disable-next-line no-console
+      console.log('[DEBUG] DELETE /api/internships/:id recruiterProfile:', recruiterProfile ? { id: recruiterProfile._id?.toString(), userId: recruiterProfile.userId?.toString() } : null);
+
+      if (recruiterProfile) {
+        if (internship && internshipRecruiterIdDel !== recruiterProfile._id.toString()) {
+          // eslint-disable-next-line no-console
+          console.warn('[DEBUG] DELETE ownership mismatch', { internshipRecruiterId: internshipRecruiterIdDel, recruiterProfileId: recruiterProfile._id?.toString(), currentUserId: user.userId });
+          return errorResponse('Not authorized to delete this internship', undefined, 403);
+        }
+      } else {
+        if (internship) {
+          const ownerProfile = await RecruiterProfile.findById(internship.recruiterId).select('userId');
+          // eslint-disable-next-line no-console
+          console.log('[DEBUG] DELETE ownerProfile (fallback):', ownerProfile ? { id: ownerProfile._id?.toString(), userId: ownerProfile.userId?.toString() } : null);
+          if (ownerProfile && ownerProfile.userId?.toString() !== user.userId) {
+            // eslint-disable-next-line no-console
+            console.warn('[DEBUG] DELETE fallback ownership mismatch', { ownerUserId: ownerProfile.userId?.toString(), currentUserId: user.userId });
+            return errorResponse('Not authorized to delete this internship', undefined, 403);
+          }
+        }
       }
     }
 
