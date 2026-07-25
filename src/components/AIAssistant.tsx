@@ -130,7 +130,7 @@ export default function AIAssistant({
       <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-100 gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-brand-550" /> AI Career Buddy
+            <Sparkles className="w-6 h-6 text-blue-600" /> AI Career Buddy
           </h1>
           <p className="text-xs text-slate-500">
             Your elite automated career mentor, personalized with your academic profile and technical skill specifications.
@@ -158,41 +158,41 @@ export default function AIAssistant({
             <div className="space-y-2">
               <button
                 onClick={() => handleTopicSelect("Give me career guidance about Frontend vs Backend growth in 2026/2027.")}
-                className="w-full text-left bg-white hover:bg-brand-50 border border-slate-100 p-3 rounded-xl transition text-xs font-bold text-slate-700 hover:text-brand-550 flex items-center gap-2 cursor-pointer shadow-sm"
+                className="w-full text-left bg-white hover:bg-blue-50 border border-slate-100 p-3 rounded-xl transition text-xs font-bold text-slate-700 hover:text-blue-600 flex items-center gap-2 cursor-pointer shadow-sm"
               >
-                <Briefcase className="w-4 h-4 text-brand-550 shrink-0" />
+                <Briefcase className="w-4 h-4 text-blue-600 shrink-0" />
                 <span>Career Guidance</span>
               </button>
 
               <button
                 onClick={() => handleTopicSelect("Look over my certifications and projects list and suggest resume bullet point optimizations.")}
-                className="w-full text-left bg-white hover:bg-brand-50 border border-slate-100 p-3 rounded-xl transition text-xs font-bold text-slate-700 hover:text-brand-550 flex items-center gap-2 cursor-pointer shadow-sm"
+                className="w-full text-left bg-white hover:bg-blue-50 border border-slate-100 p-3 rounded-xl transition text-xs font-bold text-slate-700 hover:text-blue-600 flex items-center gap-2 cursor-pointer shadow-sm"
               >
-                <FileSignature className="w-4 h-4 text-brand-550 shrink-0" />
+                <FileSignature className="w-4 h-4 text-blue-600 shrink-0" />
                 <span>Resume Advice</span>
               </button>
 
               <button
                 onClick={() => handleTopicSelect("Act as a Tech Lead on a Senior Developer panel and conduct a mock interview with me about React hooks and type safety.")}
-                className="w-full text-left bg-white hover:bg-brand-50 border border-slate-100 p-3 rounded-xl transition text-xs font-bold text-slate-700 hover:text-brand-550 flex items-center gap-2 cursor-pointer shadow-sm"
+                className="w-full text-left bg-white hover:bg-blue-50 border border-slate-100 p-3 rounded-xl transition text-xs font-bold text-slate-700 hover:text-blue-600 flex items-center gap-2 cursor-pointer shadow-sm"
               >
-                <UserCheck className="w-4 h-4 text-brand-550 shrink-0" />
+                <UserCheck className="w-4 h-4 text-blue-600 shrink-0" />
                 <span>Interview Preparation</span>
               </button>
 
               <button
                 onClick={() => handleTopicSelect("Recommend specific advanced topics, guides, and courses for learning modern cloud storage or database modeling.")}
-                className="w-full text-left bg-white hover:bg-brand-50 border border-slate-100 p-3 rounded-xl transition text-xs font-bold text-slate-700 hover:text-brand-550 flex items-center gap-2 cursor-pointer shadow-sm"
+                className="w-full text-left bg-white hover:bg-blue-50 border border-slate-100 p-3 rounded-xl transition text-xs font-bold text-slate-700 hover:text-blue-600 flex items-center gap-2 cursor-pointer shadow-sm"
               >
-                <Map className="w-4 h-4 text-brand-550 shrink-0" />
+                <Map className="w-4 h-4 text-blue-600 shrink-0" />
                 <span>Learning Recommendations</span>
               </button>
 
               <button
                 onClick={() => handleTopicSelect("Based on my skills list, list 3-4 suitable tech roles I am highly qualified for.")}
-                className="w-full text-left bg-white hover:bg-brand-50 border border-slate-100 p-3 rounded-xl transition text-xs font-bold text-slate-700 hover:text-brand-550 flex items-center gap-2 cursor-pointer shadow-sm"
+                className="w-full text-left bg-white hover:bg-blue-50 border border-slate-100 p-3 rounded-xl transition text-xs font-bold text-slate-700 hover:text-blue-600 flex items-center gap-2 cursor-pointer shadow-sm"
               >
-                <Lightbulb className="w-4 h-4 text-brand-550 shrink-0" />
+                <Lightbulb className="w-4 h-4 text-blue-600 shrink-0" />
                 <span>Job Role Suggestions</span>
               </button>
             </div>
@@ -204,7 +204,7 @@ export default function AIAssistant({
             <div className="space-y-1 text-xs">
               <p className="font-bold text-slate-800">{profile.personalInfo.name}</p>
               <p className="text-slate-500">{profile.education[0]?.school} &bull; BS CS</p>
-              <p className="text-[10px] text-brand-550 font-bold bg-brand-100/50 px-1.5 py-0.5 rounded inline-block">
+              <p className="text-[10px] text-blue-600 font-bold bg-blue-100/50 px-1.5 py-0.5 rounded inline-block">
                 {profile.skills.length} Technical Skills Active
               </p>
             </div>
@@ -217,7 +217,7 @@ export default function AIAssistant({
           {/* Chat upper label */}
           <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-brand-550 text-white flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold">
                 <Bot className="w-4 h-4" />
               </div>
               <div>
@@ -278,19 +278,19 @@ export default function AIAssistant({
                 >
                   {/* Sender Avatar */}
                   <div className={`w-7 h-7 rounded-lg font-bold flex items-center justify-center text-xs shrink-0 select-none ${
-                    m.role === "user" ? "bg-slate-200 text-slate-700" : "bg-blue-100 text-brand-550"
+                    m.role === "user" ? "bg-slate-200 text-slate-800" : "bg-blue-100 text-blue-600"
                   }`}>
-                    {m.role === "user" ? "JD" : "AI"}
+                    {m.role === "user" ? "ME" : "AI"}
                   </div>
 
                   {/* Bubble body content */}
                   <div className={`rounded-2xl px-3.5 py-2.5 max-w-[85%] text-xs shadow-sm ${
                     m.role === "user" 
-                      ? "bg-brand-550 text-white font-medium rounded-tr-none" 
-                      : "bg-slate-50 text-slate-700 border border-slate-100 rounded-tl-none leading-relaxed"
+                      ? "bg-blue-50 text-black font-semibold border border-blue-200 rounded-tr-none" 
+                      : "bg-slate-50 text-slate-800 border border-slate-100 rounded-tl-none leading-relaxed"
                   }`}>
                     {/* Render newlines beautifully with formatted paragraphs */}
-                    <div className="whitespace-pre-line space-y-1 font-sans">
+                    <div className="whitespace-pre-line space-y-1 font-sans text-black">
                       {m.content}
                     </div>
                   </div>
@@ -300,11 +300,11 @@ export default function AIAssistant({
             
             {loading && (
               <div className="flex items-start gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-blue-100 text-brand-550 font-bold flex items-center justify-center text-xs justify-items-center animate-pulse">
+                <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-xs justify-items-center animate-pulse">
                   AI
                 </div>
                 <div className="bg-slate-50 border border-slate-100 rounded-2xl rounded-tl-none px-4 py-3 text-xs text-slate-400 flex items-center gap-2">
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-brand-550" />
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-blue-600" />
                   <span>AI Career Buddy is thinking...</span>
                 </div>
               </div>
@@ -327,12 +327,12 @@ export default function AIAssistant({
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask me about interviews, resume metrics, standard learning paths, or career roadmaps..."
                 id="message-text-entry"
-                className="flex-1 bg-white border border-slate-200 rounded-xl text-xs px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-550 focus:border-brand-550 transition text-slate-700"
+                className="flex-1 bg-white border border-slate-200 rounded-xl text-xs px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition text-black font-semibold placeholder:text-slate-400"
               />
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="bg-brand-550 hover:bg-blue-600 disabled:opacity-40 text-white font-bold p-2.5 rounded-xl transition shrink-0 cursor-pointer flex items-center justify-center shadow-sm"
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold p-2.5 rounded-xl transition shrink-0 cursor-pointer flex items-center justify-center shadow-sm"
               >
                 <Send className="w-4 h-4 text-white" />
               </button>

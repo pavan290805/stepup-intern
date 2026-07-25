@@ -34,14 +34,15 @@ export default function ATSChecker({ profile, onUpdateResumeText }: ATSCheckerPr
     setError(null);
     setIsDecoding(true);
 
-    const isPdfOrDocx = 
+    const isBinaryFormat = 
       file.name.endsWith(".pdf") || 
       file.name.endsWith(".docx") || 
+      file.name.endsWith(".doc") || 
       file.type.includes("pdf") || 
       file.type.includes("officedocument") || 
       file.type.includes("word");
 
-    if (isPdfOrDocx) {
+    if (isBinaryFormat) {
       try {
         const reader = new FileReader();
         const base64Promise = new Promise<string>((resolve, reject) => {
@@ -50,7 +51,7 @@ export default function ATSChecker({ profile, onUpdateResumeText }: ATSCheckerPr
               const base64String = reader.result.split(",")[1];
               resolve(base64String);
             } else {
-              reject(new Error("Failed to prepare document binary buffer."));
+              reject(new Error("Failed to read document binary buffer."));
             }
           };
           reader.onerror = () => reject(reader.error || new Error("Failed to read file."));
@@ -71,40 +72,55 @@ export default function ATSChecker({ profile, onUpdateResumeText }: ATSCheckerPr
 
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.error || "Failed to analyze document format structure.");
+          throw new Error(errData.error || "Failed to extract text from document format.");
         }
 
         const data = await response.json();
-        setResumeInput(data.text);
-        onUpdateResumeText(data.text);
+        if (data.text) {
+          setResumeInput(data.text);
+          onUpdateResumeText(data.text);
+        } else {
+          throw new Error("No text content could be extracted from this file.");
+        }
       } catch (err: any) {
-        setError(err.message || "We encountered an issue extracting text from this document. Please try copy-pasting the text instead.");
+        setError(err.message || "Failed to extract text from this document. Please try copy-pasting the text instead.");
         console.error("Document upload parse error:", err);
       } finally {
         setIsDecoding(false);
       }
     } else {
-      // Decode directly as standard plain text
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const text = event.target?.result as string;
-        setResumeInput(text);
-        onUpdateResumeText(text);
+      // Decode directly as plain text for .txt / .md files
+      try {
+        const textReader = new FileReader();
+        textReader.onload = (event) => {
+          const text = (event.target?.result as string) || "";
+          setResumeInput(text);
+          onUpdateResumeText(text);
+          setIsDecoding(false);
+        };
+        textReader.onerror = () => {
+          setError("Could not read plain text content from this file.");
+          setIsDecoding(false);
+        };
+        textReader.readAsText(file);
+      } catch (e) {
         setIsDecoding(false);
-      };
-      reader.onerror = () => {
-        setError("Could not read plain text content from this file.");
-        setIsDecoding(false);
-      };
-      reader.readAsText(file);
+      }
     }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError("File size exceeds 5MB limit. Please upload a smaller file.");
+        return;
+      }
       processDocumentFile(file);
     }
+    // Reset input so the same file can be re-selected
+    e.target.value = "";
   };
 
   const onDragOver = (e: React.DragEvent) => {
@@ -170,7 +186,7 @@ export default function ATSChecker({ profile, onUpdateResumeText }: ATSCheckerPr
       <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-slate-100 gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
-            <FileText className="w-6 h-6 text-brand-550" /> ATS Resume Checker
+            <FileText className="w-6 h-6 text-blue-600" /> ATS Resume Checker
           </h1>
           <p className="text-xs text-slate-500">Scan layout compliance, extract keywords from documents, and align your resume against top-tier tech screening metrics.</p>
         </div>
@@ -226,7 +242,7 @@ export default function ATSChecker({ profile, onUpdateResumeText }: ATSCheckerPr
           <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3.5">
               <label htmlFor="ats-resume-textarea" className="text-sm font-bold text-slate-800 flex items-center gap-2">
-                <AlignLeft className="w-4 h-4 text-brand-550" /> 1. Paste or Upload Resume
+                <AlignLeft className="w-4 h-4 text-blue-600" /> 1. Paste or Upload Resume
               </label>
               <div className="relative">
                 <input 
@@ -239,7 +255,7 @@ export default function ATSChecker({ profile, onUpdateResumeText }: ATSCheckerPr
                 />
                 <label 
                   htmlFor="resume-file-picker" 
-                  className={`text-xs text-brand-550 border border-brand-200 hover:border-brand-550 bg-brand-50/55 hover:bg-brand-50 px-2.5 py-1.5 rounded-lg font-semibold cursor-pointer transition focus-within:ring-2 ${
+                  className={`text-xs text-blue-600 border border-blue-200 hover:border-blue-500 bg-blue-50 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg font-semibold cursor-pointer transition focus-within:ring-2 ${
                     isDecoding ? "opacity-50 pointer-events-none" : ""
                   }`}
                 >
@@ -281,7 +297,7 @@ export default function ATSChecker({ profile, onUpdateResumeText }: ATSCheckerPr
           {checkerMode === "comparative" ? (
             <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm text-left">
               <label htmlFor="ats-role-requirements" className="text-sm font-bold text-slate-800 flex items-center gap-2 mb-3.5">
-                <Star className="w-4 h-4 text-brand-550" /> 2. Paste Target Job Description
+                <Star className="w-4 h-4 text-blue-600" /> 2. Paste Target Job Description
               </label>
               <textarea
                 value={roleRequirements}
@@ -289,7 +305,7 @@ export default function ATSChecker({ profile, onUpdateResumeText }: ATSCheckerPr
                 placeholder="Copy paste the target responsibilities, required technologies, or complete job list requirements here..."
                 rows={6}
                 id="ats-role-requirements"
-                className="w-full text-xs bg-slate-50 text-slate-700 p-3 rounded-xl border border-slate-200 focus:bg-white focus:ring-2 focus:ring-brand-550 focus:border-brand-550 transition outline-none resize-none placeholder:text-slate-400"
+                className="w-full text-xs bg-slate-50 text-slate-700 p-3 rounded-xl border border-slate-200 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 transition outline-none resize-none placeholder:text-slate-400"
               />
             </div>
           ) : (
@@ -306,7 +322,7 @@ export default function ATSChecker({ profile, onUpdateResumeText }: ATSCheckerPr
             onClick={handleAnalyze}
             disabled={isAnalyzing || isDecoding}
             id="btn-trigger-ats-analysis"
-            className="w-full bg-brand-550 hover:bg-blue-600 active:translate-y-px text-white font-bold p-3.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer"
+            className="w-full bg-blue-600 hover:bg-blue-700 active:translate-y-px text-white font-bold p-3.5 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer"
           >
             {isAnalyzing ? (
               <>

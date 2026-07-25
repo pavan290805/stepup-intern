@@ -22,14 +22,14 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
-    
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+
     event.preventDefault();
     setError("");
     setLoading(true);
 
     const formData = new FormData(event.currentTarget);
-    
+
 
     const email = formData.get("email");
     const password = formData.get("password");
@@ -38,15 +38,15 @@ export default function Login() {
       email: typeof email === "string" ? email : "",
       password: typeof password === "string" ? password : "",
     };
-    try{
-    const result = await login(loginData);
-    router.push(result.user.role === "recruiter" ? "/recruiter" : "/internships");
-  } catch (err: any) {
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const result = await login(loginData);
+      router.push(result.user.role === "recruiter" ? "/recruiter" : "/student");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -54,13 +54,13 @@ export default function Login() {
       <div className="hidden md:flex w-1/2 bg-[#0880EF] text-white flex-col justify-center items-center p-10 relative">
         <div className="absolute top-4 left-8">
           <Link href="/">
-          <Image
-            src="/StepUpLogo.png"
-            alt="StepUp Logo"
-            width={120}
-            height={50}
-            priority
-          />
+            <Image
+              src="/StepUpLogo.png"
+              alt="StepUp Logo"
+              width={120}
+              height={50}
+              priority
+            />
           </Link>
         </div>
 
@@ -118,28 +118,28 @@ export default function Login() {
             </label>
 
             <div className="relative">
-            <input
-            type={showPassword ? "text" : "password"}
-            name="password"
-            autoComplete="current-password"
-            className={inputStyles}
-            placeholder="********"
-            required
-            />
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                autoComplete="current-password"
+                className={inputStyles}
+                placeholder="********"
+                required
+              />
 
-           <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
           {error && (
-  <p className="mt-2 text-sm text-red-500">
-    {error}
-  </p>
-)}
+            <p className="mt-2 text-sm text-red-500">
+              {error}
+            </p>
+          )}
           {/* Forgot Password */}
           <div className="flex justify-end mb-6">
             <button
@@ -154,8 +154,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className={`${primaryButtonStyles} ${
-              loading ? "opacity-60 cursor-not-allowed" : ""}`}
+            className={`${primaryButtonStyles} ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
           >
             {loading ? "Signing In..." : "Sign In"}
           </button>
