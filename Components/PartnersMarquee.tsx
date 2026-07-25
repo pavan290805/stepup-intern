@@ -15,18 +15,18 @@ import {
 } from "./constants/home";
 
 const partners = [
-  "/partners/logo1.png",
-  "/partners/logo2.png",
-  "/partners/logo3.png",
-  "/partners/logo4.png",
-  "/partners/logo5.png",
-  "/partners/logo6.png",
-  "/partners/logo7.png",
-  "/partners/logo8.png",
-  "/partners/logo9.png",
-  "/partners/logo10.png",
-  "/partners/logo11.png",
-  "/partners/logo12.png",
+  "/Partners/logo1.png",
+  "/Partners/logo2.png",
+  "/Partners/logo3.png",
+  "/Partners/logo4.png",
+  "/Partners/logo5.png",
+  "/Partners/logo6.png",
+  "/Partners/logo7.png",
+  "/Partners/logo8.png",
+  "/Partners/logo9.png",
+  "/Partners/logo10.png",
+  "/Partners/logo11.png",
+  "/Partners/logo12.png",
 ];
 
 const firstRow = partners.slice(0, 6);

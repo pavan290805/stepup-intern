@@ -242,9 +242,10 @@ export async function listRecruiterInterviews() {
   return apiGet<{ interviews: InterviewApiItem[]; internships: InternshipApiItem[] }>("/api/recruiters/interviews");
 }
 
-export async function listStudentApplications() {
+export async function listStudentApplications(query: { page?: number; limit?: number } = {}) {
+  const { page = 1, limit = 50 } = query;
   return apiGet<{ applications: ApplicationApiItem[]; pagination: { total: number; page: number; limit: number; pages: number } }>(
-    "/api/applications/my?page=1&limit=50"
+    `/api/applications/my?page=${page}&limit=${limit}`
   );
 }
 
@@ -286,9 +287,10 @@ export async function uploadResume(file: File) {
   return apiPost<{ resumeUrl: string }>("/api/students/resume", formData);
 }
 
-export async function listSavedInternships() {
+export async function listSavedInternships(query: { page?: number; limit?: number } = {}) {
+  const { page = 1, limit = 50 } = query;
   return apiGet<{ internships: unknown[]; pagination: { total: number; page: number; limit: number; pages: number } }>(
-    "/api/internships/saved?page=1&limit=50"
+    `/api/internships/saved?page=${page}&limit=${limit}`
   );
 }
 
@@ -316,6 +318,14 @@ export async function getCompanies(query = "page=1&limit=20") {
   return apiGet<{ companies: CompanyApiItem[]; pagination: { total: number; page: number; limit: number; pages: number } }>(
     `/api/companies?${query}`
   );
+}
+
+export async function getCompany(id: string) {
+  return apiGet<CompanyApiItem>(`/api/companies/${id}`);
+}
+
+export async function getInterview(id: string) {
+  return apiGet<InterviewApiItem>(`/api/interviews/${id}`);
 }
 
 export async function getNotifications() {
