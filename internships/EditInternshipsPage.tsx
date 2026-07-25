@@ -6,7 +6,7 @@ import {
   Internship,
   InternshipFormState,
   useRecruiterInternships,
-} from "../hooks/useRecruiterInternships";
+} from "@/hooks/useRecruiterInternships";
 import EmptyListingsState from "./EmptyListingsState";
 import InternshipListingCard from "./InternshipListingCard";
 import RecruiterStatsGrid from "../recruiter/RecruiterStatsGrid";

@@ -15,7 +15,7 @@ import {
 } from "../../Components/constants/styles";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { registerRecruiter, registerStudent } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 
 export default  function Signup() {
   const router = useRouter();
@@ -26,6 +26,10 @@ export default  function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const {
+    signupStudent,
+    signupRecruiter
+} = useAuth();
 
   const isRecruiter = role === "recruiter";
 
@@ -51,7 +55,7 @@ export default  function Signup() {
         password: formData.get("password") as string,
       };
 
-      await registerStudent(studentData);
+      await signupStudent(studentData);
       setSuccess("Student account created successfully!");
       setTimeout(() => {
         router.push("/login");
@@ -64,7 +68,7 @@ export default  function Signup() {
         email: formData.get("personalEmail") as string,
         password: formData.get("password") as string,
       };
-      await registerRecruiter(recruiterData);
+      await signupRecruiter(recruiterData);
       setSuccess("Recruiter account created successfully!");
       setTimeout(() => {
         router.push("/login");

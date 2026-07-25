@@ -7,9 +7,9 @@ import {
   Internship,
   InternshipFormState,
   useRecruiterInternships,
-} from "../hooks/useRecruiterInternships";
-import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
-import { useApplicants } from "../hooks/useApplicants";
+} from "../src/hooks/useRecruiterInternships";
+import { useRecruiterProfile } from "@/hooks/useRecruiterProfile";
+import { useApplicants } from "@/hooks/useApplicants";
 import EmptyListingsState from "../internships/EmptyListingsState";
 import InternshipListingCard from "../internships/InternshipListingCard";
 import RecruiterStatsGrid from "./RecruiterStatsGrid";

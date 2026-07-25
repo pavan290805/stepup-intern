@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Header from "../layout/Header";
-import { useApplicants } from "../hooks/useApplicants";
-import { useRecruiterInternships } from "../hooks/useRecruiterInternships";
+import { useApplicants } from "@/hooks/useApplicants";
+import { useRecruiterInternships } from "@/hooks/useRecruiterInternships";
 
 type InterviewCard = {
   id: string;

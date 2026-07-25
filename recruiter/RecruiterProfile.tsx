@@ -2,9 +2,9 @@
 
 import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import Header from "../layout/Header";
-import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
-import { useRecruiterInternships } from "../hooks/useRecruiterInternships";
-import { useApplicants } from "../hooks/useApplicants";
+import { useRecruiterProfile } from "@/hooks/useRecruiterProfile";
+import { useRecruiterInternships } from "@/hooks/useRecruiterInternships";
+import { useApplicants } from "@/hooks/useApplicants";
 import RecruiterProfileCard from "./RecruiterProfileCard";
 
 export type ProfileFormState = {

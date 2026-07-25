@@ -1,4 +1,4 @@
-import type { Internship } from "../hooks/useRecruiterInternships";
+import type { Internship } from "@/hooks/useRecruiterInternships";
 
 type InternshipListingCardProps = {
   internship: Internship;

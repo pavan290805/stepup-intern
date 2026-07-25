@@ -14,7 +14,7 @@ import {
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
-import { login } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
 
 
 export default function Login() {
@@ -22,6 +22,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
   const handleSubmit = async(event: React.FormEvent<HTMLFormElement>) => {
     
     event.preventDefault();
@@ -39,8 +40,14 @@ export default function Login() {
       password: typeof password === "string" ? password : "",
     };
     try{
-    const result = await login(loginData);
-    router.push(result.user.role === "recruiter" ? "/recruiter" : "/internships");
+    const user = await login(loginData);
+    router.push(
+  user.role === "admin"
+    ? "/admin"
+    : user.role === "recruiter"
+    ? "/recruiter"
+    : "/student"
+);
   } catch (err: any) {
     setError(err.message);
   } finally {

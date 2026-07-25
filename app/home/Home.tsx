@@ -1,13 +1,13 @@
 "use client";
 
-import Hero from "../../Components/Hero";
-import AboutPreview from "../../Components/AboutPreview";
-import Features from "../../Components/Features";
-import Categories from "../../Components/Categories";
-import PartnerCTA from "../../Components/PartnerCTA";
-import FinalCTA from "../../Components/FinalCTA";
-import Footer from "../../Components/Footer";
-import PartnersMarquee from "../../Components/PartnersMarquee";
+import Hero from "../../Components/home/Hero";
+import AboutPreview from "../../Components/home/AboutPreview";
+import Features from "../../Components/home/Features";
+import Categories from "../../Components/home/Categories";
+import PartnerCTA from "../../Components/home/PartnerCTA";
+import FinalCTA from "../../Components/home/FinalCTA";
+import Footer from "../../Components/home/Footer";
+import PartnersMarquee from "../../Components/home/PartnersMarquee";
 
 
 

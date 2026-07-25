@@ -1,3 +1,14 @@
+import type {
+  AdminStatistics,
+  UsersResponse,
+  CompaniesResponse,
+  RecruitersResponse,
+  InternshipsResponse,
+  UpdateUserStatusRequest,
+  VerificationActionRequest,
+  UpdateInternshipStatusRequest,
+} from "@/types/admin";
+
 type ApiEnvelope<T = unknown> = {
   success?: boolean;
   message?: string;
@@ -322,4 +333,80 @@ export async function getNotifications() {
   return apiGet<{ notifications: unknown[]; unreadCount: number; pagination: { total: number; page: number; limit: number; pages: number } }>(
     "/api/notifications?page=1&limit=50"
   );
+}
+
+// ============================================
+// Admin Dashboard
+// ============================================
+
+export async function getAdminStatistics() {
+  return apiGet<AdminStatistics>("/api/admin/statistics");
+}
+
+// ============================================
+// Users
+// ============================================
+
+export async function getAdminUsers(query = "page=1&limit=20") {
+  return apiGet<UsersResponse>(`/api/admin/users?${query}`);
+}
+
+export async function updateAdminUserStatus(
+  id: string,
+  input: UpdateUserStatusRequest
+) {
+  return apiPatch<null>(`/api/admin/users/${id}`, input);
+}
+
+export async function deleteAdminUser(id: string) {
+  return apiDelete<null>(`/api/admin/users/${id}`);
+}
+
+// ============================================
+// Companies
+// ============================================
+
+export async function getPendingCompanies(query = "page=1&limit=20") {
+  return apiGet<CompaniesResponse>(`/api/admin/companies?${query}`);
+}
+
+export async function verifyCompany(
+  id: string,
+  input: VerificationActionRequest
+) {
+  return apiPatch<null>(`/api/admin/companies/${id}`, input);
+}
+
+// ============================================
+// Recruiters
+// ============================================
+
+export async function getPendingRecruiters(query = "page=1&limit=20") {
+  return apiGet<RecruitersResponse>(`/api/admin/recruiters?${query}`);
+}
+
+export async function verifyRecruiter(
+  id: string,
+  input: VerificationActionRequest
+) {
+  return apiPatch<null>(`/api/admin/recruiters/${id}`, input);
+}
+
+// ============================================
+// Internships
+// ============================================
+
+export async function getAdminInternships(query = "page=1&limit=20") {
+  return apiGet<InternshipsResponse>(`/api/admin/internships?${query}`);
+}
+
+export async function updateAdminInternshipStatus(
+  id: string,
+  input: UpdateInternshipStatusRequest
+) {
+  return apiPatch<null>(`/api/admin/internships/${id}`, input);
+}
+
+export async function deleteAdminInternship(id: string) {
+  return apiDelete<null>(`/api/admin/internships/${id}`);
 }

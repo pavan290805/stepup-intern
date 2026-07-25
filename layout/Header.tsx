@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
-import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
+import { useRecruiterProfile } from "@/hooks/useRecruiterProfile";
 
 type HeaderProps = {
   onCreate?: () => void;
