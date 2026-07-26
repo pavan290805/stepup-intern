@@ -24,7 +24,7 @@ export default function AIAssistant({
   const [input, setInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [isOpenAIEnabled, setIsOpenAIEnabled] = useState<boolean>(false);
-  const [selectedModel, setSelectedModel] = useState<"gemini" | "chatgpt">("chatgpt");
+  const [selectedModel, setSelectedModel] = useState<"gemini" | "chatgpt">("gemini");
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -212,7 +212,7 @@ export default function AIAssistant({
                 <h3 className="text-sm font-bold text-slate-800">Coaching Terminal</h3>
                 <p className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> 
-                  {selectedModel === "chatgpt" ? "ChatGPT (GPT-4o-mini) Active" : "Gemini 3.5 Assistant Active"}
+                  {selectedModel === "gemini" ? "Gemini AI Assistant Active" : "ChatGPT (GPT-4o-mini) Active"}
                 </p>
               </div>
             </div>

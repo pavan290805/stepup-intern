@@ -2,89 +2,222 @@ import { NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import OpenAI from "openai";
 
+function sanitizeGeminiContents(messages: any[], userPrompt: string) {
+  const rawContents: { role: "user" | "model"; text: string }[] = [];
+
+  if (Array.isArray(messages) && messages.length > 0) {
+    messages.forEach((m: any) => {
+      if (!m || !m.content || typeof m.content !== "string") return;
+      const role = m.role === "assistant" || m.role === "model" ? "model" : "user";
+      rawContents.push({ role, text: m.content });
+    });
+  }
+
+  if (rawContents.length === 0 && userPrompt) {
+    rawContents.push({ role: "user", text: userPrompt });
+  }
+
+  const sanitized: { role: "user" | "model"; parts: { text: string }[] }[] = [];
+  for (const item of rawContents) {
+    if (sanitized.length > 0 && sanitized[sanitized.length - 1].role === item.role) {
+      sanitized[sanitized.length - 1].parts[0].text += `\n\n${item.text}`;
+    } else {
+      sanitized.push({
+        role: item.role,
+        parts: [{ text: item.text }]
+      });
+    }
+  }
+
+  if (sanitized.length > 0 && sanitized[0].role === "model") {
+    sanitized.shift();
+  }
+
+  return sanitized;
+}
+
 function generateFallbackResponse(userPrompt: string, context: any): string {
-  const promptLower = userPrompt.toLowerCase();
+  const p = (userPrompt || "").trim();
+  const lower = p.toLowerCase();
   const userName = context?.name || "Student";
   const skills = Array.isArray(context?.skills)
-    ? context.skills.map((s: any) => (typeof s === "string" ? s : s.name)).join(", ")
+    ? context.skills.map((s: any) => (typeof s === "string" ? s : s?.name || "")).filter(Boolean).join(", ")
     : "JavaScript, React, Node.js";
 
-  if (promptLower.includes("resume") || promptLower.includes("bullet point")) {
-    return `Hello ${userName}! Here are 3 targeted suggestions to optimize your resume bullet points based on your profile (${skills}):
+  // 1. Data Structures & Algorithms
+  if (lower.includes("binary search") || lower.includes("search algorithm")) {
+    return `### Binary Search Explanation & Implementation
 
-1. **Highlight Core Impact**: Instead of "Worked on project", rephrase as "Architected and deployed full-stack features using ${skills.split(", ")[0] || "React"} serving active users."
-2. **Quantify Metrics**: Add performance data (e.g. "Reduced page load time by 35% through lazy loading and API caching").
-3. **Action Verbs**: Begin every experience entry with strong verbs like *Implemented*, *Engineered*, *Optimized*, or *Designed*.`;
+**Binary Search** is an efficient $O(\\log N)$ algorithm for finding an element in a sorted array by repeatedly dividing the search interval in half.
+
+\`\`\`javascript
+function binarySearch(arr, target) {
+  let left = 0, right = arr.length - 1;
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    if (arr[mid] === target) return mid; // Found at index mid
+    if (arr[mid] < target) left = mid + 1;
+    else right = mid - 1;
+  }
+  return -1; // Not found
+}
+\`\`\`
+- **Time Complexity**: $O(\\log N)$
+- **Space Complexity**: $O(1)$ iterative`;
   }
 
-  if (promptLower.includes("interview") || promptLower.includes("mock")) {
-    return `Great to prepare with you, ${userName}! Here is a technical interview question customized for your skills (${skills}):
+  // 2. React & Frontend
+  if (lower.includes("react") || lower.includes("state") || lower.includes("hook")) {
+    return `### React State & Performance Management (${userName})
 
-**Question**: *Explain how state management works in React and how you prevent unnecessary re-renders when managing complex object states.*
+In React 18/19, state updates trigger re-renders. Here are key concepts to answer your query:
 
-**Key points to hit in your response**:
-- Explain the immutability principle when updating state objects.
-- Discuss \`useMemo\` and \`useCallback\` for memoizing expensive calculations and function references.
-- Compare local component state vs. global state tools (like Context API or Redux).
-
-Would you like to try answering this question now?`;
+1. **State Immutability**: Always update state immutably (e.g. \`setItems([...items, newItem])\`) so React detects changes via shallow equality.
+2. **Preventing Unnecessary Re-renders**:
+   - Use \`useCallback\` to memoize handler functions passed to child components.
+   - Use \`useMemo\` for expensive calculations.
+   - Wrap pure components in \`React.memo\`.
+3. **Example**:
+\`\`\`tsx
+const MemoizedChild = React.memo(({ onClick }: { onClick: () => void }) => (
+  <button onClick={onClick}>Click Me</button>
+));
+\`\`\``;
   }
 
-  if (promptLower.includes("learning") || promptLower.includes("recommend")) {
-    return `Based on your technical background (${skills}), here is a recommended 2026/2027 learning roadmap:
+  // 3. JavaScript & TypeScript
+  if (lower.includes("javascript") || lower.includes("js") || lower.includes("closure") || lower.includes("promise") || lower.includes("async")) {
+    return `### JavaScript Core Concepts Explanation
 
-1. **Advanced System Design**: Study microservices architecture, message queues (Kafka/RabbitMQ), and distributed caching (Redis).
-2. **Cloud & DevOps**: Gain hands-on practice with Docker containers, Kubernetes orchestration, and AWS/GCP CI/CD deployment pipelines.
-3. **Type-Safe Fullstack**: Deepen your mastery of Next.js App Router, Server Actions, and Prisma ORM for production-level software engineering.`;
+- **Closures**: A function bundled together with references to its surrounding state (lexical environment).
+- **Async/Await & Promises**: Handles asynchronous operations cleanly:
+\`\`\`javascript
+async function fetchData(url) {
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Fetch failed:", err);
+  }
+}
+\`\`\``;
   }
 
-  if (promptLower.includes("role") || promptLower.includes("job")) {
-    return `Based on your profile as a ${context?.title || "Computer Science Engineering Student"} with skills in ${skills}, here are top matched roles for you:
+  // 4. Databases & Backend
+  if (lower.includes("database") || lower.includes("sql") || lower.includes("nosql") || lower.includes("mongodb")) {
+    return `### SQL vs NoSQL Database Guide
 
-1. **Full-Stack Software Engineer Intern**: Highly aligned with your React and Node.js foundation.
-2. **Frontend Engineer**: Perfect fit for creating responsive, user-facing modern web applications.
-3. **Backend Developer**: Strong candidate for building robust REST/GraphQL APIs and managing database schemas.`;
+1. **SQL (Relational Databases)**: E.g., PostgreSQL, MySQL. Structured schemas with ACID transactions, foreign keys, and \`JOIN\` operations.
+2. **NoSQL (Document / Key-Value)**: E.g., MongoDB, Redis. Flexible JSON-like schemas, horizontal scalability, ideal for rapidly evolving student & enterprise web apps.`;
   }
 
-  return `Hello ${userName}! As your AI Career Buddy on StepUp, I've loaded your profile (${skills}). 
+  // 5. Resume & ATS
+  if (lower.includes("resume") || lower.includes("bullet point") || lower.includes("ats")) {
+    return `### Resume Optimization & ATS Tips for ${userName} (${skills})
 
-How can I help you today? I can assist you with:
-- **Resume Optimization**: Tailoring your experience and bullet points for ATS scanners.
-- **Mock Technical Interviews**: Practicing core CS and framework interview questions.
-- **Skill Gap Roadmap**: Identifying advanced technologies to learn for high-paying roles.
-- **Career Growth Advice**: Guidance on navigating internships and software engineering career paths.`;
+1. **Use Action + Metric Formatting**: *Architected RESTful microservices using ${skills.split(", ")[0] || "React/Node.js"}, reducing API latency by 40%.*
+2. **Keyword Optimization**: Match job description keywords directly (e.g. TypeScript, REST APIs, CI/CD).
+3. **Clean Formatting**: Use standard single-column PDF layouts without graphic shapes that confuse ATS parsers.`;
+  }
+
+  // 6. Interview Preparation
+  if (lower.includes("interview") || lower.includes("mock") || lower.includes("question")) {
+    return `### Tech Interview Preparation for ${userName}
+
+**Practice Question**: *How do you optimize initial page load performance in a modern web application?*
+
+**Recommended Structure (STAR Method)**:
+- **Situation/Task**: High bundle size causing slow load times.
+- **Action**: Implemented code-splitting via \`React.lazy\` / Next.js dynamic imports, optimized images with Next Image, and cached static assets via CDN.
+- **Result**: Reduced initial bundle load time by 45%.`;
+  }
+
+  // 7. Roadmaps & Career Advice
+  if (lower.includes("roadmap") || lower.includes("learning") || lower.includes("course") || lower.includes("skill") || lower.includes("role") || lower.includes("job") || lower.includes("career")) {
+    return `### Recommended Technical Roadmap (${skills})
+
+1. **Frontend Mastery**: Next.js App Router, Server Components, State Management (Zustand/Redux), Tailwind CSS.
+2. **Backend & Cloud**: REST & GraphQL APIs, Node.js/Express, Prisma ORM, MongoDB, Docker containerization.
+3. **System Design & Testing**: Microservices, Redis caching, Jest/Cypress automated unit and e2e testing.`;
+  }
+
+  // 8. Greetings & Help
+  if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey") || lower.includes("who are you")) {
+    return `Hello ${userName}! 👋 I am your AI Career Buddy on StepUp.
+
+I can assist you with:
+- 💡 **Technical & Coding Questions**: Concepts in React, JS, Python, SQL, Algorithms, and System Design.
+- 📄 **Resume & ATS Optimization**: Bullet points, keyword alignment, and formatting.
+- 🎯 **Mock Technical Interviews**: Practice questions and answers.
+- 🚀 **Career Roadmaps**: Custom learning tracks based on your skills (${skills}).
+
+What question would you like to ask today?`;
+  }
+
+  // 9. General Question Handler
+  return `### AI Assistance Answer for ${userName}
+
+**Question**: "${p || "How can I improve my software engineering profile?"}"
+
+**Answer**:
+Here is a structured overview to answer your query based on your profile (${skills}):
+
+1. **Core Concept**: To answer "${p}", focus on clear problem decomposition, solid system design, and practical code implementation.
+2. **Implementation Strategy**:
+   - Utilize standard frameworks (such as ${skills.split(", ")[0] || "React/TypeScript"}) to write modular, reusable components or APIs.
+   - Maintain comprehensive unit tests and follow clean code patterns.
+3. **Actionable Next Steps**: Tailor your response or project code to directly address edge cases and performance metrics.
+
+*Note: You can add a free \`GEMINI_API_KEY\` in your \`.env.local\` file to enable real-time Gemini LLM answers.*`;
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { messages = [], model = "chatgpt", context = {} } = body;
+    const { messages = [], model = "gemini", context = {} } = body;
 
     const lastUserMsg = [...messages].reverse().find((m: any) => m.role === "user");
     const userPrompt = lastUserMsg ? lastUserMsg.content : "";
 
-    // 1. Try Gemini if key is available
-    if ((model === "gemini" || !process.env.OPENAI_API_KEY) && process.env.GEMINI_API_KEY) {
+    // 1. Try Gemini API (Free Google Gemini Tier) if key is present or requested
+    if (process.env.GEMINI_API_KEY) {
       try {
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-        const systemInstruction = `You are an elite career coach and software engineering mentor on the StepUp student platform. The student's name is ${context.name || "Student"}, pursuing ${context.title || "Computer Science"}. Their skills are: ${JSON.stringify(context.skills || [])}. Keep responses encouraging, highly actionable, well-formatted, and concise.`;
-        
-        const response = await ai.models.generateContent({
-          model: "gemini-2.5-flash",
-          contents: [
-            { role: "user", parts: [{ text: `${systemInstruction}\n\nStudent message: ${userPrompt}` }] }
-          ]
-        });
+        const systemInstruction = `You are an elite career coach and software engineering mentor on the StepUp platform. The student's name is ${context.name || "Student"}, pursuing ${context.title || "Computer Science"}. Their skills are: ${JSON.stringify(context.skills || [])}. Answer the student's prompt accurately, concisely, and with high technical precision. Use clean markdown formatting.`;
 
-        if (response?.text) {
-          return NextResponse.json({ text: response.text });
+        const sanitizedContents = sanitizeGeminiContents(messages, userPrompt);
+        const geminiModels = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.5-flash"];
+        let responseText = "";
+
+        for (const geminiModel of geminiModels) {
+          try {
+            const response = await ai.models.generateContent({
+              model: geminiModel,
+              contents: sanitizedContents.length > 0 ? sanitizedContents : [{ role: "user", parts: [{ text: userPrompt || "Hello AI Buddy" }] }],
+              config: {
+                systemInstruction: systemInstruction,
+              }
+            });
+
+            if (response?.text) {
+              responseText = response.text;
+              break;
+            }
+          } catch (modelErr: any) {
+            console.warn(`Gemini model ${geminiModel} failed:`, modelErr?.message || modelErr);
+          }
+        }
+
+        if (responseText) {
+          return NextResponse.json({ text: responseText });
         }
       } catch (geminiErr) {
         console.warn("Gemini API call failed, using fallback coach:", geminiErr);
       }
     }
 
-    // 2. Try OpenAI if key is available
+    // 2. Try OpenAI (ChatGPT) if key is present
     if (process.env.OPENAI_API_KEY) {
       try {
         const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -93,7 +226,7 @@ export async function POST(request: Request) {
           messages: [
             {
               role: "system",
-              content: `You are an elite career coach and tech mentor on StepUp. Student: ${context.name || "Student"}, Skills: ${JSON.stringify(context.skills || [])}.`
+              content: `You are an elite career coach and tech mentor on StepUp. Student: ${context.name || "Student"}, Skills: ${JSON.stringify(context.skills || [])}. Answer the prompt accurately.`
             },
             ...messages.map((m: any) => ({ role: m.role, content: m.content }))
           ]
@@ -108,7 +241,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. Robust fallback response
+    // 3. High-precision fallback response
     const fallbackText = generateFallbackResponse(userPrompt, context);
     return NextResponse.json({ text: fallbackText });
   } catch (error: any) {
