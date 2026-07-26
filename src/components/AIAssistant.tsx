@@ -133,7 +133,7 @@ export default function AIAssistant({
             <Sparkles className="w-6 h-6 text-blue-600" /> AI Career Buddy
           </h1>
           <p className="text-xs text-slate-500">
-            Your elite automated career mentor, personalized with your academic profile and technical skill specifications.
+            Turn Skills into Opportunities
           </p>
         </div>
         
@@ -149,7 +149,7 @@ export default function AIAssistant({
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch">
         
         {/* Left column sidebar for Quick assistance filters */}
-        <div className="lg:col-span-1 space-y-4 flex flex-col justify-between">
+        <div className="lg:col-span-1 space-y-4">
           <div className="space-y-3.5">
             <h3 className="text-xs font-extrabold uppercase text-slate-400 font-mono tracking-wider">
               Assistance Focus Areas
@@ -195,18 +195,6 @@ export default function AIAssistant({
                 <Lightbulb className="w-4 h-4 text-blue-600 shrink-0" />
                 <span>Job Role Suggestions</span>
               </button>
-            </div>
-          </div>
-
-          {/* Quick Profile Summary Context Card */}
-          <div className="bg-gradient-to-br from-brand-50 to-blue-50 border border-brand-100 rounded-2xl p-4 space-y-2.5">
-            <h4 className="text-[10px] uppercase font-mono font-bold text-slate-400">Context Loaded</h4>
-            <div className="space-y-1 text-xs">
-              <p className="font-bold text-slate-800">{profile.personalInfo.name}</p>
-              <p className="text-slate-500">{profile.education[0]?.school} &bull; BS CS</p>
-              <p className="text-[10px] text-blue-600 font-bold bg-blue-100/50 px-1.5 py-0.5 rounded inline-block">
-                {profile.skills.length} Technical Skills Active
-              </p>
             </div>
           </div>
         </div>
