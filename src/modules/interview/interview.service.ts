@@ -36,7 +36,10 @@ export const interviewService = {
       .sort({ scheduledAt: -1 });
   },
 
-  async updateInterview(interviewId: string, input: any): Promise<IInterview | null> {
+async updateInterview(
+  interviewId: string,
+  input: Partial<InterviewInput>
+): Promise<IInterview | null> {
     return Interview.findByIdAndUpdate(interviewId, input, { new: true }).populate('applicationId');
   },
 
@@ -82,7 +85,11 @@ export const interviewService = {
       .limit(options.limit ?? 10);
 
     return interviews.filter((interview) => {
-      const application: any = interview.applicationId;
+      const application = interview.applicationId as {
+  internshipId?: {
+    recruiterId?: { toString(): string };
+  };
+};
       return application?.internshipId?.recruiterId?.toString() === recruiterId;
     });
   },
@@ -105,7 +112,11 @@ export const interviewService = {
       .limit(limit);
 
     return interviews.filter((interview) => {
-      const application: any = interview.applicationId;
+      const application = interview.applicationId as {
+  internshipId?: {
+    recruiterId?: { toString(): string };
+  };
+};
       return application?.internshipId?.recruiterId?.toString() === recruiterId;
     });
   },

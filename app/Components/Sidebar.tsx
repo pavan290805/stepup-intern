@@ -42,7 +42,7 @@ export default function Sidebar() {
 
         <Link
           href="/recruiter"
-          className={menuClass("/recruiter/internships")}
+          className={menuClass("/recruiter")}
         >
           💼 Internship Management
         </Link>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
 
 type HeaderProps = {
@@ -12,6 +12,14 @@ type HeaderProps = {
 
 export default function Header({ onCreate }: HeaderProps) {
   const pathname = usePathname() ?? "/";
+  const router = useRouter();
+
+const handleLogout = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+
+  router.replace("/login");
+};
 
   const navItems = [
     { key: "home", label: "Home", href: "/" },
@@ -173,15 +181,16 @@ export default function Header({ onCreate }: HeaderProps) {
                     <p className="text-xs text-slate-500">{profile.role}</p>
                   </div>
                   <div className="space-y-2">
-                    <Link
-                      href="/?page=profile"
-                      onClick={() => setDropdownOpen(false)}
-                      className="block rounded-2xl border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-50"
-                    >
-                      Profile
-                    </Link>
+<Link
+  href="/profile"
+  onClick={() => setDropdownOpen(false)}
+  className="block rounded-2xl border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-50"
+>
+  Profile
+</Link>
                     <button
                       type="button"
+                      onClick={handleLogout}
                       className="w-full rounded-2xl bg-[#0880EF] px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-[#0A67C6]"
                     >
                       Logout

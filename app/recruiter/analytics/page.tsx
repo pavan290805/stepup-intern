@@ -26,7 +26,19 @@ const maxSource = Math.max(...sources.map((s) => s.count));
 
 export default function AnalyticsPage() {
   const router = useRouter();
-  const [internships, setInternships] = useState<any[]>([]);
+  type Internship = {
+  title: string;
+  status: string;
+  deadline: string;
+  createdAt: string;
+  applicationsCount?: number;
+  location?: string;
+  companyId?: {
+    name?: string;
+  };
+};
+
+const [internships, setInternships] = useState<Internship[]>([]);
   const [selectedRange, setSelectedRange] = useState("Last 30 Days");
 
   useEffect(() => {
@@ -189,7 +201,7 @@ const maxVelocity =
             <p className="text-sm text-gray-500 mt-1">Real-time analytics generated from your recruiter account.</p>
           </div>
           <div className="flex items-center gap-2">
-            {["Last 30 Days", "Quarterly", "Yearly"].map((label, i) => (
+           {["Last 30 Days", "Quarterly", "Yearly"].map((label) => (
               <button
                 key={label}
                 onClick={() => setSelectedRange(label)}

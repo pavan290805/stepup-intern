@@ -2,6 +2,7 @@ import { ApplicationInput } from '@/lib/validations';
 import Application, { IApplication } from '@/models/Application';
 import { internshipService } from '@/modules/internship/internship.service';
 import { PaginationQuery } from '@/types';
+import "@/models/StudentProfile";
 
 export const applicationService = {
   async createApplication(studentId: string, input: ApplicationInput): Promise<IApplication> {

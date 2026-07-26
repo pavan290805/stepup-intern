@@ -37,7 +37,13 @@ export async function PATCH(
     }
 
     return successResponse(company, `Company ${body.action}ied successfully`);
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to update company', undefined, 400);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to update company",
+    undefined,
+    400
+  );
+}
 }

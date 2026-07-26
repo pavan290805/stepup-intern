@@ -29,9 +29,15 @@ export async function PATCH(
     }
 
     return successResponse(internship, 'Internship status updated successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to update internship', undefined, 400);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to update internship",
+    undefined,
+    400
+  );
+}
 }
 
 export async function DELETE(
@@ -48,7 +54,13 @@ export async function DELETE(
     await adminService.removeInternship(id);
 
     return successResponse(null, 'Internship deleted successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to delete internship', undefined, 500);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to delete internship",
+    undefined,
+    500
+  );
+}
 }

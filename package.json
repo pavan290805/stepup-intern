@@ -6,26 +6,23 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
-<<<<<<<<< Temporary merge branch 1
-    "framer-motion": "^12.40.0",
-    "next": "16.2.7",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
-=========
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",
     "dotenv": "^17.4.2",
+    "framer-motion": "^12.40.0",
     "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.26.0",
+    "mammoth": "^1.12.0",
     "mongoose": "^9.7.1",
     "next": "^16.2.1",
+    "pdfjs-dist": "^6.1.200",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "swagger-ui-dist": "^5.32.8",
     "zod": "^4.4.3"
->>>>>>>>> Temporary merge branch 2
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.1",

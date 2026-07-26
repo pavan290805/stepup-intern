@@ -14,7 +14,7 @@ export default function ViewResumeModal({
       <div className="mx-4 w-full max-w-6xl overflow-hidden rounded-[2rem] border border-white/60 bg-white/90 shadow-2xl shadow-slate-900/10 backdrop-blur-xl max-h-[calc(100vh-3rem)]">
         <div className="flex items-center justify-between border-b border-slate-200/70 px-6 py-5">
           <h3 className="text-xl font-semibold tracking-tight text-slate-900">
-            {applicantName}'s Resume
+            {applicantName}&apos;s Resume
           </h3>
           <button
             type="button"

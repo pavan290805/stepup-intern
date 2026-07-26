@@ -20,7 +20,15 @@ export const companyService = {
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    const filter: any = {};
+    const filter: {
+  verificationStatus?: 'pending' | 'verified' | 'rejected';
+  $or?: Array<{
+    name: {
+      $regex: string;
+      $options: string;
+    };
+  }>;
+} = {};
 
     if (query.verified) {
       filter.verificationStatus = 'verified';

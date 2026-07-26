@@ -20,7 +20,10 @@ export const notificationService = {
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    const filter: any = { userId };
+    const filter: {
+      userId: string;
+      isRead?: boolean;
+} = { userId };
 
     if (query.unreadOnly) {
       filter.isRead = false;

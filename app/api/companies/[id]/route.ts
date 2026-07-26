@@ -22,9 +22,15 @@ export async function GET(
     }
 
     return successResponse(company);
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch company', undefined, 500);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to fetch company",
+    undefined,
+    500
+  );
+}
 }
 
 export async function PATCH(
@@ -41,14 +47,20 @@ export async function PATCH(
     const { valid, data, response } = await validateRequestBody(request, companySchema.partial());
     if (!valid) return response;
 
-    const company = await companyService.updateCompany(id, data as any);
+    const company = await companyService.updateCompany(id, data);
 
     if (!company) {
       return errorResponse('Company not found', undefined, 404);
     }
 
     return successResponse(company, 'Company updated successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to update company', undefined, 400);
+  } catch (error: unknown) {
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : "Failed to update company",
+      undefined,
+      400
+    );
   }
 }

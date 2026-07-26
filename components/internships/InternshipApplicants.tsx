@@ -1,66 +1,66 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-<<<<<<< HEAD
-import { useRouter } from "next/navigation";
-import type { Internship } from "../hooks/useRecruiterInternships";
+
+import { useRouter, useParams } from "next/navigation";
 import { useApplicants } from "../hooks/useApplicants";
 import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
-=======
-import type { Internship } from "../hooks/useRecruiterInternships";
-import { useApplicants } from "../hooks/useApplicants";
->>>>>>> origin/master
 import ApplicantCard from "./ApplicantCard";
 import ScheduleInterviewModal from "./ScheduleInterviewModal";
 import SendEmailModal from "./SendEmailModal";
 import ViewResumeModal from "./ViewResumeModal";
 
-<<<<<<< HEAD
+
 export default function InternshipApplicantsPage() {
-  const { selectedInternship } = useRecruiterInternshipContext();
-  const router = useRouter();
-  if (!selectedInternship) {
-    return (
-      <div className="p-6 text-center">
-        <h2 className="text-xl font-semibold">No internship selected</h2>
-        <p>Please select an internship from the recruiter dashboard.</p>
-      </div>
-    );
-  }
+const router = useRouter();
+const params = useParams();
 
-  const internship = selectedInternship;
+const internshipId = params.id as string;
 
-=======
-type InternshipApplicantsPageProps = {
-  internship: Internship;
-  onBack: () => void;
-};
+const { internships, loading } = useRecruiterInternshipContext();
+console.log("loading =", loading);
+console.log("internshipId =", internshipId);
+console.log("internships =", internships);
+const internship = internships.find(
+  (i) => i.id === internshipId
+);
 
-export default function InternshipApplicantsPage({
-  internship,
-  onBack,
-}: InternshipApplicantsPageProps) {
->>>>>>> origin/master
-  const {
-    getInternshipApplicants,
-    getInternshipInterviews,
-    shortlistApplicant,
-    rejectApplicant,
-    scheduleInterview,
-    deleteApplication,
-    sendEmail,
-  } = useApplicants();
+const {
+  getInternshipApplicants,
+  getInternshipInterviews,
+  shortlistApplicant,
+  rejectApplicant,
+  scheduleInterview,
+  deleteApplication,
+  sendEmail,
+} = useApplicants();
+
+const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(null);
+
+const [modalType, setModalType] = useState<
+  "schedule" | "email" | "view-resume" | null
+>(null);
+if (loading) {
+  return (
+    <div className="p-6 text-center">
+      Loading internship...
+    </div>
+  );
+}
+if (!internship) {
+  return (
+    <div className="p-6 text-center">
+      <h2 className="text-xl font-semibold">
+        Internship not found
+      </h2>
+    </div>
+  );
+} 
+
 
   const applicants = getInternshipApplicants(internship.id);
   const interviews = getInternshipInterviews(internship.id);
 
-  const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(null);
-  const [modalType, setModalType] = useState<
-    "schedule" | "email" | "view-resume" | null
-  >(null);
-
-<<<<<<< HEAD
   const selectedApplicant = applicants.find(
     (a) => a.id === selectedApplicantId
   );
@@ -99,60 +99,24 @@ const handleAction = (action: string, applicantId: string) => {
       break;
 
     case "download-resume":
-      const applicant = applicants.find((a) => a.id === applicantId);
+  const currentApplicant = applicants.find(
+    (a) => a.id === applicantId
+  );
 
-      if (applicant) {
-        const link = document.createElement("a");
-        link.href = applicant.resumeUrl;
-        link.download = `${applicant.name}-resume.pdf`;
-        link.click();
-      }
-      break;
+  if (currentApplicant) {
+    const link = document.createElement("a");
+    link.href = currentApplicant.resumeUrl;
+    link.download = `${currentApplicant.name}-resume.pdf`;
+    link.click();
   }
-};
-=======
-  const selectedApplicant = applicants.find((a) => a.id === selectedApplicantId);
+  break;
+}
 
-  const handleAction = (action: string, applicantId: string) => {
-    setSelectedApplicantId(applicantId);
+}; // <-- handleAction ends here
+  
 
-    switch (action) {
-      case "schedule":
-        setModalType("schedule");
-        break;
-      case "email":
-        setModalType("email");
-        break;
-      case "view-resume":
-        setModalType("view-resume");
-        break;
-      case "shortlist":
-        shortlistApplicant(applicantId);
-        break;
-      case "reject":
-        rejectApplicant(applicantId);
-        break;
-      case "delete":
-        if (
-          window.confirm(
-            "Are you sure you want to remove this application? This action cannot be undone."
-          )
-        ) {
-          deleteApplication(applicantId);
-        }
-        break;
-      case "download-resume":
-        const applicant = applicants.find((a) => a.id === applicantId);
-        if (applicant) {
-          const link = document.createElement("a");
-          link.href = applicant.resumeUrl;
-          link.download = `${applicant.name}-resume.pdf`;
-          link.click();
-        }
-        break;
-    }
-  };
->>>>>>> origin/master
+  
+
 
   const handleScheduleInterview = (date: string, time: string) => {
     if (selectedApplicantId) {
@@ -217,11 +181,11 @@ const handleAction = (action: string, applicantId: string) => {
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-10 xl:px-12">
           <button
-<<<<<<< HEAD
+
             onClick={() => router.back()}
-=======
-            onClick={onBack}
->>>>>>> origin/master
+
+            
+
             className="mb-4 text-sm font-medium text-blue-600 hover:text-blue-700 transition"
           >
             ← Back to Listings

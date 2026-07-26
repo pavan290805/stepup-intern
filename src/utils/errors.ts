@@ -12,7 +12,7 @@ export class AppError extends Error {
   }
 }
 
-export function handleError(error: any): NextResponse<ApiResponse> {
+export function handleError(error: unknown): NextResponse<ApiResponse> {
   console.error('Error:', error);
 
   if (error instanceof AppError) {

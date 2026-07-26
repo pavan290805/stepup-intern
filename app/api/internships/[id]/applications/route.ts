@@ -18,19 +18,45 @@ export async function GET(
     const authError = await withAuth(request, [USER_ROLES.RECRUITER, USER_ROLES.ADMIN]);
     if (authError) return authError;
 
-    const user = (request as any).user;
+    const user = (request as NextRequest & {
+  user: {
+    userId: string;
+    role: string;
+  };
+}).user;
     const internship = await internshipService.getInternshipById(id);
 
     if (!internship) {
       return errorResponse('Internship not found', undefined, 404);
     }
+if (user.role === USER_ROLES.RECRUITER) {
+  const recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
 
-    if (user.role === USER_ROLES.RECRUITER) {
-      const recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
-      if (!recruiterProfile || internship.recruiterId?.toString() !== recruiterProfile._id.toString()) {
-        return errorResponse('Not authorized to view these applications', undefined, 403);
-      }
-    }
+  if (!recruiterProfile) {
+    return errorResponse(
+      "Recruiter profile not found",
+      undefined,
+      403
+    );
+  }
+
+const recruiterRef = internship.recruiterId as
+  | { _id: { toString(): string } }
+  | string;
+
+const internshipRecruiterId =
+  typeof recruiterRef === "object"
+    ? recruiterRef._id.toString()
+    : recruiterRef.toString();
+
+  if (internshipRecruiterId !== recruiterProfile._id.toString()) {
+    return errorResponse(
+      "Not authorized to view these applications",
+      undefined,
+      403
+    );
+  }
+}
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
@@ -47,7 +73,16 @@ export async function GET(
         pages: Math.ceil(result.total / limit),
       },
     });
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch internship applications', undefined, 500);
-  }
+} catch (error: unknown) {
+  console.error("APPLICATIONS API ERROR:");
+  console.error(error);
+
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to fetch internship applications",
+    undefined,
+    500
+  );
+}
 }

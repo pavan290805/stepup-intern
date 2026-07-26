@@ -159,9 +159,13 @@ export function useApplicants() {
     }
   }, []);
 
-  useEffect(() => {
+useEffect(() => {
+  const timer = window.setTimeout(() => {
     void refresh();
-  }, [refresh]);
+  }, 0);
+
+  return () => window.clearTimeout(timer);
+}, [refresh]);
 
   const applicants = snapshot.applicants;
   const interviews = snapshot.interviews;

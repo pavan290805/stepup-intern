@@ -3,12 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "../layout/Header";
 import { useApplicants } from "../hooks/useApplicants";
-<<<<<<< HEAD
-import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
-=======
-import { useRecruiterInternships } from "../hooks/useRecruiterInternships";
 
->>>>>>> origin/master
+
+import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
+
+
+
 type InterviewCard = {
   id: string;
   company: string;
@@ -20,15 +20,16 @@ type InterviewCard = {
 export default function InterviewsPage() {
   const [link, setLink] = useState<string>("");
   const [savedLink, setSavedLink] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState("");
   // start with no recent alerts for now
   const [alerts, setAlerts] = useState<Array<{ id: string; title: string; time: string; avatar?: string }>>([]);
 
   const { interviews, applicants } = useApplicants();
-<<<<<<< HEAD
+
 const { internships } = useRecruiterInternshipContext();
-=======
-  const { internships } = useRecruiterInternships();
->>>>>>> origin/master
+const [lastUpdated, setLastUpdated] = useState<string>("");
+
+
 
   const activeInternships = useMemo(
     () => internships.filter((item) => item.status === "Active" || item.status === "Promoted"),
@@ -77,25 +78,55 @@ const { internships } = useRecruiterInternshipContext();
     };
   }, [interviewCards]);
 
-  useEffect(() => {
-    const stored = typeof window !== "undefined" ? localStorage.getItem("recruiter_calendly_link") : null;
-    if (stored) setSavedLink(stored);
-  }, []);
 
-  const saveLink = () => {
-    try {
-      localStorage.setItem("recruiter_calendly_link", link.trim());
-      setSavedLink(link.trim());
-    } catch (e) {
-      // ignore
-    }
-  };
+
+const saveLink = () => {
+  const value = link.trim();
+
+  if (!value) {
+    alert("Please enter a Calendly or Doodle link.");
+    return;
+  }
+
+  const isValid =
+    value.startsWith("https://calendly.com/") ||
+    value.startsWith("https://doodle.com/");
+
+  if (!isValid) {
+    alert("Please enter a valid Calendly or Doodle URL.");
+    return;
+  }
+
+  localStorage.setItem("recruiter_calendly_link", value);
+  localStorage.setItem("recruiter_calendly_updated", new Date().toISOString());
+  setSavedLink(value);
+  setLastUpdated(new Date().toISOString());
+
+  setSuccessMessage("Calendly link saved successfully!");
+
+setTimeout(() => {
+  setSuccessMessage("");
+}, 3000);
+};
 
   const openScheduler = (invite: { status: string }) => {
     const url = savedLink || link;
     if (!url) return;
     window.open(url.startsWith("http") ? url : `https://${url}`, "_blank");
   };
+  useEffect(() => {
+  const storedLink = localStorage.getItem("recruiter_calendly_link");
+  const storedTime = localStorage.getItem("recruiter_calendly_updated");
+
+  if (storedLink) {
+    setSavedLink(storedLink);
+    setLink(storedLink);
+  }
+
+  if (storedTime) {
+    setLastUpdated(storedTime);
+  }
+}, []);
 
   return (
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
@@ -127,29 +158,79 @@ const { internships } = useRecruiterInternshipContext();
             </div>
 
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <input
-                value={link}
-                onChange={(e) => setLink(e.target.value)}
-                placeholder="Paste your Calendly or Doodle link"
-                className="col-span-2 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-[#0880EF]"
-              />
+<input
+  value={link}
+  onChange={(e) => {
+    setLink(e.target.value);
+
+    if (successMessage) {
+      setSuccessMessage("");
+    }
+  }}
+  placeholder="https://calendly.com/your-name/30min"
+  className="..."
+/>
+{!savedLink && (
+  <p className="mt-3 text-sm text-amber-600">
+    ⚠️ No interview scheduling link has been configured yet.
+  </p>
+)}
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setLink(savedLink)}
-                  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-700"
-                >
-                  Update
-                </button>
-                <button
-                  type="button"
-                  onClick={saveLink}
-                  className="rounded-xl bg-[#0880EF] px-4 py-2 text-sm font-semibold text-white"
-                >
-                  Save
-                </button>
+<button
+  type="button"
+  onClick={() => setLink(savedLink)}
+  disabled={!savedLink}
+  className={`rounded-xl border px-4 py-2 text-sm transition ${
+    savedLink
+      ? "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+      : "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+  }`}
+>
+  Restore
+</button>
+<button
+  type="button"
+  onClick={saveLink}
+  disabled={link.trim() === savedLink}
+  className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${
+    link.trim() === savedLink
+      ? "cursor-not-allowed bg-slate-300"
+      : "bg-[#0880EF] hover:bg-[#0A67C6]"
+  }`}
+>
+  Save
+</button>
               </div>
             </div>
+            {savedLink && (
+  <div className="mt-4">
+    <a
+      href={savedLink}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-sm font-medium text-[#0880EF] underline hover:text-[#0A67C6]"
+    >
+      🔗 Open Calendly Link
+    </a>
+  </div>
+)}
+{successMessage && (
+  <div className="mt-3 rounded-lg bg-green-100 border border-green-300 px-4 py-2 text-sm text-green-800">
+    ✅ {successMessage}
+  </div>
+)}
+{lastUpdated && (
+<p className="mt-2 text-xs text-slate-500">
+  Last updated:{" "}
+  {new Date(lastUpdated).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })}
+</p>
+)}
           </section>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -184,7 +265,7 @@ const { internships } = useRecruiterInternshipContext();
                   </div>
                 ))
               ) : (
-                <div className="rounder-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
                   No scheduled interviews found for active internships.
                 </div>
               )}

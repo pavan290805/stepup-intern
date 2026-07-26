@@ -1,18 +1,13 @@
 "use client";
-
-import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import {
+import { useRouter } from "next/navigation";import type {
   Internship,
   InternshipFormState,
-  useRecruiterInternships,
 } from "../hooks/useRecruiterInternships";
-<<<<<<< HEAD
+
 import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
-=======
-import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
->>>>>>> origin/master
+
+
 import { useApplicants } from "../hooks/useApplicants";
 import EmptyListingsState from "../internships/EmptyListingsState";
 import InternshipListingCard from "../internships/InternshipListingCard";
@@ -40,13 +35,12 @@ const formatDate = (value: string) => {
 
 export default function RecruiterPage() {
   const router = useRouter();
-<<<<<<< HEAD
+
 const {
   internships,
   emptyForm,
   createListing,
   updateListing,
-  promoteListing,
   closeListing,
   reopenListing,
   removeListing,
@@ -54,21 +48,9 @@ const {
   error,
   setSelectedInternship,
 } = useRecruiterInternshipContext();
-=======
-  const {
-    internships,
-    emptyForm,
-    createListing,
-    updateListing,
-    promoteListing,
-    closeListing,
-    reopenListing,
-    removeListing,
-    loading,
-    error,
-  } = useRecruiterInternships();
-  const { profile } = useRecruiterProfile();
->>>>>>> origin/master
+
+
+
   const { applicants } = useApplicants();
   const [form, setForm] = useState<InternshipFormState>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -139,11 +121,6 @@ const {
     setErrors((current) => ({ ...current, [field]: "" }));
   };
 
-  const handleLogout = () => {
-    resetForm();
-    setShowCreateForm(false);
-    setSearch("");
-  };
 
   const dashboardStats = useMemo(() => {
     const totalListings = internships.length;
@@ -154,9 +131,9 @@ const {
     
     // Count applicants for active internships
     const activeInternshipIds = new Set(activeInternships.map((i) => i.id));
-    const studentsApplied = applicants.filter((applicant: any) =>
-      activeInternshipIds.has(applicant.internshipId),
-    ).length;
+const studentsApplied = applicants.filter((applicant) =>
+  activeInternshipIds.has(applicant.internshipId),
+).length;
 
     return [
       { label: "Total Listings", value: totalListings },
@@ -232,16 +209,11 @@ const {
     setShowCreateForm(true);
   };
 
-<<<<<<< HEAD
 const handleViewApplicants = (internship: Internship) => {
   setSelectedInternship(internship);
-  router.push(`/internships/applicants?internshipId=${internship.id}`);
+
+  router.push(`/recruiter/internships/${internship.id}/applicants`);
 };
-=======
-  const handleViewApplicants = (internship: Internship) => {
-    router.push(`/internships/applicants?internshipId=${internship.id}`);
-  };
->>>>>>> origin/master
 
   return (
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
@@ -434,7 +406,7 @@ const handleViewApplicants = (internship: Internship) => {
                     onViewApplicants={handleViewApplicants}
                     onDelete={(id) => {
                       if (window.confirm("Remove this internship listing?")) {
-                        removeListing(id);
+                        void removeListing(id);
                       }
                     }}
                   />

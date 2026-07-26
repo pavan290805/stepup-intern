@@ -61,16 +61,46 @@ const initialInternshipDetails = {
   ],
   skills: ["React.js", "Tailwind CSS", "TypeScript", "Redux/Zustand", "Figma to Code"],
 };
+type Applicant = {
+  id: string | number;
+  name: string;
+  email: string;
+  phone: string;
+  status: string;
+  university: string;
+  gpa: string;
+  resume: string;
+  interviewDate?: string;
+  interviewTime?: string;
+};
 
+type BackendApplication = {
+  _id: string;
+  status: string;
+  studentId?: {
+    userId?: {
+      name?: string;
+      email?: string;
+      phoneNumber?: string;
+    };
+    education?: {
+      school?: string;
+    }[];
+    profileCompletion?: number;
+    resumeUrl?: string;
+  };
+};
 export default function InternshipDetailsPage() {
+  console.log("Recruiter internships page rendered");
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const internshipId = params.id;
 
-  const [applicants, setApplicants] = useState(initialApplicants);
+const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
   const [internshipDetails, setInternshipDetails] = useState(initialInternshipDetails);
   const [showInterviewModal, setShowInterviewModal] = useState(false);
-  const [selectedApplicant, setSelectedApplicant] = useState<any>(null);
+  const [selectedApplicant, setSelectedApplicant] =
+  useState<Applicant | null>(null);
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("");
   const [showResume, setShowResume] = useState(false);
@@ -106,7 +136,7 @@ export default function InternshipDetailsPage() {
         const backendApplicants = applicantsResponse?.data?.applications || [];
 
         setApplicants(
-          backendApplicants.map((application: any) => {
+          backendApplicants.map((application: BackendApplication) => {
             const studentUser = application.studentId?.userId;
             const applicantName = studentUser?.name || studentUser?.email || "Applicant";
 

@@ -1,12 +1,14 @@
 import { RecruiterInternshipProvider } from "../../Components/context/RecruiterInternshipContext";
 import { InterviewProvider } from "../../Components/context/interviews";
-import RecruiterInterviews from "../../Components/recruiter/RecruiterInterviews";
-
-export default function Page() {
+export default function RecruiterLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <RecruiterInternshipProvider>
       <InterviewProvider>
-        <RecruiterInterviews />
+        {children}
       </InterviewProvider>
     </RecruiterInternshipProvider>
   );

@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     const { valid, data, response } = await validateRequestBody(request, interviewSchema);
     if (!valid) return response;
 
-    const interview = await interviewService.createInterview(data as any);
+    const interview = await interviewService.createInterview(data);
 
     // Create notification for student
     const application = await applicationService.getApplicationById(data.applicationId);
@@ -37,9 +37,15 @@ export async function POST(request: NextRequest) {
     }
 
     return successResponse(interview, 'Interview scheduled successfully', 201);
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to schedule interview', undefined, 400);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : 'Failed to schedule interview',
+    undefined,
+    400
+  );
+}
 }
 
 export async function GET(request: NextRequest) {
@@ -49,7 +55,12 @@ export async function GET(request: NextRequest) {
     const authError = await withAuth(request, [USER_ROLES.RECRUITER, USER_ROLES.ADMIN]);
     if (authError) return authError;
 
-    const user = (request as any).user;
+    const user = (request as NextRequest & {
+  user: {
+    userId: string;
+    role: string;
+  };
+}).user;
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '10');
     const status = searchParams.get('status') as 'scheduled' | 'completed' | 'cancelled' | 'all' | null;
@@ -71,7 +82,13 @@ export async function GET(request: NextRequest) {
 
     const interviews = await interviewService.getUpcomingInterviews(limit);
     return successResponse({ interviews });
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch interviews', undefined, 500);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : 'Failed to fetch interviews',
+    undefined,
+    500
+  );
+}
 }

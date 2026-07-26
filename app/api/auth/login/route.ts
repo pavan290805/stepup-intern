@@ -15,8 +15,7 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
-    const result = await authService.login(data as any);
-
+    const result = await authService.login(data);
     return createAuthCookies(
       {
         user: {
@@ -32,7 +31,11 @@ export async function POST(request: NextRequest) {
       result.refreshToken,
       'Logged in successfully'
     );
-  } catch (error: any) {
-    return errorResponse(error?.message || 'Login failed', undefined, 401);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error ? error.message : "Login failed",
+    undefined,
+    401
+  );
+}
 }

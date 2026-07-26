@@ -66,16 +66,30 @@ async function readPayload<T>(response: Response): Promise<ApiEnvelope<T> | null
 }
 
 export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(buildUrl(path), {
-    cache: "no-store",
-    credentials: "include",
-    ...init,
-    headers: {
-      ...(init.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
-      ...(init.headers ?? {}),
-    },
-  });
-
+const token =
+  typeof window !== "undefined"
+    ? localStorage.getItem("accessToken")
+    : null;
+console.log("==== API REQUEST ====");
+console.log("Path:", path);
+console.log("Token:", token);
+console.log(
+  "Authorization:",
+  token ? `Bearer ${token}` : "NO TOKEN"
+);
+console.log("=====================");
+const response = await fetch(buildUrl(path), {
+  cache: "no-store",
+  credentials: "include",
+  ...init,
+  headers: {
+    ...(init.body instanceof FormData
+      ? {}
+      : { "Content-Type": "application/json" }),
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(init.headers ?? {}),
+  },
+});
   const payload = await readPayload<T>(response);
 
   if (!response.ok || payload?.success === false) {
