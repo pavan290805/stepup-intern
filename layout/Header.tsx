@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { logout } from "@/lib/api";
 import { useRecruiterProfile } from "@/hooks/useRecruiterProfile";
 
 type HeaderProps = {
@@ -13,10 +14,16 @@ type HeaderProps = {
 export default function Header({ onCreate }: HeaderProps) {
   const pathname = usePathname() ?? "/";
 
+  const inRecruiterPortal =
+    pathname === "/recruiter" ||
+    pathname === "/interviews" ||
+    pathname === "/profile" ||
+    pathname.startsWith("/recruiter/");
+
   const navItems = [
     { key: "home", label: "Home", href: "/" },
     { key: "about", label: "About Us", href: "/about" },
-    { key: "internships", label: "Internships", href: "/internships" },
+    { key: "internships", label: "Internships", href: inRecruiterPortal ? "/recruiter" : "/internships" },
     { key: "interviews", label: "Interviews", href: "/interviews" },
     { key: "contact", label: "Contact Us", href: "/contact" },
     { key: "profile", label: "Profile", href: "/profile" },
@@ -24,7 +31,7 @@ export default function Header({ onCreate }: HeaderProps) {
 
   // Mobile-only menu (hamburger) — intentionally separate from desktop nav
   const mobileNav = [
-    { key: "internships", label: "Internships", href: "/internships" },
+    { key: "internships", label: "Internships", href: inRecruiterPortal ? "/recruiter" : "/internships" },
     { key: "interviews", label: "Interviews", href: "/interviews" },
     { key: "about", label: "About Us", href: "/about" },
     { key: "contact", label: "Contact Us", href: "/contact" },
@@ -45,7 +52,13 @@ export default function Header({ onCreate }: HeaderProps) {
     }
 
     if (key === "internships") {
-      return pathname.startsWith("/internships");
+      return (
+        pathname.startsWith("/internships") ||
+        pathname === "/recruiter" ||
+        pathname.startsWith("/recruiter/") ||
+        pathname === "/interviews" ||
+        pathname === "/profile"
+      );
     }
 
     if (key === "profile") {
@@ -57,6 +70,8 @@ export default function Header({ onCreate }: HeaderProps) {
 
   const { profile } = useRecruiterProfile();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const router = useRouter();
 
   const [navOpen, setNavOpen] = useState(false);
 
@@ -173,15 +188,17 @@ export default function Header({ onCreate }: HeaderProps) {
                     <p className="text-xs text-slate-500">{profile.role}</p>
                   </div>
                   <div className="space-y-2">
-                    <Link
-                      href="/?page=profile"
-                      onClick={() => setDropdownOpen(false)}
-                      className="block rounded-2xl border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-50"
-                    >
-                      Profile
-                    </Link>
                     <button
                       type="button"
+                      onClick={async () => {
+                        try {
+                          await logout();
+                        } catch (error) {
+                          console.error("Logout failed", error);
+                        }
+                        setDropdownOpen(false);
+                        router.push("/");
+                      }}
                       className="w-full rounded-2xl bg-[#0880EF] px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-[#0A67C6]"
                     >
                       Logout

@@ -97,7 +97,7 @@ export default  function Signup() {
         <div className="absolute top-4 left-8">
           <Link href="/">
           <Image
-              src="/StepUpLogo.png"
+              src="/StepupLogo.png"
               alt="StepUp Logo"
               width={120}
               height={50}
@@ -109,7 +109,7 @@ export default  function Signup() {
         <div className="flex flex-1 w-full flex-col items-center justify-center text-center px-6">
           <div className="mb-10 flex justify-center">
             <Image
-              src="/illustration_Image.png"
+              src="/Illustration_Image.png"
               alt="Career Illustration"
               width={420}
               height={420}

@@ -1,4 +1,15 @@
-export default function InternshipsPage() {
+"use client";
+
+import { useEffect } from "react";
+import { CompanyProvider, useCompanyContext } from "../../Components/contexts/CompanyContext";
+
+function InternshipsContent() {
+  const { companies, selectedCompany, loading, error, loadCompanies, loadCompanyById } = useCompanyContext();
+
+  useEffect(() => {
+    void loadCompanies();
+  }, [loadCompanies]);
+
   return (
     <div className="min-h-screen bg-[#F5F8FF] px-4 py-24 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl rounded-3xl border border-slate-200 bg-white p-10 shadow-lg">
@@ -6,7 +17,57 @@ export default function InternshipsPage() {
         <p className="mt-6 text-lg leading-8 text-slate-700">
           Browse open internship opportunities and apply from your student account.
         </p>
+
+        <div className="mt-8 space-y-6">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">Companies</h2>
+              {loading ? <span className="text-sm text-slate-500">Loading…</span> : null}
+            </div>
+
+            {error ? (
+              <p className="mt-3 text-sm text-red-600">{error}</p>
+            ) : null}
+
+            {!loading && companies.length === 0 && !error ? (
+              <p className="mt-3 text-sm text-slate-500">No companies are available right now.</p>
+            ) : null}
+
+            <div className="mt-4 flex flex-wrap gap-3">
+              {companies.map((company) => (
+                <button
+                  key={company._id}
+                  type="button"
+                  onClick={() => void loadCompanyById(company._id)}
+                  className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+                >
+                  {company.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {selectedCompany ? (
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <h3 className="text-lg font-semibold text-slate-900">{selectedCompany.name}</h3>
+              <p className="mt-2 text-sm text-slate-600">{selectedCompany.description}</p>
+              <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
+                {selectedCompany.industry ? <span>Industry: {selectedCompany.industry}</span> : null}
+                {selectedCompany.headquarters ? <span>Headquarters: {selectedCompany.headquarters}</span> : null}
+                {selectedCompany.website ? <span>Website: {selectedCompany.website}</span> : null}
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
+  );
+}
+
+export default function InternshipsPage() {
+  return (
+    <CompanyProvider>
+      <InternshipsContent />
+    </CompanyProvider>
   );
 }

@@ -62,7 +62,7 @@ export default function Login() {
         <div className="absolute top-4 left-8">
           <Link href="/">
           <Image
-            src="/StepUpLogo.png"
+            src="/StepupLogo.png"
             alt="StepUp Logo"
             width={120}
             height={50}
@@ -73,7 +73,7 @@ export default function Login() {
 
         <div className="mb-8 flex items-center justify-center">
           <Image
-            src="/illustration_Image.png"
+            src="/Illustration_Image.png"
             alt="Career Illustration"
             width={420}
             height={420}
