@@ -41,7 +41,7 @@ export function getAuthenticatedRedirectPath(token?: string) {
   }
 
   if (role === 'student') {
-    return '/internships';
+    return '/student';
   }
 
   return null;

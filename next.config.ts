@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   experimental: {
     workerThreads: true,
   },
+  serverExternalPackages: ["pdf-parse", "mammoth"],
 };
 
 export default nextConfig;
