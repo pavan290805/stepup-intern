@@ -1,5 +1,6 @@
+"use client";
 import type { Internship } from "@/hooks/useRecruiterInternships";
-
+import { useRouter } from "next/navigation";
 type InternshipListingCardProps = {
   internship: Internship;
   formatDate: (value: string) => string;
@@ -19,6 +20,7 @@ export default function InternshipListingCard({
   onViewApplicants,
   onDelete,
 }: InternshipListingCardProps) {
+  const router = useRouter();
   return (
     <article className="rounded-2xl border border-slate-200 bg-[#FBFDFF] p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -46,13 +48,14 @@ export default function InternshipListingCard({
 
         <div className="flex flex-wrap gap-2 lg:justify-end">
           {onViewApplicants ? (
-            <button
-              type="button"
-              onClick={() => onViewApplicants(internship)}
-              className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-purple-300 hover:text-purple-600 hover:bg-purple-50"
-            >
-              View Applicants
-            </button>
+<button
+onClick={() => {
+  onViewApplicants?.(internship);
+  router.push(`/recruiter/internships/${internship.id}/applicants`);
+}}
+>
+  View Applicants
+</button>
           ) : null}
           <button
             type="button"

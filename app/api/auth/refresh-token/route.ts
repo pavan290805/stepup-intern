@@ -26,7 +26,11 @@ export async function POST(request: NextRequest) {
       result.refreshToken,
       'Token refreshed'
     );
-  } catch (error: any) {
-    return errorResponse(error.message || 'Token refresh failed', undefined, 401);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error ? error.message : "Token refresh failed",
+    undefined,
+    401
+  );
+}
 }

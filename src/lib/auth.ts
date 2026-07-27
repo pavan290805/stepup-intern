@@ -26,24 +26,42 @@ export function generateRefreshToken(payload: Omit<JwtPayload, 'iat' | 'exp'>): 
 
 export function verifyAccessToken(token: string): JwtPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as JwtPayload;
+    console.log("JWT_SECRET:", process.env.JWT_SECRET);
+
+    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+
+    console.log("Verified:", decoded);
+
+    return decoded;
   } catch (error) {
+    console.error("JWT verify error:", error);
     return null;
   }
 }
 
 export function verifyRefreshToken(token: string): JwtPayload | null {
   try {
-    return jwt.verify(token, JWT_REFRESH_SECRET) as JwtPayload;
+    console.log("JWT_REFRESH_SECRET:", process.env.JWT_REFRESH_SECRET);
+
+    const decoded = jwt.verify(token, JWT_REFRESH_SECRET) as JwtPayload;
+
+    console.log("Verified Refresh Token:", decoded);
+
+    return decoded;
   } catch (error) {
+    console.error("JWT verify error:", error);
     return null;
   }
 }
 
 export function decodeToken(token: string): JwtPayload | null {
   try {
-    return jwt.decode(token) as JwtPayload;
+    console.log("Decoding token:", token);
+    const decoded = jwt.decode(token) as JwtPayload;
+    console.log("Decoded:", decoded);
+    return decoded;
   } catch (error) {
+    console.error("JWT decode error:", error);
     return null;
   }
 }

@@ -13,6 +13,14 @@ type HeaderProps = {
 
 export default function Header({ onCreate }: HeaderProps) {
   const pathname = usePathname() ?? "/";
+  const router = useRouter();
+
+const handleLogout = () => {
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+
+  router.replace("/login");
+};
 
   const inRecruiterPortal =
     pathname === "/recruiter" ||
@@ -188,6 +196,13 @@ export default function Header({ onCreate }: HeaderProps) {
                     <p className="text-xs text-slate-500">{profile.role}</p>
                   </div>
                   <div className="space-y-2">
+<Link
+  href="/profile"
+  onClick={() => setDropdownOpen(false)}
+  className="block rounded-2xl border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-700 transition hover:bg-slate-50"
+>
+  Profile
+</Link>
                     <button
                       type="button"
                       onClick={async () => {
@@ -196,8 +211,7 @@ export default function Header({ onCreate }: HeaderProps) {
                         } catch (error) {
                           console.error("Logout failed", error);
                         }
-                        setDropdownOpen(false);
-                        router.push("/");
+                        handleLogout();
                       }}
                       className="w-full rounded-2xl bg-[#0880EF] px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-[#0A67C6]"
                     >

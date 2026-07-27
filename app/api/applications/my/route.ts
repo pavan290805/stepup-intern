@@ -5,6 +5,13 @@ import { applicationService } from '@/modules/application/application.service';
 import { studentService } from '@/modules/student/student.service';
 import { NextRequest } from 'next/server';
 
+type AuthenticatedRequest = NextRequest & {
+  user: {
+    userId: string;
+    role: string;
+  };
+};
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
@@ -12,18 +19,28 @@ export async function GET(request: NextRequest) {
     const authError = await withAuth(request, [USER_ROLES.STUDENT]);
     if (authError) return authError;
 
-    const user = (request as any).user;
+    const user = (request as AuthenticatedRequest).user;
 
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
 
-    const studentProfile = await studentService.getStudentByUserId(user.userId);
+    const studentProfile = await studentService.getStudentByUserId(
+      user.userId
+    );
+
     if (!studentProfile) {
-      return errorResponse('Student profile not found', undefined, 404);
+      return errorResponse(
+        'Student profile not found',
+        undefined,
+        404
+      );
     }
 
-    const result = await applicationService.getMyApplications(studentProfile._id.toString(), { page, limit });
+    const result = await applicationService.getMyApplications(
+      studentProfile._id.toString(),
+      { page, limit }
+    );
 
     return successResponse({
       applications: result.applications,
@@ -34,7 +51,13 @@ export async function GET(request: NextRequest) {
         pages: Math.ceil(result.total / limit),
       },
     });
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch applications', undefined, 500);
+  } catch (error: unknown) {
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : 'Failed to fetch applications',
+      undefined,
+      500
+    );
   }
 }

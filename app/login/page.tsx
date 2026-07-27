@@ -48,8 +48,8 @@ export default function Login() {
     ? "/recruiter"
     : "/student"
 );
-  } catch (err: any) {
-    setError(err.message);
+  } catch (err: unknown) {
+    setError(err instanceof Error ? err.message : "Login failed");
   } finally {
     setLoading(false);
   }
@@ -212,7 +212,7 @@ export default function Login() {
 
           {/* Signup Link */}
           <p className="text-center text-sm mt-6 text-black">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <button type="button"
               onClick={() => router.push("/signup")}
               className={linkStyles}

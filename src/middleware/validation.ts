@@ -16,7 +16,6 @@ export async function validateRequestBody<T>(
     if (!result.success) {
       const errors = result.error.issues.map((err: z.ZodIssue) => `${err.path.join('.')}: ${err.message}`);
       // Log validation errors and the body for debugging
-      // eslint-disable-next-line no-console
       console.warn('[VALIDATION] request body failed schema validation', { errors, body });
 
       return {
@@ -26,7 +25,7 @@ export async function validateRequestBody<T>(
     }
 
     return { valid: true, data: result.data as T };
-  } catch (error) {
+  } catch  {
     try {
       const text = await (request.clone().text().catch(() => ''));
       const snippet = typeof text === 'string' ? text.slice(0, 1000) : '';
@@ -34,7 +33,7 @@ export async function validateRequestBody<T>(
         valid: false,
         response: errorResponse('Invalid JSON body', [`rawBody: ${snippet}`]),
       };
-    } catch (err) {
+    } catch {
       return {
         valid: false,
         response: errorResponse('Invalid JSON body'),
@@ -44,7 +43,7 @@ export async function validateRequestBody<T>(
 }
 
 export function validateQueryParams<T>(
-  queryParams: Record<string, any>,
+  queryParams: Record<string, unknown>,
   schema: ZodType<T>
 ): { valid: true; data: T; response?: undefined } | { valid: false; data?: undefined; response: Response } {
   try {
@@ -59,7 +58,7 @@ export function validateQueryParams<T>(
     }
 
     return { valid: true, data: result.data as T };
-  } catch (error) {
+  } catch {
     return {
       valid: false,
       response: errorResponse('Query validation failed'),

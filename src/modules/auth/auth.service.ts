@@ -59,8 +59,6 @@ export const authService = {
             phoneNumber: '+10000000000',
           });
         } catch (err) {
-          // Do not block registration on profile creation errors; log for later investigation.
-          // eslint-disable-next-line no-console
           console.warn('Auto-create recruiter profile failed:', getErrorMessage(err, 'Unknown error'));
         }
       })();

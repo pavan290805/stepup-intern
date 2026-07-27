@@ -10,6 +10,7 @@ export async function PATCH(
 ) {
   try {
     await connectDB();
+
     const { id } = await params;
 
     const authError = await withAuth(request);
@@ -18,12 +19,25 @@ export async function PATCH(
     const notification = await notificationService.markAsRead(id);
 
     if (!notification) {
-      return errorResponse('Notification not found', undefined, 404);
+      return errorResponse(
+        'Notification not found',
+        undefined,
+        404
+      );
     }
 
-    return successResponse(notification, 'Notification marked as read');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to update notification', undefined, 400);
+    return successResponse(
+      notification,
+      'Notification marked as read'
+    );
+  } catch (error: unknown) {
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : 'Failed to update notification',
+      undefined,
+      400
+    );
   }
 }
 
@@ -33,6 +47,7 @@ export async function DELETE(
 ) {
   try {
     await connectDB();
+
     const { id } = await params;
 
     const authError = await withAuth(request);
@@ -40,8 +55,17 @@ export async function DELETE(
 
     await notificationService.deleteNotification(id);
 
-    return successResponse(null, 'Notification deleted successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to delete notification', undefined, 500);
+    return successResponse(
+      null,
+      'Notification deleted successfully'
+    );
+  } catch (error: unknown) {
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : 'Failed to delete notification',
+      undefined,
+      500
+    );
   }
 }

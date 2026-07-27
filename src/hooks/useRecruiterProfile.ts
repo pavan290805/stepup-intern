@@ -106,9 +106,15 @@ export const useRecruiterProfile = () => {
     }
   }, []);
 
-  useEffect(() => {
+useEffect(() => {
+  const timer = window.setTimeout(() => {
     void refresh();
-  }, [refresh]);
+  }, 0);
+
+  return () => {
+    window.clearTimeout(timer);
+  };
+}, [refresh]);
 
   const updateProfile = useCallback(
     async (nextProfile: RecruiterProfile) => {

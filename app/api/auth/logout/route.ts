@@ -10,12 +10,20 @@ export async function POST(request: NextRequest) {
     const authError = await withAuth(request);
     if (authError) return authError;
 
-    const user = (request as any).user;
+    const user = (request as NextRequest & {
+  user: {
+    userId: string;
+  };
+}).user;
 
     await authService.logout(user.userId);
 
     return clearAuthCookies();
-  } catch (error: any) {
-    return errorResponse(error.message || 'Logout failed', undefined, 500);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error ? error.message : "Logout failed",
+    undefined,
+    500
+  );
+}
 }

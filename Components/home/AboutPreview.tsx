@@ -53,7 +53,7 @@ export default function AboutPreview() {
 
             <p className="text-gray-600 text-lg leading-8 mt-6">
 
-              Whether you're searching for your first internship
+              Whether you&apos;re searching for your first internship
               or looking for the right talent, StepUp Intern
               provides everything in one place.
 

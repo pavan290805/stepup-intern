@@ -2,81 +2,122 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter, useParams } from "next/navigation";
 import type { Internship } from "@/hooks/useRecruiterInternships";
 import { useApplicants } from "@/hooks/useApplicants";
+import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
 import ApplicantCard from "./ApplicantCard";
 import ScheduleInterviewModal from "./ScheduleInterviewModal";
 import SendEmailModal from "./SendEmailModal";
 import ViewResumeModal from "./ViewResumeModal";
 
-type InternshipApplicantsPageProps = {
-  internship: Internship;
-  onBack: () => void;
-};
 
-export default function InternshipApplicantsPage({
-  internship,
-  onBack,
-}: InternshipApplicantsPageProps) {
-  const {
-    getInternshipApplicants,
-    getInternshipInterviews,
-    shortlistApplicant,
-    rejectApplicant,
-    scheduleInterview,
-    deleteApplication,
-    sendEmail,
-  } = useApplicants();
+export default function InternshipApplicantsPage() {
+const router = useRouter();
+const params = useParams();
+
+const internshipId = params.id as string;
+
+const { internships, loading } = useRecruiterInternshipContext();
+console.log("loading =", loading);
+console.log("internshipId =", internshipId);
+console.log("internships =", internships);
+const internship = internships.find(
+  (i) => i.id === internshipId
+);
+
+const {
+  getInternshipApplicants,
+  getInternshipInterviews,
+  shortlistApplicant,
+  rejectApplicant,
+  scheduleInterview,
+  deleteApplication,
+  sendEmail,
+} = useApplicants();
+
+const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(null);
+
+const [modalType, setModalType] = useState<
+  "schedule" | "email" | "view-resume" | null
+>(null);
+if (loading) {
+  return (
+    <div className="p-6 text-center">
+      Loading internship...
+    </div>
+  );
+}
+if (!internship) {
+  return (
+    <div className="p-6 text-center">
+      <h2 className="text-xl font-semibold">
+        Internship not found
+      </h2>
+    </div>
+  );
+} 
+
 
   const applicants = getInternshipApplicants(internship.id);
   const interviews = getInternshipInterviews(internship.id);
 
-  const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(null);
-  const [modalType, setModalType] = useState<
-    "schedule" | "email" | "view-resume" | null
-  >(null);
+  const selectedApplicant = applicants.find(
+    (a) => a.id === selectedApplicantId
+  );
+const handleAction = (action: string, applicantId: string) => {
+  setSelectedApplicantId(applicantId);
 
-  const selectedApplicant = applicants.find((a) => a.id === selectedApplicantId);
+  switch (action) {
+    case "schedule":
+      setModalType("schedule");
+      break;
 
-  const handleAction = (action: string, applicantId: string) => {
-    setSelectedApplicantId(applicantId);
+    case "email":
+      setModalType("email");
+      break;
 
-    switch (action) {
-      case "schedule":
-        setModalType("schedule");
-        break;
-      case "email":
-        setModalType("email");
-        break;
-      case "view-resume":
-        setModalType("view-resume");
-        break;
-      case "shortlist":
-        shortlistApplicant(applicantId);
-        break;
-      case "reject":
-        rejectApplicant(applicantId);
-        break;
-      case "delete":
-        if (
-          window.confirm(
-            "Are you sure you want to remove this application? This action cannot be undone."
-          )
-        ) {
-          deleteApplication(applicantId);
-        }
-        break;
-      case "download-resume":
-        const applicant = applicants.find((a) => a.id === applicantId);
-        if (applicant) {
-          const link = document.createElement("a");
-          link.href = applicant.resumeUrl;
-          link.download = `${applicant.name}-resume.pdf`;
-          link.click();
-        }
-        break;
-    }
-  };
+    case "view-resume":
+      setModalType("view-resume");
+      break;
+
+    case "shortlist":
+      shortlistApplicant(applicantId);
+      break;
+
+    case "reject":
+      rejectApplicant(applicantId);
+      break;
+
+    case "delete":
+      if (
+        window.confirm(
+          "Are you sure you want to remove this application? This action cannot be undone."
+        )
+      ) {
+        deleteApplication(applicantId);
+      }
+      break;
+
+    case "download-resume":
+  const currentApplicant = applicants.find(
+    (a) => a.id === applicantId
+  );
+
+  if (currentApplicant) {
+    const link = document.createElement("a");
+    link.href = currentApplicant.resumeUrl;
+    link.download = `${currentApplicant.name}-resume.pdf`;
+    link.click();
+  }
+  break;
+}
+
+}; // <-- handleAction ends here
+  
+
+  
+
 
   const handleScheduleInterview = (date: string, time: string) => {
     if (selectedApplicantId) {
@@ -141,7 +182,11 @@ export default function InternshipApplicantsPage({
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 lg:px-10 xl:px-12">
           <button
-            onClick={onBack}
+
+            onClick={() => router.back()}
+
+            
+
             className="mb-4 text-sm font-medium text-blue-600 hover:text-blue-700 transition"
           >
             ← Back to Listings

@@ -1,14 +1,51 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CompanyProvider, useCompanyContext } from "../../Components/contexts/CompanyContext";
+import {
+  listInternships,
+  InternshipApiItem,
+  applyForInternship,
+} from "@/lib/api";
 
 function InternshipsContent() {
   const { companies, selectedCompany, loading, error, loadCompanies, loadCompanyById } = useCompanyContext();
+  const [internships, setInternships] = useState<InternshipApiItem[]>([]);
 
   useEffect(() => {
     void loadCompanies();
   }, [loadCompanies]);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await listInternships();
+        setInternships(data.internships);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    load();
+  }, []);
+
+  const handleApply = async (internshipId: string) => {
+    try {
+      await applyForInternship({
+        internshipId,
+      });
+
+      alert("Application submitted successfully!");
+    } catch (err) {
+      console.error(err);
+
+      if (err instanceof Error) {
+        alert(err.message);
+      } else {
+        alert("Failed to apply.");
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[#F5F8FF] px-4 py-24 sm:px-6 lg:px-8">
@@ -58,6 +95,40 @@ function InternshipsContent() {
               </div>
             </div>
           ) : null}
+        </div>
+
+        <h2 className="mt-12 text-2xl font-bold">All Internships</h2>
+        <div className="mt-6 grid gap-6">
+          {internships.map((internship) => (
+            <div
+              key={internship._id}
+              className="rounded-xl border p-6 shadow"
+            >
+              <h2 className="text-xl font-semibold">
+                {internship.title}
+              </h2>
+
+              <p className="mt-2">{internship.description}</p>
+
+              <p className="mt-3">
+                📍 {internship.location}
+              </p>
+
+              <p>
+                💰 ₹{internship.stipend}
+              </p>
+
+              <p>
+                💼 {internship.workMode}
+              </p>
+              <button
+                className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+                onClick={() => handleApply(internship._id)}
+              >
+                Apply Now
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { applicationService } from '@/modules/application/application.service';
 import { notificationService } from '@/modules/notification/notification.service';
 import { studentService } from '@/modules/student/student.service';
 import { NextRequest } from 'next/server';
+import User from "@/models/User";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,17 +16,47 @@ export async function POST(request: NextRequest) {
     const authError = await withAuth(request, [USER_ROLES.STUDENT]);
     if (authError) return authError;
 
-    const user = (request as any).user;
+    const user = (request as NextRequest & {
+      user: {
+        userId: string;
+      };
+    }).user;
 
     const { valid, data, response } = await validateRequestBody(request, applicationSchema);
     if (!valid) return response;
 
-    const studentProfile = await studentService.getStudentByUserId(user.userId);
-    if (!studentProfile) {
-      return errorResponse('Student profile not found', undefined, 404);
-    }
+let studentProfile = await studentService.getStudentByUserId(user.userId);
 
-    const application = await applicationService.createApplication(studentProfile._id.toString(), data as any);
+console.log("Before create:", studentProfile);
+
+if (!studentProfile) {
+  try {
+    await studentService.createProfile(user.userId, {
+      headline: "Student",
+      bio: "",
+      skills: [],
+      certifications: [],
+      education: [],
+    });
+
+    console.log("Student profile created");
+  } catch (err) {
+    console.error("Create profile failed:", err);
+  }
+
+  studentProfile = await studentService.getStudentByUserId(user.userId);
+
+  console.log("After create:", studentProfile);
+}
+
+if (!studentProfile) {
+  return errorResponse("Student profile not found", undefined, 404);
+}
+
+const application = await applicationService.createApplication(
+  studentProfile._id.toString(),
+  data
+);
 
     // Create notification
     await notificationService.createNotification(user.userId, {
@@ -36,8 +67,12 @@ export async function POST(request: NextRequest) {
     });
 
     return successResponse(application, 'Application submitted successfully', 201);
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to submit application', undefined, 400);
+  } catch (error: unknown) {
+    return errorResponse(
+      error instanceof Error ? error.message : "Failed to submit application",
+      undefined,
+      400
+    );
   }
 }
 
@@ -45,20 +80,66 @@ export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
-    const authError = await withAuth(request, [USER_ROLES.STUDENT]);
+    const authError = await withAuth(request);
     if (authError) return authError;
 
-    const user = (request as any).user;
+    const user = (request as NextRequest & {
+  user: {
+    userId: string;
+    role: string;
+  };
+}).user;
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
+    const internshipId = searchParams.get('internshipId');
 
-    const studentProfile = await studentService.getStudentByUserId(user.userId);
-    if (!studentProfile) {
-      return errorResponse('Student profile not found', undefined, 404);
+    if (user.role !== USER_ROLES.STUDENT) {
+      if (!internshipId) {
+        return errorResponse('internshipId is required for recruiter application listing', undefined, 400);
+      }
+
+      const result = await applicationService.getApplicationsByInternshipId(internshipId, { page, limit });
+
+      return successResponse({
+        applications: result.applications,
+        pagination: {
+          total: result.total,
+          page,
+          limit,
+          pages: Math.ceil(result.total / limit),
+        },
+      });
     }
 
+let studentProfile = await studentService.getStudentByUserId(user.userId);
+
+console.log("Before create:", studentProfile);
+
+if (!studentProfile) {
+  try {
+    await studentService.createProfile(user.userId, {
+      headline: "Student",
+      bio: "",
+      skills: [],
+      certifications: [],
+      education: [],
+    });
+
+    console.log("Student profile created");
+  } catch (err) {
+    console.error("Create profile failed:", err);
+  }
+
+  studentProfile = await studentService.getStudentByUserId(user.userId);
+
+  console.log("After create:", studentProfile);
+}
+
+if (!studentProfile) {
+  return errorResponse("Student profile not found", undefined, 404);
+}
     const result = await applicationService.getMyApplications(studentProfile._id.toString(), { page, limit });
 
     return successResponse({
@@ -70,7 +151,13 @@ export async function GET(request: NextRequest) {
         pages: Math.ceil(result.total / limit),
       },
     });
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch applications', undefined, 500);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to fetch applications",
+    undefined,
+    500
+  );
+}
 }

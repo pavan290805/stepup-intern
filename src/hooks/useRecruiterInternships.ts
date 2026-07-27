@@ -172,9 +172,15 @@ export function useRecruiterInternships() {
     }
   }, []);
 
-  useEffect(() => {
+useEffect(() => {
+  const timer = window.setTimeout(() => {
     void refresh();
-  }, [refresh]);
+  }, 0);
+
+  return () => {
+    window.clearTimeout(timer);
+  };
+}, [refresh]);
 
   const stats = useMemo(() => {
     const total = internships.length;

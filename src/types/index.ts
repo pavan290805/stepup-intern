@@ -8,7 +8,7 @@ export interface JwtPayload {
 
 export type UserRole = 'student' | 'recruiter' | 'admin';
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data?: T;

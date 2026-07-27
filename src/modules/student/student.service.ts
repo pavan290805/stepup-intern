@@ -27,7 +27,9 @@ export const studentService = {
     }
 
     Object.assign(profile, input);
-    profile.profileCompletion = calculateProfileCompletion(profile.toObject() as any);
+   profile.profileCompletion = calculateProfileCompletion(
+  profile.toObject() as Partial<IStudentProfile>
+);
     await profile.save();
 
     return profile;
@@ -42,7 +44,9 @@ export const studentService = {
   },
 };
 
-function calculateProfileCompletion(data: any): number {
+function calculateProfileCompletion(
+  data: Partial<IStudentProfile>
+): number {
   let completedFields = 0;
   const totalFields = 7;
 

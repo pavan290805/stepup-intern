@@ -24,8 +24,14 @@ export async function GET(
     }
 
     return successResponse(internship);
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch internship', undefined, 500);
+  } catch (error: unknown) {
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : "Failed to fetch internship",
+      undefined,
+      500
+    );
   }
 }
 
@@ -40,7 +46,12 @@ export async function PATCH(
     const authError = await withAuth(request, [USER_ROLES.RECRUITER, USER_ROLES.ADMIN]);
     if (authError) return authError;
 
-    const user = (request as any).user;
+    const user = (request as NextRequest & {
+  user: {
+    userId: string;
+    role: string;
+  };
+}).user;
 
     // debug: log current user
     // eslint-disable-next-line no-console
@@ -92,15 +103,21 @@ export async function PATCH(
       }
     }
 
-    const internship = await internshipService.updateInternship(id, data as any);
+    const internship = await internshipService.updateInternship(id, data);
 
     if (!internship) {
       return errorResponse('Internship not found', undefined, 404);
     }
 
     return successResponse(internship, 'Internship updated successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to update internship', undefined, 400);
+  } catch (error: unknown) {
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : "Failed to update internship",
+      undefined,
+      400
+    );
   }
 }
 
@@ -115,7 +132,12 @@ export async function DELETE(
     const authError = await withAuth(request, [USER_ROLES.RECRUITER, USER_ROLES.ADMIN]);
     if (authError) return authError;
 
-    const user = (request as any).user;
+    const user = (request as NextRequest & {
+  user: {
+    userId: string;
+    role: string;
+  };
+}).user;
 
     // Verify ownership if recruiter
     if (user.role === USER_ROLES.RECRUITER) {
@@ -156,7 +178,13 @@ export async function DELETE(
     await internshipService.deleteInternship(id);
 
     return successResponse(null, 'Internship deleted successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to delete internship', undefined, 500);
+  } catch (error: unknown) {
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : "Failed to delete internship",
+      undefined,
+      500
+    );
   }
 }

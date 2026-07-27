@@ -17,7 +17,11 @@ export async function withAuth(request: NextRequest, requiredRoles?: string[]) {
     );
   }
 
-  const decoded = verifyAccessToken(token);
+  console.log("Token:", token);
+
+const decoded = verifyAccessToken(token);
+
+console.log("Decoded:", decoded);
 
   if (!decoded) {
     return NextResponse.json(
