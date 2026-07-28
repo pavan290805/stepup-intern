@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { useApplicants } from "../hooks/useApplicants";
+import { useApplicants } from "@/hooks/useApplicants";
 
 type ApplicantContextType = ReturnType<typeof useApplicants>;
 

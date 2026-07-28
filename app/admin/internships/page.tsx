@@ -1,0 +1,1 @@
+export default function AdminInternshipsPage() { return <div>Admin Internships</div>; }

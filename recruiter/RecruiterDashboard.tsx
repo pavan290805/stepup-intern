@@ -1,11 +1,13 @@
 "use client";
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";import type {
+import { useRouter } from "next/navigation";
+import type {
   Internship,
   InternshipFormState,
+} from "@/hooks/useRecruiterInternships";
 import { useRecruiterProfile } from "@/hooks/useRecruiterProfile";
 import { useApplicants } from "@/hooks/useApplicants";
-import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
+import { useRecruiterInternshipContext } from "../Components/context/RecruiterInternshipContext";
 import EmptyListingsState from "../internships/EmptyListingsState";
 import InternshipListingCard from "../internships/InternshipListingCard";
 import RecruiterStatsGrid from "./RecruiterStatsGrid";

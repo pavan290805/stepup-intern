@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { 
   User, GraduationCap, Briefcase, Award, FolderGit2, Link2, 
-  Trash2, Plus, CheckCircle, Save, Globe, Linkedin, Github, 
+  Trash2, Plus, CheckCircle, Save, Globe, 
   Sparkles, ListPlus
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -334,7 +334,7 @@ export default function Profile({ profile, onUpdateProfile }: ProfileProps) {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
                   <div className="space-y-1.5">
-                    <label className="font-bold text-slate-700 flex items-center gap-1 font-sans"><Linkedin className="w-3.5 h-3.5 text-blue-600" /> LinkedIn URL</label>
+                    <label className="font-bold text-slate-700 flex items-center gap-1 font-sans"><Link2 className="w-3.5 h-3.5 text-blue-600" /> LinkedIn URL</label>
                     <input 
                       type="text" 
                       value={profile.personalInfo.linkedin}
@@ -344,7 +344,7 @@ export default function Profile({ profile, onUpdateProfile }: ProfileProps) {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="font-bold text-slate-700 flex items-center gap-1 font-sans"><Github className="w-3.5 h-3.5 text-slate-800" /> GitHub username</label>
+                    <label className="font-bold text-slate-700 flex items-center gap-1 font-sans"><Link2 className="w-3.5 h-3.5 text-slate-800" /> GitHub username</label>
                     <input 
                       type="text" 
                       value={profile.personalInfo.github}

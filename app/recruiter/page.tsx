@@ -1,5 +1,5 @@
 "use client";
-import RecruiterDashboard from "../../Components/recruiter/RecruiterDashboard";
+import RecruiterDashboard from "../../recruiter/RecruiterDashboard";
 
 export default function RecruiterPage() {
   return (

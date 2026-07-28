@@ -10,7 +10,7 @@ import {
 import {
   useRecruiterInternships,
   Internship,
-} from "../hooks/useRecruiterInternships";
+} from "@/hooks/useRecruiterInternships";
 
 type RecruiterInternshipContextType =
   ReturnType<typeof useRecruiterInternships> & {

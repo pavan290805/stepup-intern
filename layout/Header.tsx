@@ -79,8 +79,6 @@ const handleLogout = () => {
   const { profile } = useRecruiterProfile();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  const router = useRouter();
-
   const [navOpen, setNavOpen] = useState(false);
 
   const baseItem = "inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition";

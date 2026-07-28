@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
-import {
+import type {
   Internship,
   InternshipFormState,
-import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
+} from "@/hooks/useRecruiterInternships";
+import { useRecruiterInternshipContext } from "../Components/context/RecruiterInternshipContext";
 import EmptyListingsState from "./EmptyListingsState";
 import InternshipListingCard from "./InternshipListingCard";
 import RecruiterStatsGrid from "../recruiter/RecruiterStatsGrid";

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "../layout/Header";
 import { useApplicants } from "@/hooks/useApplicants";
-import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
+import { useRecruiterInternshipContext } from "../Components/context/RecruiterInternshipContext";
 
 type InterviewCard = {
   id: string;

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import type { Internship } from "@/hooks/useRecruiterInternships";
 import { useApplicants } from "@/hooks/useApplicants";
-import { useRecruiterInternshipContext } from "../context/RecruiterInternshipContext";
+import { useRecruiterInternshipContext } from "../Components/context/RecruiterInternshipContext";
 import ApplicantCard from "./ApplicantCard";
 import ScheduleInterviewModal from "./ScheduleInterviewModal";
 import SendEmailModal from "./SendEmailModal";

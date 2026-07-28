@@ -1,0 +1,1 @@
+export default function AdminRecruitersPage() { return <div>Admin Recruiters</div>; }
