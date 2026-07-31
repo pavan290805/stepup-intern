@@ -1,5 +1,11 @@
 "use client";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";import type {
   Internship,
   InternshipFormState,
@@ -92,34 +98,40 @@ const {
     });
   }, [internships, search]);
 
-  const resetForm = () => {
-    setForm(emptyForm);
-    setEditingId(null);
-    setErrors({
-      title: "",
-      department: "",
-      location: "",
-      type: "",
-      stipend: "",
-      deadline: "",
-      description: "",
-    });
-  };
+const resetForm = useCallback(() => {
+  setForm(emptyForm);
+  setEditingId(null);
+  setErrors({
+    title: "",
+    department: "",
+    location: "",
+    type: "",
+    stipend: "",
+    deadline: "",
+    description: "",
+  });
+}, [emptyForm]);
 
-  const openCreateForm = () => {
-    resetForm();
-    setShowCreateForm(true);
-  };
+const openCreateForm = useCallback(() => {
+  resetForm();
+  setShowCreateForm(true);
+}, [resetForm]);
 
-  const closeCreateForm = () => {
-    resetForm();
-    setShowCreateForm(false);
-  };
+const closeCreateForm = useCallback(() => {
+  resetForm();
+  setShowCreateForm(false);
+}, [resetForm]);
 
-  const updateField = <K extends keyof InternshipFormState>(field: K, value: InternshipFormState[K]) => {
+const updateField = useCallback(
+  <K extends keyof InternshipFormState>(
+    field: K,
+    value: InternshipFormState[K]
+  ) => {
     setForm((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: "" }));
-  };
+  },
+  []
+);
 
 
   const dashboardStats = useMemo(() => {
@@ -195,26 +207,35 @@ const studentsApplied = applicants.filter((applicant) =>
     setShowCreateForm(false);
   };
 
-  const startEditing = (internship: Internship) => {
-    setEditingId(internship.id);
-    setForm({
-      title: internship.title,
-      department: internship.department,
-      location: internship.location,
-      type: internship.type,
-      stipend: internship.stipend,
-      deadline: internship.deadline,
-      description: internship.description,
-    });
-    setShowCreateForm(true);
-  };
+const startEditing = useCallback((internship: Internship) => {
+  setEditingId(internship.id);
+  setForm({
+    title: internship.title,
+    department: internship.department,
+    location: internship.location,
+    type: internship.type,
+    stipend: internship.stipend,
+    deadline: internship.deadline,
+    description: internship.description,
+  });
+  setShowCreateForm(true);
+}, []);
 
-const handleViewApplicants = (internship: Internship) => {
-  setSelectedInternship(internship);
-
-  router.push(`/recruiter/internships/${internship.id}/applicants`);
-};
-
+const handleViewApplicants = useCallback(
+  (internship: Internship) => {
+    setSelectedInternship(internship);
+    router.push(`/recruiter/internships/${internship.id}/applicants`);
+  },
+  [router, setSelectedInternship]
+);
+const handleDelete = useCallback(
+  (id: string) => {
+    if (window.confirm("Remove this internship listing?")) {
+      void removeListing(id);
+    }
+  },
+  [removeListing]
+);
   return (
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
       <Header onCreate={openCreateForm} />
@@ -404,11 +425,8 @@ const handleViewApplicants = (internship: Internship) => {
                     onClose={closeListing}
                     onReopen={reopenListing}
                     onViewApplicants={handleViewApplicants}
-                    onDelete={(id) => {
-                      if (window.confirm("Remove this internship listing?")) {
-                        void removeListing(id);
-                      }
-                    }}
+                    onDelete={handleDelete}
+                      
                   />
                 ))
               )}

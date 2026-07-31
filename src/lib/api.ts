@@ -117,6 +117,7 @@ export type InternshipApiItem = {
   title: string;
   description: string;
   skillsRequired: string[];
+  responsibilities?: string[];
   location: string;
   workMode: "remote" | "hybrid" | "onsite";
   stipend: number;

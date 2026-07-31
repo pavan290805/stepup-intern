@@ -3,64 +3,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { apiFetch } from "@/lib/api";
+import { useRecruiterInternships } from "../../../../Components/hooks/useRecruiterInternships";
+import { useApplicants } from "../../../../Components/hooks/useApplicants";
 import Navbar from "../../../Components/Navbar";
 
-const initialApplicants = [
-  {
-    id: 1,
-    name: "Rahul Kumar",
-    email: "rahul@gmail.com",
-    phone: "+91 9876543210",
-    status: "Applied",
-    university: "IIT Hyderabad",
-    gpa: "4.0",
-    resume:
-      "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-  },
-  {
-    id: 2,
-    name: "Priya Sharma",
-    email: "priya@gmail.com",
-    phone: "+91 9988776655",
-    status: "Shortlisted",
-    university: "NIT Warangal",
-    gpa: "3.9",
-    resume:
-      "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-  },
-  {
-    id: 3,
-    name: "Alex Rivera",
-    email: "alex@gmail.com",
-    phone: "+91 9876501234",
-    status: "Applied",
-    university: "BITS Pilani",
-    gpa: "3.8",
-    resume:
-      "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-  },
-];
-
-const initialInternshipDetails = {
-  title: "Frontend Developer Intern",
-  company: "StepUp Intern",
-  id: "#JB-10294",
-  publishedOn: "June 12, 2024",
-  location: "Hyderabad, India",
-  stipend: "₹10,000 /mo",
-  deadline: "26 Jun 2026",
-  duration: "3 Months",
-  totalViews: "1,402",
-  overview:
-    "Join our core product team to build the future of recruitment tech. As a Frontend Developer Intern, you will be mentored by senior engineers to build responsive, high-performance web applications. You'll contribute to our internal UI library and help implement complex data visualization components.",
-  responsibilities: [
-    "Collaborate with product designers to implement pixel-perfect UIs.",
-    "Optimize web pages for maximum speed and scalability.",
-    "Participate in code reviews and team stand-ups.",
-  ],
-  skills: ["React.js", "Tailwind CSS", "TypeScript", "Redux/Zustand", "Figma to Code"],
-};
 type Applicant = {
   id: string | number;
   name: string;
@@ -74,30 +20,40 @@ type Applicant = {
   interviewTime?: string;
 };
 
-type BackendApplication = {
-  _id: string;
-  status: string;
-  studentId?: {
-    userId?: {
-      name?: string;
-      email?: string;
-      phoneNumber?: string;
-    };
-    education?: {
-      school?: string;
-    }[];
-    profileCompletion?: number;
-    resumeUrl?: string;
-  };
-};
+
 export default function InternshipDetailsPage() {
-  console.log("Recruiter internships page rendered");
+
+  const {
+    getInternshipById
+  } = useRecruiterInternships();
+
+  const {
+    getInternshipApplicants,
+    scheduleInterview,
+  } = useApplicants();
+
   const router = useRouter();
-  const params = useParams<{ id: string }>();
+
+  const params = useParams<{ id:string }>();
   const internshipId = params.id;
 
-const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
-  const [internshipDetails, setInternshipDetails] = useState(initialInternshipDetails);
+  // states below
+
+const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [internshipDetails, setInternshipDetails] = useState({
+  title: "",
+  company: "",
+  id: "",
+  publishedOn: "",
+  location: "",
+  stipend: "",
+  deadline: "",
+  duration: "",
+  totalViews: "0",
+  overview: "",
+  responsibilities: [] as string[],
+  skills: [] as string[],
+});
   const [showInterviewModal, setShowInterviewModal] = useState(false);
   const [selectedApplicant, setSelectedApplicant] =
   useState<Applicant | null>(null);
@@ -110,55 +66,81 @@ const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
     const loadInternship = async () => {
       try {
         console.log("Internship ID:", internshipId);
-        const internshipResponse = await apiFetch(`/internships/${internshipId}`);
-        const internship = internshipResponse?.data;
+if (!internshipId) return;
+
+const internship = await getInternshipById(internshipId);
 
         setInternshipDetails({
-          title: internship?.title || initialInternshipDetails.title,
-          company: internship?.companyId?.name || initialInternshipDetails.company,
-          id: internship?._id ? `#${String(internship._id).slice(-6).toUpperCase()}` : initialInternshipDetails.id,
-          publishedOn: internship?.createdAt
-            ? new Date(internship.createdAt).toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" })
-            : initialInternshipDetails.publishedOn,
-          location: internship?.location || initialInternshipDetails.location,
-          stipend: typeof internship?.stipend === "number" ? `₹${internship.stipend.toLocaleString()} /mo` : initialInternshipDetails.stipend,
-          deadline: internship?.deadline
-            ? new Date(internship.deadline).toLocaleDateString([], { day: "numeric", month: "short", year: "numeric" })
-            : initialInternshipDetails.deadline,
-          duration: internship?.duration || initialInternshipDetails.duration,
-          totalViews: Intl.NumberFormat("en-US").format(internship?.views || 0),
-          overview: internship?.description || initialInternshipDetails.overview,
-          responsibilities: initialInternshipDetails.responsibilities,
-          skills: internship?.skillsRequired?.length ? internship.skillsRequired : initialInternshipDetails.skills,
-        });
+  title: internship?.title || "",
 
-        const applicantsResponse = await apiFetch(`/applications?internshipId=${internshipId}&limit=50`);
-        const backendApplicants = applicantsResponse?.data?.applications || [];
+  company:
+    typeof internship?.companyId === "object"
+      ? internship.companyId.name || ""
+      : "",
 
-        setApplicants(
-          backendApplicants.map((application: BackendApplication) => {
-            const studentUser = application.studentId?.userId;
-            const applicantName = studentUser?.name || studentUser?.email || "Applicant";
+  id: internship?._id
+    ? `#${String(internship._id).slice(-6).toUpperCase()}`
+    : "",
 
-            return {
-              id: application._id,
-              name: applicantName,
-              email: studentUser?.email || "",
-              phone: studentUser?.phoneNumber || "",
-              status:
-                application.status === "shortlisted"
-                  ? "Shortlisted"
-                  : application.status === "interview_scheduled"
-                    ? "Interview Scheduled"
-                    : application.status === "rejected"
-                      ? "Rejected"
-                      : "Applied",
-              university: application.studentId?.education?.[0]?.school || "Student Profile",
-              gpa: `${application.studentId?.profileCompletion || 0}% Complete`,
-              resume: application.studentId?.resumeUrl || "",
-            };
-          })
-        );
+publishedOn: internship?.createdAt
+  ? new Date(String(internship.createdAt)).toLocaleDateString(
+      [],
+      {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      }
+    )
+  : "",
+
+  location: internship?.location || "",
+
+stipend: internship?.stipend || "",
+
+  deadline: internship?.deadline
+    ? new Date(internship.deadline).toLocaleDateString([], {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "",
+
+  duration: internship?.duration || "",
+
+  totalViews: Intl.NumberFormat("en-US").format(
+    internship?.views || 0
+  ),
+
+  overview: internship?.description || "",
+
+  responsibilities:
+    internship?.responsibilities || [],
+
+  skills:
+    internship?.skillsRequired || [],
+});
+
+       const backendApplicants = await getInternshipApplicants(internshipId);
+
+setApplicants(
+  backendApplicants.map((application) => ({
+    id: application.id,
+    name: application.name,
+    email: application.email,
+    phone: application.phone,
+
+    status:
+      application.status === "Scheduled"
+        ? "Interview Scheduled"
+        : application.status,
+
+    university: "Student Profile",
+
+    gpa: "Profile Complete",
+
+    resume: application.resumeUrl,
+  }))
+);
       } catch (error) {
         console.error(error);
       }
@@ -167,7 +149,11 @@ const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
     if (internshipId) {
       loadInternship();
     }
-  }, [internshipId]);
+}, [
+ internshipId,
+ getInternshipApplicants,
+ getInternshipById
+]);
 
   const totalApplicants = applicants.length;
   const shortlisted = applicants.filter((a) => a.status === "Shortlisted").length;
@@ -180,14 +166,12 @@ const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
     }
 
     try {
-      await apiFetch("/interviews", {
-        method: "POST",
-        body: JSON.stringify({
-          applicationId: selectedApplicant.id,
-          scheduledAt: new Date(`${interviewDate}T${interviewTime}`).toISOString(),
-          mode: "online",
-        }),
-      });
+await scheduleInterview(
+  String(selectedApplicant.id),
+  internshipId,
+  interviewDate,
+  interviewTime
+);
 
       setApplicants((prev) =>
         prev.map((a) =>
@@ -204,11 +188,12 @@ const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
     }
   };
 
-  const avatarColors: Record<string, string> = {
-    "Rahul Kumar": "bg-blue-500",
-    "Priya Sharma": "bg-green-500",
-    "Alex Rivera": "bg-purple-500",
-  };
+const avatarColors = [
+  "bg-blue-500",
+  "bg-green-500",
+  "bg-purple-500",
+  "bg-orange-500",
+];
 
   const handleEdit = () => {
     router.push(`/recruiter/edit/${internshipId}`);
@@ -438,11 +423,18 @@ const [applicants, setApplicants] = useState<Applicant[]>(initialApplicants);
               </div>
 
               <div className="space-y-3 mb-4">
-                {applicants.slice(0, 3).map((applicant) => (
-                  <div key={applicant.id} className="flex items-center gap-3">
+{applicants.slice(0, 3).map((applicant, index) => (
+  <div
+    key={applicant.id}
+    onClick={() => {
+      setSelectedApplicant(applicant);
+      setShowInterviewModal(true);
+    }}
+    className="flex items-center gap-3 cursor-pointer"
+  >
                     <div
                       className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-white text-xs flex-shrink-0 ${
-                        avatarColors[applicant.name] ?? "bg-gray-400"
+                        avatarColors[index % avatarColors.length]
                       }`}
                     >
                       {applicant.name.split(" ").map((n) => n[0]).join("")}

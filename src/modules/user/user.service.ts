@@ -8,7 +8,8 @@ class UserService {
       .select(
         "name email role isVerified isActive profilePicture createdAt updatedAt"
       )
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     return {
       count: candidates.length,

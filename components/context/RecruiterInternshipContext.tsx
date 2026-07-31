@@ -5,6 +5,7 @@ import {
   useContext,
   ReactNode,
   useState,
+  useMemo,
 } from "react";
 
 import {
@@ -33,14 +34,17 @@ export function RecruiterInternshipProvider({
   const [selectedInternship, setSelectedInternship] =
     useState<Internship | null>(null);
 
+  const contextValue = useMemo(
+    () => ({
+      ...recruiter,
+      selectedInternship,
+      setSelectedInternship,
+    }),
+    [recruiter, selectedInternship]
+  );
+
   return (
-    <RecruiterInternshipContext.Provider
-      value={{
-        ...recruiter,
-        selectedInternship,
-        setSelectedInternship,
-      }}
-    >
+    <RecruiterInternshipContext.Provider value={contextValue}>
       {children}
     </RecruiterInternshipContext.Provider>
   );

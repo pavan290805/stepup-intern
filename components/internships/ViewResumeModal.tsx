@@ -1,10 +1,12 @@
+import { memo } from "react";
+
 type ViewResumeModalProps = {
   applicantName: string;
   resumeUrl: string;
   onClose: () => void;
 };
 
-export default function ViewResumeModal({
+function ViewResumeModal({
   applicantName,
   resumeUrl,
   onClose,
@@ -16,6 +18,7 @@ export default function ViewResumeModal({
           <h3 className="text-xl font-semibold tracking-tight text-slate-900">
             {applicantName}&apos;s Resume
           </h3>
+
           <button
             type="button"
             onClick={onClose}
@@ -33,7 +36,7 @@ export default function ViewResumeModal({
           />
         </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-200/70 px-6 py-5 bg-white/80">
+        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-200/70 bg-white/80 px-6 py-5">
           <a
             href={resumeUrl}
             download
@@ -41,6 +44,7 @@ export default function ViewResumeModal({
           >
             Download Resume
           </a>
+
           <button
             type="button"
             onClick={onClose}
@@ -53,3 +57,5 @@ export default function ViewResumeModal({
     </div>
   );
 }
+
+export default memo(ViewResumeModal);

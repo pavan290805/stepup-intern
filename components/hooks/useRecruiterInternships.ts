@@ -10,18 +10,40 @@ import {
 } from "@/lib/api";
 
 export type InternshipStatus = "Draft" | "Active" | "Promoted" | "Closed";
-
 export type Internship = {
   id: string;
+  _id?: string;
+
   title: string;
+
+  companyId?: {
+    name?: string;
+  };
+
   department: string;
+
   location: string;
+
   type: "Full-time" | "Part-time" | "Remote" | "Hybrid";
+
   stipend: string;
+
   deadline: string;
+
+  duration?: string;
+
   description: string;
+
+  responsibilities?: string[];
+
+  skillsRequired?: string[];
+
+  views?: number;
+
   status: InternshipStatus;
+
   featured: boolean;
+
   createdAt: string;
 };
 
@@ -111,23 +133,59 @@ const normalizeStatus = (status?: InternshipApiItem["status"], featured?: boolea
   return featured ? "Promoted" : "Active";
 };
 
-const mapBackendInternship = (internship: InternshipApiItem): Internship => ({
+const mapBackendInternship = (
+  internship: InternshipApiItem
+): Internship => ({
   id: internship._id ?? internship.id ?? "",
-  title: internship.title ?? "",
-  department:
-    typeof internship.companyId === "object" && internship.companyId?.name
-      ? internship.companyId.name
-      : internship.skillsRequired?.[0] || "General",
-  location: internship.location ?? "",
-  type: mapWorkModeToType(internship.workMode),
-  stipend: formatStipend(internship.stipend),
-  deadline: formatDeadline(internship.deadline),
-  description: internship.description ?? "",
-  status: normalizeStatus(internship.status, internship.featured),
-  featured: Boolean(internship.featured),
-  createdAt: internship.createdAt ? new Date(internship.createdAt).toISOString() : new Date().toISOString(),
-});
 
+  _id: internship._id,
+
+  title: internship.title ?? "",
+
+  companyId:
+    typeof internship.companyId === "object"
+      ? internship.companyId
+      : undefined,
+
+  department:
+    internship.skillsRequired?.[0] || "General",
+
+  location: internship.location ?? "",
+
+  type: mapWorkModeToType(internship.workMode),
+
+  stipend: formatStipend(internship.stipend),
+
+  deadline: formatDeadline(internship.deadline),
+
+  duration:
+    internship.duration ?? "",
+
+  description:
+    internship.description ?? "",
+
+  responsibilities:
+    internship.responsibilities ?? [],
+
+  skillsRequired:
+    internship.skillsRequired ?? [],
+
+  views:
+    internship.views ?? 0,
+
+  status: normalizeStatus(
+    internship.status,
+    internship.featured
+  ),
+
+  featured:
+    Boolean(internship.featured),
+
+  createdAt:
+    internship.createdAt
+      ? new Date(internship.createdAt).toISOString()
+      : new Date().toISOString(),
+});
 const mapFormToBackendInput = (form: InternshipFormState) => ({
   title: form.title.trim(),
   description: form.description.trim(),
@@ -194,76 +252,104 @@ useEffect(() => {
     ];
   }, [internships]);
 
-  const createListing = async (form: InternshipFormState) => {
+const createListing = useCallback(async (form: InternshipFormState) => {
     if (!authenticated) {
-      throw new Error("Sign in to create internships.");
+        throw new Error("Sign in to create internships.");
     }
 
     await apiPost("/api/internships", mapFormToBackendInput(form));
     await refresh();
-  };
+}, [authenticated, refresh]);
 
-  const updateListing = async (id: string, form: InternshipFormState) => {
+const updateListing = useCallback(async (id: string, form: InternshipFormState) => {
+  if (!authenticated) {
+    throw new Error("Sign in to update internships.");
+  }
+
+  await apiPatch(`/api/internships/${id}`, mapFormToBackendInput(form));
+  await refresh();
+}, [authenticated, refresh]);
+
+const promoteListing = useCallback(async (id: string) => {
+  if (!authenticated) {
+    throw new Error("Sign in to manage internships.");
+  }
+
+  const internship = internships.find((item) => item.id === id);
+  if (!internship) {
+    return;
+  }
+
+  await apiPatch(`/api/internships/${id}`, {
+    featured: !internship.featured,
+  });
+
+  await refresh();
+}, [authenticated, internships, refresh]);
+
+
+const closeListing = useCallback(async (id: string) => {
+  if (!authenticated) {
+    throw new Error("Sign in to manage internships.");
+  }
+
+  await apiPatch(`/api/internships/${id}`, {
+    status: "closed",
+  });
+
+  await refresh();
+}, [authenticated, refresh]);
+
+const reopenListing = useCallback(async (id: string) => {
+  if (!authenticated) {
+    throw new Error("Sign in to manage internships.");
+  }
+
+  const internship = internships.find((item) => item.id === id);
+
+  await apiPatch(`/api/internships/${id}`, {
+    status: "active",
+    featured: internship?.featured ?? false,
+  });
+
+  await refresh();
+}, [authenticated, internships, refresh]);
+
+const removeListing = useCallback(async (id: string) => {
+  if (!authenticated) {
+    throw new Error("Sign in to delete internships.");
+  }
+
+  await apiDelete(`/api/internships/${id}`);
+
+  await refresh();
+}, [authenticated, refresh]);
+
+const clearListings = useCallback(async () => {
+  await Promise.all(
+    internships.map((internship) =>
+      apiDelete(`/api/internships/${internship.id}`)
+    )
+  );
+
+  await refresh();
+}, [internships, refresh]);
+const getInternshipById = useCallback(
+  async (id: string) => {
     if (!authenticated) {
-      throw new Error("Sign in to update internships.");
+      throw new Error("Sign in to view internship.");
     }
 
-    await apiPatch(`/api/internships/${id}`, mapFormToBackendInput(form));
-    await refresh();
-  };
+const response = await apiGet<{
+  data: InternshipApiItem;
+}>(`/api/internships/${id}`);
 
-  const promoteListing = async (id: string) => {
-    if (!authenticated) {
-      throw new Error("Sign in to manage internships.");
-    }
-
-    const internship = internships.find((item) => item.id === id);
-    if (!internship) {
-      return;
-    }
-
-    const featured = !internship.featured;
-    await apiPatch(`/api/internships/${id}`, { featured });
-    await refresh();
-  };
-
-  const closeListing = async (id: string) => {
-    if (!authenticated) {
-      throw new Error("Sign in to manage internships.");
-    }
-
-    await apiPatch(`/api/internships/${id}`, { status: "closed" });
-    await refresh();
-  };
-
-  const reopenListing = async (id: string) => {
-    if (!authenticated) {
-      throw new Error("Sign in to manage internships.");
-    }
-
-    const internship = internships.find((item) => item.id === id);
-    await apiPatch(`/api/internships/${id}`, {
-      status: "active",
-      featured: internship?.featured ?? false,
-    });
-    await refresh();
-  };
-
-  const removeListing = async (id: string) => {
-    if (!authenticated) {
-      throw new Error("Sign in to delete internships.");
-    }
-
-    await apiDelete(`/api/internships/${id}`);
-    await refresh();
-  };
-
-  const clearListings = async () => {
-    await Promise.all(internships.map((internship) => apiDelete(`/api/internships/${internship.id}`)));
-    await refresh();
-  };
-
-  return {
+return mapBackendInternship(response.data);
+  },
+  [authenticated]
+);
+ return useMemo(
+  () => ({
     internships,
     stats,
     emptyForm,
@@ -274,10 +360,29 @@ useEffect(() => {
     reopenListing,
     removeListing,
     clearListings,
+    getInternshipById,
     loading,
     error,
     empty,
     authenticated,
     refresh,
-  };
+  }),
+[
+  internships,
+  stats,
+  createListing,
+  updateListing,
+  promoteListing,
+  closeListing,
+  reopenListing,
+  removeListing,
+  clearListings,
+  getInternshipById,   // <-- Add here
+  loading,
+  error,
+  empty,
+  authenticated,
+  refresh,
+]
+);
 }

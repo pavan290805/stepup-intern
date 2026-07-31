@@ -6,6 +6,7 @@ import {
   useState,
   ReactNode,
   useCallback,
+  useMemo,
 } from "react";
 import { apiFetch } from "@/lib/api";
 export interface Interview {
@@ -92,7 +93,31 @@ const scheduledResponse = await apiFetch(
 const backendInterviews = scheduledResponse?.data?.interviews ?? [];
 
 setInterviews(
-  backendInterviews.map((item: any) => ({
+  backendInterviews.map(
+  (
+    item: {
+      _id: string;
+      meetingLink?: string;
+      scheduledAt?: string;
+      status:
+        | "scheduled"
+        | "completed"
+        | "cancelled"
+        | "rescheduled";
+      feedback?: string;
+      rating?: number;
+      applicationId?: {
+        studentId?: {
+          userId?: {
+            name?: string;
+          };
+        };
+        internshipId?: {
+          title?: string;
+        };
+      };
+    }
+  ) => ({
     id: item._id,
 
     name:
@@ -155,25 +180,20 @@ setInterviews(
     setLoading(false);
   }
 }, []);
-
-  const createInterview = async (
-    data: Partial<Interview>
-  ) => {
+const createInterview = useCallback(
+  async (data: Partial<Interview>) => {
     const res = await apiFetch("/interviews", {
       method: "POST",
       body: JSON.stringify(data),
     });
 
-    setInterviews((prev) => [
-      res.data,
-      ...prev,
-    ]);
-  };
+    setInterviews((prev) => [res.data, ...prev]);
+  },
+  []
+);
 
-  const updateInterview = async (
-    id: string,
-    data: Partial<Interview>
-  ) => {
+const updateInterview = useCallback(
+  async (id: string, data: Partial<Interview>) => {
     await apiFetch(`/interviews/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
@@ -189,32 +209,43 @@ setInterviews(
           : item
       )
     );
-  };
+  },
+  []
+);
 
-  const deleteInterview = async (
-    id: string
-  ) => {
-    await apiFetch(`/interviews/${id}`, {
+  const deleteInterview = useCallback(
+    async (id: string) => {
+      await apiFetch(`/interviews/${id}`, {
       method: "DELETE",
     });
 
-    setInterviews((prev) =>
-      prev.filter((item) => item.id !== id)
-    );
-  };
-
+      setInterviews((prev) =>
+        prev.filter((item) => item.id !== id)
+      );
+    },
+    []
+  );
+const value = useMemo(
+  () => ({
+    interviews,
+    loading,
+    fetchInterviews,
+    createInterview,
+    updateInterview,
+    deleteInterview,
+    refresh: fetchInterviews,
+  }),
+  [
+    interviews,
+    loading,
+    fetchInterviews,
+    createInterview,
+    updateInterview,
+    deleteInterview,
+  ]
+);
   return (
-    <InterviewContext.Provider
-      value={{
-        interviews,
-        loading,
-        fetchInterviews,
-        createInterview,
-        updateInterview,
-        deleteInterview,
-        refresh: fetchInterviews,
-      }}
-    >
+<InterviewContext.Provider value={value}>
       {children}
     </InterviewContext.Provider>
   );

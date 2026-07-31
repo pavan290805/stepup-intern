@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getRecruiterProfile, updateRecruiterProfile, type RecruiterProfileApi } from "@/lib/api";
 
 export type RecruiterProfile = {
@@ -83,7 +83,7 @@ const normalizeProfile = (profile: RecruiterProfileApi | null | undefined): Recr
 };
 
 export const useRecruiterProfile = () => {
-  const [profile, setProfile] = useState<RecruiterProfile>(defaultProfile);
+  const [profile, setProfile] = useState<RecruiterProfile>(() => defaultProfile);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [empty, setEmpty] = useState(true);
@@ -98,7 +98,7 @@ export const useRecruiterProfile = () => {
       setProfile(normalized);
       setEmpty(false);
     } catch (err) {
-      setProfile(defaultProfile);
+      setProfile(() => defaultProfile);
       setEmpty(true);
       setError(err instanceof Error ? err.message : "Failed to load recruiter profile");
     } finally {
@@ -140,5 +140,22 @@ useEffect(() => {
     []
   );
 
-  return { profile, updateProfile, loading, error, empty, refresh };
-};
+return useMemo(
+  () => ({
+    profile,
+    updateProfile,
+    loading,
+    error,
+    empty,
+    refresh,
+  }),
+  [
+    profile,
+    updateProfile,
+    loading,
+    error,
+    empty,
+    refresh,
+  ]
+);
+}

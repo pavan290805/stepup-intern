@@ -1,4 +1,9 @@
-import { comparePassword, generateAccessToken, generateRefreshToken, hashPassword } from '@/lib/auth';
+import {
+  comparePassword,
+  generateAccessToken,
+  generateRefreshToken,
+  hashPassword,
+} from '@/lib/auth';
 import { LoginInput, RegisterInput } from '@/lib/validations';
 import User, { IUser } from '@/models/User';
 import Company from '@/models/Company';
@@ -9,13 +14,24 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 export const authService = {
-  async register(input: RegisterInput): Promise<{ user: IUser; accessToken: string; refreshToken: string }> {
-    const existingUser = await User.findOne({ email: input.email });
+  async register(
+    input: RegisterInput
+  ): Promise<{
+    user: IUser;
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    const existingUser = await User.findOne({
+      email: input.email,
+    });
+
     if (existingUser) {
       throw new Error('Email already registered');
     }
 
-    const hashedPassword = await hashPassword(input.password);
+    const hashedPassword = await hashPassword(
+      input.password
+    );
 
     const user = await User.create({
       name: input.name,
@@ -24,23 +40,18 @@ export const authService = {
       role: input.role,
     });
 
-    const accessToken = generateAccessToken({
+    const payload = {
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
-    });
+    };
 
-    const refreshToken = generateRefreshToken({
-      userId: user._id.toString(),
-      email: user.email,
-      role: user.role,
-    });
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
 
-    // Store refresh token
     user.refreshToken = refreshToken;
     await user.save();
 
-    // If the user is a recruiter, attempt to create a minimal company and recruiter profile.
     if (input.role === 'recruiter') {
       (async () => {
         try {
@@ -48,85 +59,139 @@ export const authService = {
             name: `${user.name}'s Company`,
             industry: 'Unknown',
             website: 'https://example.com',
-            description: 'Auto-created placeholder company',
+            description:
+              'Auto-created placeholder company',
             companySize: '1-50',
             headquarters: 'Unknown',
           });
 
-          await recruiterService.createProfile(user._id.toString(), {
-            companyId: company._id.toString(),
-            designation: 'Recruiter',
-            phoneNumber: '+10000000000',
-          });
+          await recruiterService.createProfile(
+            user._id.toString(),
+            {
+              companyId: company._id.toString(),
+              designation: 'Recruiter',
+              phoneNumber: '+10000000000',
+            }
+          );
         } catch (err) {
-          console.warn('Auto-create recruiter profile failed:', getErrorMessage(err, 'Unknown error'));
+          console.warn(
+            'Auto-create recruiter profile failed:',
+            getErrorMessage(
+              err,
+              'Unknown error'
+            )
+          );
         }
       })();
     }
 
-    return { user, accessToken, refreshToken };
+    return {
+      user,
+      accessToken,
+      refreshToken,
+    };
   },
 
-  async login(input: LoginInput): Promise<{ user: IUser; accessToken: string; refreshToken: string }> {
-    const user = await User.findOne({ email: input.email }).select('+password');
+  async login(
+    input: LoginInput
+  ): Promise<{
+    user: IUser;
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    const user = await User.findOne({
+      email: input.email,
+    }).select('+password');
 
     if (!user) {
-      throw new Error('Invalid email or password');
+      throw new Error(
+        'Invalid email or password'
+      );
     }
 
-    const isPasswordValid = await comparePassword(input.password, user.password);
+    const isPasswordValid =
+      await comparePassword(
+        input.password,
+        user.password
+      );
+
     if (!isPasswordValid) {
-      throw new Error('Invalid email or password');
+      throw new Error(
+        'Invalid email or password'
+      );
     }
 
-    const accessToken = generateAccessToken({
+    const payload = {
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
-    });
+    };
 
-    const refreshToken = generateRefreshToken({
-      userId: user._id.toString(),
-      email: user.email,
-      role: user.role,
-    });
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
 
     user.refreshToken = refreshToken;
     await user.save();
 
-    return { user, accessToken, refreshToken };
+    return {
+      user,
+      accessToken,
+      refreshToken,
+    };
   },
 
-  async refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }> {
-    const user = await User.findOne({ refreshToken: token });
+  async refreshToken(
+    token: string
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    const user = await User.findOne({
+      refreshToken: token,
+    });
 
     if (!user) {
-      throw new Error('Invalid refresh token');
+      throw new Error(
+        'Invalid refresh token'
+      );
     }
 
-    const accessToken = generateAccessToken({
+    const payload = {
       userId: user._id.toString(),
       email: user.email,
       role: user.role,
-    });
+    };
 
-    const newRefreshToken = generateRefreshToken({
-      userId: user._id.toString(),
-      email: user.email,
-      role: user.role,
-    });
+    const accessToken = generateAccessToken(payload);
+    const newRefreshToken =
+      generateRefreshToken(payload);
 
     user.refreshToken = newRefreshToken;
     await user.save();
 
-    return { accessToken, refreshToken: newRefreshToken };
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+    };
   },
 
-  async logout(userId: string): Promise<void> {
-    await User.findByIdAndUpdate(userId, { refreshToken: null });
+  async logout(
+    userId: string
+  ): Promise<void> {
+    await User.findByIdAndUpdate(
+      userId,
+      {
+        refreshToken: null,
+      },
+      {
+        runValidators: true,
+      }
+    );
   },
 
-  async getCurrentUser(userId: string): Promise<IUser | null> {
-    return User.findById(userId);
+  async getCurrentUser(
+    userId: string
+  ): Promise<IUser | null> {
+    return User.findById(userId)
   },
 };

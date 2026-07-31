@@ -75,14 +75,16 @@ const filter: Record<string, unknown> = {
       ];
     }
 
-    const internships = await Internship.find(filter)
-      .populate('companyId', 'name logoUrl')
-      .populate('recruiterId', 'designation')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+const [internships, total] = await Promise.all([
+  Internship.find(filter)
+    .populate("companyId", "name logoUrl")
+    .populate("recruiterId", "designation")
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 }),
 
-    const total = await Internship.countDocuments(filter);
+  Internship.countDocuments(filter),
+]);
 
     return {
       internships,
@@ -115,14 +117,14 @@ const filter: Record<string, unknown> = {
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    const internships = await Internship.find({ recruiterId })
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+const [internships, total] = await Promise.all([
+  Internship.find({ recruiterId })
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 }),
 
-    const total = await Internship.countDocuments({
-      recruiterId,
-    });
+  Internship.countDocuments({ recruiterId }),
+]);
 
     return {
       internships,
@@ -130,26 +132,31 @@ const filter: Record<string, unknown> = {
     };
   },
 
-  async updateInternship(
-    internshipId: string,
-    input: Partial<InternshipInput>
-  ): Promise<IInternship | null> {
-    return Internship.findByIdAndUpdate(
-      internshipId,
-      input,
-      { new: true }
-    );
-  },
-
+async updateInternship(
+  internshipId: string,
+  input: Partial<InternshipInput>
+): Promise<IInternship | null> {
+  return Internship.findByIdAndUpdate(
+    internshipId,
+    input,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+},
   async updateInternshipStatus(
     internshipId: string,
     status: string
   ): Promise<IInternship | null> {
-    return Internship.findByIdAndUpdate(
-      internshipId,
-      { status },
-      { new: true }
-    );
+return Internship.findByIdAndUpdate(
+  internshipId,
+  { status },
+  {
+    new: true,
+    runValidators: true,
+  }
+);
   },
 
   async deleteInternship(
@@ -161,13 +168,13 @@ const filter: Record<string, unknown> = {
   async getFeaturedInternships(
     limit: number = 5
   ): Promise<IInternship[]> {
-    return Internship.find({
-      featured: true,
-      status: 'active',
-    })
-      .populate('companyId')
-      .limit(limit)
-      .sort({ views: -1 });
+return Internship.find({
+  featured: true,
+  status: "active",
+})
+  .populate("companyId")
+  .limit(limit)
+  .sort({ views: -1 });
   },
 
   async getActiveInternshipsCount(): Promise<number> {

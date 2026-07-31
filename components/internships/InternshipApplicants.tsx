@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 
 import { useRouter, useParams } from "next/navigation";
 import { useApplicants } from "../hooks/useApplicants";
@@ -40,100 +40,120 @@ const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(nu
 const [modalType, setModalType] = useState<
   "schedule" | "email" | "view-resume" | null
 >(null);
-if (loading) {
-  return (
-    <div className="p-6 text-center">
-      Loading internship...
-    </div>
-  );
-}
-if (!internship) {
-  return (
-    <div className="p-6 text-center">
-      <h2 className="text-xl font-semibold">
-        Internship not found
-      </h2>
-    </div>
-  );
-} 
 
 
-  const applicants = getInternshipApplicants(internship.id);
-  const interviews = getInternshipInterviews(internship.id);
 
-  const selectedApplicant = applicants.find(
-    (a) => a.id === selectedApplicantId
-  );
-const handleAction = (action: string, applicantId: string) => {
-  setSelectedApplicantId(applicantId);
+const applicants = useMemo(
+  () => (internship ? getInternshipApplicants(internship.id) : []),
+  [getInternshipApplicants, internship]
+);
+const interviews = useMemo(
+  () => (internship ? getInternshipInterviews(internship.id) : []),
+  [getInternshipInterviews, internship]
+);
 
-  switch (action) {
-    case "schedule":
-      setModalType("schedule");
-      break;
+const selectedApplicant = useMemo(
+  () =>
+    applicants.find(
+      (a) => a.id === selectedApplicantId
+    ),
+  [applicants, selectedApplicantId]
+);
+const handleAction = useCallback(
+  (action: string, applicantId: string) => {
+    setSelectedApplicantId(applicantId);
 
-    case "email":
-      setModalType("email");
-      break;
+    switch (action) {
+      case "schedule":
+        setModalType("schedule");
+        break;
 
-    case "view-resume":
-      setModalType("view-resume");
-      break;
+      case "email":
+        setModalType("email");
+        break;
 
-    case "shortlist":
-      shortlistApplicant(applicantId);
-      break;
+      case "view-resume":
+        setModalType("view-resume");
+        break;
 
-    case "reject":
-      rejectApplicant(applicantId);
-      break;
+      case "shortlist":
+        shortlistApplicant(applicantId);
+        break;
 
-    case "delete":
-      if (
-        window.confirm(
-          "Are you sure you want to remove this application? This action cannot be undone."
-        )
-      ) {
-        deleteApplication(applicantId);
-      }
-      break;
+      case "reject":
+        rejectApplicant(applicantId);
+        break;
 
-    case "download-resume":
-  const currentApplicant = applicants.find(
-    (a) => a.id === applicantId
-  );
+      case "delete":
+        if (
+          window.confirm(
+            "Are you sure you want to remove this application? This action cannot be undone."
+          )
+        ) {
+          deleteApplication(applicantId);
+        }
+        break;
 
-  if (currentApplicant) {
-    const link = document.createElement("a");
-    link.href = currentApplicant.resumeUrl;
-    link.download = `${currentApplicant.name}-resume.pdf`;
-    link.click();
-  }
-  break;
-}
+      case "download-resume":
+        const currentApplicant = applicants.find(
+          (a) => a.id === applicantId
+        );
 
-}; // <-- handleAction ends here
+        if (currentApplicant) {
+          const link = document.createElement("a");
+          link.href = currentApplicant.resumeUrl;
+          link.download = `${currentApplicant.name}-resume.pdf`;
+          link.click();
+        }
+        break;
+    }
+  },
+  [
+    applicants,
+    shortlistApplicant,
+    rejectApplicant,
+    deleteApplication,
+  ]
+);
   
 
   
 
 
-  const handleScheduleInterview = (date: string, time: string) => {
-    if (selectedApplicantId) {
-      scheduleInterview(selectedApplicantId, internship.id, date, time);
+const handleScheduleInterview = useCallback(
+  (date: string, time: string) => {
+    if (selectedApplicantId && internship) {
+      scheduleInterview(
+        selectedApplicantId,
+        internship.id,
+        date,
+        time
+      );
+
       setModalType(null);
       setSelectedApplicantId(null);
     }
-  };
+  },
+[
+  selectedApplicantId,
+  internship,
+  scheduleInterview,
+]
+);
 
-  const handleSendEmail = (subject: string, message: string) => {
+const handleSendEmail = useCallback(
+  (subject: string, message: string) => {
     if (selectedApplicantId) {
       sendEmail(selectedApplicantId, subject, message);
+
       setModalType(null);
       setSelectedApplicantId(null);
+
       alert("Email sent successfully!");
     }
-  };
+  },
+  [selectedApplicantId, sendEmail]
+);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -152,7 +172,8 @@ const handleAction = (action: string, applicantId: string) => {
     });
   };
 
-  const applicantStats = [
+const applicantStats = useMemo(
+  () => [
     {
       label: "Total Applicants",
       value: applicants.length,
@@ -160,7 +181,9 @@ const handleAction = (action: string, applicantId: string) => {
     },
     {
       label: "Shortlisted",
-      value: applicants.filter((a) => a.status === "Shortlisted").length,
+      value: applicants.filter(
+        (a) => a.status === "Shortlisted"
+      ).length,
       color: "bg-emerald-50 text-emerald-700",
     },
     {
@@ -170,10 +193,30 @@ const handleAction = (action: string, applicantId: string) => {
     },
     {
       label: "Rejected",
-      value: applicants.filter((a) => a.status === "Rejected").length,
+      value: applicants.filter(
+        (a) => a.status === "Rejected"
+      ).length,
       color: "bg-red-50 text-red-700",
     },
-  ];
+  ],
+  [applicants, interviews]
+);
+if (loading) {
+  return (
+    <div className="p-6 text-center">
+      Loading internship...
+    </div>
+  );
+}
+if (!internship) {
+  return (
+    <div className="p-6 text-center">
+      <h2 className="text-xl font-semibold">
+        Internship not found
+      </h2>
+    </div>
+  );
+} 
 
   return (
     <div className="min-h-screen bg-[#F5F8FF]">

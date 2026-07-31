@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
 import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
@@ -13,13 +13,11 @@ type HeaderProps = {
 export default function Header({ onCreate }: HeaderProps) {
   const pathname = usePathname() ?? "/";
   const router = useRouter();
-
-const handleLogout = () => {
+const handleLogout = useCallback(() => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
-
   router.replace("/login");
-};
+}, [router]);
 
   const navItems = [
     { key: "home", label: "Home", href: "/" },
@@ -90,26 +88,37 @@ const handleLogout = () => {
     </span>
   );
 
-  const toggleDropdown = () => setDropdownOpen((current) => !current);
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = window.localStorage.getItem("recruiter_nav_open");
-      if (stored === "true") setNavOpen(true);
+const toggleDropdown = useCallback(() => {
+  setDropdownOpen((current) => !current);
+}, []);
+
+useEffect(() => {
+  if (typeof window !== "undefined") {
+    const stored = window.localStorage.getItem("recruiter_nav_open");
+    if (stored === "true") {
+      setNavOpen(true);
     }
-  }, []);
+  }
+}, []);
 
-  const toggleNav = () => {
-    setNavOpen((current) => {
-      const next = !current;
-      if (typeof window !== "undefined") window.localStorage.setItem("recruiter_nav_open", String(next));
-      return next;
-    });
-  };
+const toggleNav = useCallback(() => {
+  setNavOpen((current) => {
+    const next = !current;
 
-  const closeNav = () => {
-    setNavOpen(false);
-    if (typeof window !== "undefined") window.localStorage.setItem("recruiter_nav_open", "false");
-  };
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("recruiter_nav_open", String(next));
+    }
+
+    return next;
+  });
+}, []);
+const closeNav = useCallback(() => {
+  setNavOpen(false);
+
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem("recruiter_nav_open", "false");
+  }
+}, []);
 
   const [mounted, setMounted] = useState(false);
 

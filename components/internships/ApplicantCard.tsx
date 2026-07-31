@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useState, useCallback } from "react";
 import type { Applicant } from "../hooks/useApplicants";
 
 type ApplicantCardProps = {
@@ -12,7 +12,7 @@ type ApplicantCardProps = {
   onDelete: () => void;
 };
 
-export default function ApplicantCard({
+function ApplicantCard({
   applicant,
   onShortlist,
   onReject,
@@ -47,10 +47,14 @@ export default function ApplicantCard({
       .toUpperCase();
   };
 
-  const handleAction = (action: () => void) => {
+  const handleAction = useCallback((action: () => void) => {
     action();
     setShowMenu(false);
-  };
+  }, []);
+
+  const toggleMenu = useCallback(() => {
+    setShowMenu((prev) => !prev);
+  }, []);
 
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-slate-50 p-4 hover:bg-slate-100 transition sm:flex-row sm:items-center sm:justify-between">
@@ -62,17 +66,34 @@ export default function ApplicantCard({
         <div className="min-w-0 flex-1">
           <div className="grid gap-2 text-sm sm:grid-cols-[minmax(0,280px)_minmax(0,280px)_minmax(0,220px)]">
             <div className="min-w-0">
-              <p className="font-semibold text-slate-900 truncate">{applicant.name}</p>
-              <p className="mt-1 text-sm text-slate-600 truncate">{applicant.email}</p>
+              <p className="font-semibold text-slate-900 truncate">
+                {applicant.name}
+              </p>
+              <p className="mt-1 text-sm text-slate-600 truncate">
+                {applicant.email}
+              </p>
             </div>
+
             <div className="min-w-0">
-              <p className="font-semibold text-slate-900 truncate">Phone</p>
-              <p className="mt-1 text-sm text-slate-600 truncate">{applicant.phone}</p>
+              <p className="font-semibold text-slate-900 truncate">
+                Phone
+              </p>
+              <p className="mt-1 text-sm text-slate-600 truncate">
+                {applicant.phone}
+              </p>
             </div>
+
             <div className="min-w-0">
-              <p className="font-semibold text-slate-900 truncate">Current Status</p>
+              <p className="font-semibold text-slate-900 truncate">
+                Current Status
+              </p>
+
               <p className="mt-1">
-                <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(applicant.status)}`}>
+                <span
+                  className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(
+                    applicant.status
+                  )}`}
+                >
                   {applicant.status}
                 </span>
               </p>
@@ -89,6 +110,7 @@ export default function ApplicantCard({
         >
           View Resume
         </button>
+
         <button
           type="button"
           onClick={onDownloadResume}
@@ -100,7 +122,7 @@ export default function ApplicantCard({
         <div className="relative">
           <button
             type="button"
-            onClick={() => setShowMenu(!showMenu)}
+            onClick={toggleMenu}
             className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-white hover:border-blue-400 hover:text-blue-600"
           >
             More ▼
@@ -159,3 +181,5 @@ export default function ApplicantCard({
     </div>
   );
 }
+
+export default memo(ApplicantCard);

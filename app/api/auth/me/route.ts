@@ -1,7 +1,17 @@
 import { connectDB } from "@/lib/db";
-import { errorResponse, successResponse, withAuth } from "@/middleware/auth";
+import {
+  errorResponse,
+  successResponse,
+  withAuth,
+} from "@/middleware/auth";
 import { authService } from "@/modules/auth/auth.service";
 import { NextRequest } from "next/server";
+
+type AuthenticatedRequest = NextRequest & {
+  user: {
+    userId: string;
+  };
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -22,16 +32,22 @@ export async function GET(request: NextRequest) {
 
     console.log("STEP 4");
 
-    const user = (request as any).user;
+    const user = (request as AuthenticatedRequest).user;
 
     console.log("USER =", user);
 
-    const currentUser = await authService.getCurrentUser(user.userId);
+    const currentUser = await authService.getCurrentUser(
+      user.userId
+    );
 
     console.log("CURRENT USER =", currentUser);
 
     if (!currentUser) {
-      return errorResponse("User not found", undefined, 404);
+      return errorResponse(
+        "User not found",
+        undefined,
+        404
+      );
     }
 
     return successResponse(currentUser);
@@ -40,7 +56,9 @@ export async function GET(request: NextRequest) {
     console.error(error);
 
     return errorResponse(
-      error instanceof Error ? error.message : "Unknown error",
+      error instanceof Error
+        ? error.message
+        : "Unknown error",
       undefined,
       500
     );

@@ -167,8 +167,7 @@ useEffect(() => {
   return () => window.clearTimeout(timer);
 }, [refresh]);
 
-  const applicants = snapshot.applicants;
-  const interviews = snapshot.interviews;
+const { applicants, interviews } = snapshot;
 
   const getInternshipApplicants = useCallback(
     (internshipId: string) => applicants.filter((applicant) => applicant.internshipId === internshipId),
@@ -258,7 +257,8 @@ useEffect(() => {
 
   const shortlistCount = useMemo(() => applicants.filter((applicant) => applicant.status === "Shortlisted").length, [applicants]);
 
-  return {
+  return useMemo(
+  () => ({
     applicants,
     interviews,
     shortlistCount,
@@ -273,5 +273,22 @@ useEffect(() => {
     scheduleInterview,
     deleteApplication,
     sendEmail,
-  };
+  }),
+  [
+    applicants,
+    interviews,
+    shortlistCount,
+    loading,
+    error,
+    refresh,
+    getInternshipApplicants,
+    getInternshipInterviews,
+    updateApplicantStatus,
+    shortlistApplicant,
+    rejectApplicant,
+    scheduleInterview,
+    deleteApplication,
+    sendEmail,
+  ]
+);
 }
