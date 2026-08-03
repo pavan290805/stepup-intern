@@ -1,9 +1,11 @@
+import { memo } from "react";
+
 type RecruiterStatsGridProps = {
   stats: Array<{ label: string; value: number }>;
   compact?: boolean;
 };
 
-export default function RecruiterStatsGrid({ stats, compact = false }: RecruiterStatsGridProps) {
+function RecruiterStatsGrid({ stats, compact = false }: RecruiterStatsGridProps) {
   const gridClassName = compact
     ? "mt-4 grid grid-cols-2 gap-3"
     : "mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3";
@@ -31,3 +33,5 @@ export default function RecruiterStatsGrid({ stats, compact = false }: Recruiter
     </div>
   );
 }
+
+export default memo(RecruiterStatsGrid);

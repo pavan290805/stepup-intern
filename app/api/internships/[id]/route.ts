@@ -1,6 +1,6 @@
 import { USER_ROLES } from '@/constants';
 import { connectDB } from '@/lib/db';
-import { internshipSchema } from '@/lib/validations';
+import { internshipUpdateSchema } from '@/lib/validations';
 import { errorResponse, successResponse, withAuth } from '@/middleware/auth';
 import { validateRequestBody } from '@/middleware/validation';
 import { internshipService } from '@/modules/internship/internship.service';
@@ -50,7 +50,7 @@ export async function PATCH(
     // eslint-disable-next-line no-console
     console.log('[DEBUG] PATCH /api/internships/:id current user:', { userId: user?.userId, role: user?.role });
 
-    const { valid, data, response } = await validateRequestBody(request, internshipSchema.partial());
+    const { valid, data, response } = await validateRequestBody(request, internshipUpdateSchema);
     if (!valid) return response;
 
     // Verify ownership if recruiter

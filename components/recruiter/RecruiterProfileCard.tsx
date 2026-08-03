@@ -1,3 +1,5 @@
+import { memo } from "react";
+
 type RecruiterProfileCardProps = {
   name: string;
   picture?: string;
@@ -9,7 +11,7 @@ type RecruiterProfileCardProps = {
   onChangePicture?: () => void;
 };
 
-export default function RecruiterProfileCard({
+function RecruiterProfileCard({
   name,
   picture,
   role,
@@ -84,3 +86,5 @@ export default function RecruiterProfileCard({
     </section>
   );
 }
+
+export default memo(RecruiterProfileCard);

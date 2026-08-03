@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import Header from "../layout/Header";
 import { useRecruiterProfile } from "../hooks/useRecruiterProfile";
 import { useRecruiterInternships } from "../hooks/useRecruiterInternships";
@@ -199,6 +199,15 @@ export default function ProfilePage() {
     reader.readAsDataURL(file);
   };
 
+  const handleEditProfile = useCallback(() => {
+    setPersonalEditing(true);
+    setCompanyEditing(false);
+  }, []);
+
+  const handleChangePicture = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
       <Header />
@@ -220,11 +229,8 @@ export default function ProfilePage() {
             company={displayedProfile.company}
             location={displayedProfile.location}
             stats={stats}
-            onEditProfile={() => {
-              setPersonalEditing(true);
-              setCompanyEditing(false);
-            }}
-            onChangePicture={() => fileInputRef.current?.click()}
+            onEditProfile={handleEditProfile}
+            onChangePicture={handleChangePicture}
           />
 
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Internship,
@@ -90,7 +90,7 @@ export default function RecruiterPage() {
     });
   }, [internships, search]);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setForm(emptyForm);
     setEditingId(null);
     setErrors({
@@ -102,28 +102,28 @@ export default function RecruiterPage() {
       deadline: "",
       description: "",
     });
-  };
+  }, [emptyForm]);
 
-  const openCreateForm = () => {
+  const openCreateForm = useCallback(() => {
     resetForm();
     setShowCreateForm(true);
-  };
+  }, [resetForm]);
 
-  const closeCreateForm = () => {
+  const closeCreateForm = useCallback(() => {
     resetForm();
     setShowCreateForm(false);
-  };
+  }, [resetForm]);
 
-  const updateField = <K extends keyof InternshipFormState>(field: K, value: InternshipFormState[K]) => {
+  const updateField = useCallback(<K extends keyof InternshipFormState>(field: K, value: InternshipFormState[K]) => {
     setForm((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: "" }));
-  };
+  }, []);
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     resetForm();
     setShowCreateForm(false);
     setSearch("");
-  };
+  }, [resetForm]);
 
   const dashboardStats = useMemo(() => {
     const totalListings = internships.length;
@@ -145,7 +145,7 @@ export default function RecruiterPage() {
     ];
   }, [internships, applicants]);
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const nextErrors: Record<keyof InternshipFormState, string> = {
       title: "",
       department: "",
@@ -177,9 +177,9 @@ export default function RecruiterPage() {
 
     setErrors(nextErrors);
     return Object.values(nextErrors).every((error) => !error);
-  };
+  }, [form]);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!validateForm()) {
@@ -196,9 +196,9 @@ export default function RecruiterPage() {
     void createListing(form);
     resetForm();
     setShowCreateForm(false);
-  };
+  }, [validateForm, editingId, updateListing, createListing, form, resetForm]);
 
-  const startEditing = (internship: Internship) => {
+  const startEditing = useCallback((internship: Internship) => {
     setEditingId(internship.id);
     setForm({
       title: internship.title,
@@ -210,11 +210,19 @@ export default function RecruiterPage() {
       description: internship.description,
     });
     setShowCreateForm(true);
-  };
+  }, []);
 
-  const handleViewApplicants = (internship: Internship) => {
+  const handleViewApplicants = useCallback((internship: Internship) => {
     router.push(`/internships/applicants?internshipId=${internship.id}`);
-  };
+  }, [router]);
+
+  const clearSearch = useCallback(() => setSearch(""), []);
+
+  const handleDelete = useCallback((id: string) => {
+    if (typeof window !== "undefined" && window.confirm("Remove this internship listing?")) {
+      removeListing(id);
+    }
+  }, [removeListing]);
 
   return (
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
@@ -384,7 +392,7 @@ export default function RecruiterPage() {
                 <button
                   type="button"
                   className="text-sm font-medium text-[#0B5CC4]"
-                  onClick={() => setSearch("")}
+                  onClick={clearSearch}
                 >
                   Clear search
                 </button>
@@ -405,11 +413,7 @@ export default function RecruiterPage() {
                     onClose={closeListing}
                     onReopen={reopenListing}
                     onViewApplicants={handleViewApplicants}
-                    onDelete={(id) => {
-                      if (window.confirm("Remove this internship listing?")) {
-                        removeListing(id);
-                      }
-                    }}
+                    onDelete={handleDelete}
                   />
                 ))
               )}

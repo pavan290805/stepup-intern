@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import Header from "../layout/Header";
 import { useApplicants } from "../hooks/useApplicants";
 import { useRecruiterInternships } from "../hooks/useRecruiterInternships";
@@ -74,20 +74,22 @@ export default function InterviewsPage() {
     if (stored) setSavedLink(stored);
   }, []);
 
-  const saveLink = () => {
+  const saveLink = useCallback(() => {
     try {
       localStorage.setItem("recruiter_calendly_link", link.trim());
       setSavedLink(link.trim());
     } catch (e) {
       // ignore
     }
-  };
+  }, [link]);
 
-  const openScheduler = (invite: { status: string }) => {
+  const openScheduler = useCallback((invite: { status: string }) => {
     const url = savedLink || link;
     if (!url) return;
     window.open(url.startsWith("http") ? url : `https://${url}`, "_blank");
-  };
+  }, [savedLink, link]);
+
+  const clearAlerts = useCallback(() => setAlerts([]), []);
 
   return (
     <div className="min-h-screen bg-[#F5F8FF] text-slate-900">
@@ -191,7 +193,7 @@ export default function InterviewsPage() {
               <div className="flex items-center gap-2">
                 {alerts.length > 0 && (
                   <button
-                    onClick={() => setAlerts([])}
+                    onClick={clearAlerts}
                     className="text-xs text-slate-500 hover:text-slate-700"
                   >
                     Clear

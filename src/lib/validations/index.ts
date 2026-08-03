@@ -70,6 +70,11 @@ export const internshipSchema = z.object({
   deadline: z.string().datetime(),
 });
 
+export const internshipUpdateSchema = internshipSchema.partial().extend({
+  status: z.enum(['draft', 'active', 'closed']).optional(),
+  featured: z.boolean().optional(),
+});
+
 export const internshipFilterSchema = z.object({
   skills: z.array(z.string()).optional(),
   location: z.string().optional(),

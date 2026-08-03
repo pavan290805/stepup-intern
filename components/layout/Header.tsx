@@ -52,13 +52,11 @@ export default function Header({ onCreate }: HeaderProps) {
     }
 
     if (key === "internships") {
-      return (
-        pathname.startsWith("/internships") ||
-        pathname === "/recruiter" ||
-        pathname.startsWith("/recruiter/") ||
-        pathname === "/interviews" ||
-        pathname === "/profile"
-      );
+      return pathname === "/recruiter" || pathname.startsWith("/internships") || pathname.startsWith("/internships/");
+    }
+
+    if (key === "interviews") {
+      return pathname === "/interviews" || pathname.startsWith("/interviews/");
     }
 
     if (key === "profile") {

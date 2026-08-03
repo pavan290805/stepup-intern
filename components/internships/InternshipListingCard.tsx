@@ -1,4 +1,5 @@
 import type { Internship } from "../hooks/useRecruiterInternships";
+import { memo } from "react";
 
 type InternshipListingCardProps = {
   internship: Internship;
@@ -10,7 +11,7 @@ type InternshipListingCardProps = {
   onViewApplicants?: (internship: Internship) => void;
 };
 
-export default function InternshipListingCard({
+function InternshipListingCard({
   internship,
   formatDate,
   onEdit,
@@ -93,3 +94,5 @@ export default function InternshipListingCard({
     </article>
   );
 }
+
+export default memo(InternshipListingCard);

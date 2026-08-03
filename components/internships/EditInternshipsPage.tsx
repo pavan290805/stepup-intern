@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState, useCallback } from "react";
 import {
   Internship,
   InternshipFormState,
@@ -121,7 +121,7 @@ export default function EditInternshipsPage({ mode = "edit" }: EditInternshipsPa
 
   const selectedInternship = internships.find((internship) => internship.id === selectedId) ?? null;
 
-  const startEditing = (internship: Internship) => {
+  const startEditing = useCallback((internship: Internship) => {
     setSelectedId(internship.id);
     setForm({
       title: internship.title,
@@ -132,9 +132,9 @@ export default function EditInternshipsPage({ mode = "edit" }: EditInternshipsPa
       deadline: internship.deadline,
       description: internship.description,
     });
-  };
+  }, []);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!selectedId) {
@@ -142,7 +142,7 @@ export default function EditInternshipsPage({ mode = "edit" }: EditInternshipsPa
     }
 
     updateListing(selectedId, form);
-  };
+  }, [selectedId, updateListing, form]);
 
   const hasListings = internships.length > 0;
 
