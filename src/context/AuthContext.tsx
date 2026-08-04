@@ -16,6 +16,10 @@ import {
   type AuthUser,
 } from "@/lib/api";
 
+import { useRouter } from "next/navigation";
+
+import { onSessionExpired } from "@/lib/authEvents";
+
 interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
@@ -65,6 +69,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // ============================
 
   const isAuthenticated = user !== null;
+
+  const router = useRouter();
 
   // ============================
   // Login
@@ -145,6 +151,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await logoutApi();
 
       setUser(null);
+      setError(null);
+      router.replace("/");
     } catch (err: any) {
       setError(err.message || "Logout failed");
       throw err;
@@ -179,6 +187,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refreshUser();
   }, []);
 
+ useEffect(() => {
+  const unsubscribe = onSessionExpired(() => {
+    setUser(null);
+    setError(null);
+    router.replace("/login");
+  });
+
+  return unsubscribe;
+}, [router]);
   // ============================
   // Context Value
   // ============================

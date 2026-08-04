@@ -1,7 +1,9 @@
 "use client";
 
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import {
   LayoutDashboard,
   Users,
@@ -11,7 +13,10 @@ import {
   LogOut,
 } from "lucide-react";
 
-const menuItems = [
+import { useAuth } from "@/hooks/useAuth";
+import { useLayout } from "@/hooks/useLayout";
+
+const navigationItems = [
   {
     title: "Dashboard",
     href: "/admin",
@@ -42,52 +47,69 @@ const menuItems = [
 export default function Sidebar() {
   const pathname = usePathname();
 
-  return (
-    <aside className="flex h-screen w-64 flex-col border-r bg-white shadow-md">
-      {/* Logo */}
-      <div className="border-b px-6 py-5">
-        <h1 className="text-2xl font-bold text-blue-600">
-          StepUp Admin
-        </h1>
-      </div>
+const { logout } = useAuth();
 
-      {/* Navigation */}
-      <nav className="flex-1 px-4 py-6">
-        <ul className="space-y-2">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const active = pathname === item.href;
+const {sidebarOpen,} = useLayout();
 
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-4 py-3 transition-all ${
-                    active
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                  }`}
-                >
-                  <Icon size={20} />
-                  <span className="font-medium">
-                    {item.title}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+return (
+  <aside
+    className={`flex h-[calc(100vh-80px)] flex-col border-r border-gray-200 bg-white transition-all duration-300 ${
+      sidebarOpen ? "w-72" : "w-20"
+    }`}
+  >
+<nav className="flex-1 px-3 py-6">
 
-      {/* Logout */}
-      <div className="border-t p-4">
-        <button
-          className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-red-600 transition hover:bg-red-50"
-        >
-          <LogOut size={20} />
-          Logout
-        </button>
-      </div>
-    </aside>
-  );
+  <div className="space-y-2">
+  {navigationItems.map((item) => {
+    const Icon = item.icon;
+
+const active = item.href ==="/admin" ? pathname === "/admin": pathname.startsWith(item.href);
+
+return(
+<Link
+  key={item.href}
+  href={item.href}
+  className={`flex items-center rounded-xl transition-all duration-200 ${
+    sidebarOpen
+      ? "justify-start px-4 py-3"
+      : "justify-center py-3"
+  } ${
+    active
+      ? "bg-[#0880EF] text-white"
+      : "text-black hover:bg-[#0880EF]/10"
+  }`}
+>
+  <Icon size={22} />
+  {sidebarOpen && (
+  <span className="ml-4 font-medium">
+    {item.title}
+  </span>
+)}
+</Link>
+)})}
+</div>
+</nav>
+<div className="border-t border-gray-200 p-4">
+
+  <button
+    onClick={logout}
+    className={`flex w-full items-center rounded-xl transition-all duration-200 hover:bg-red-50 ${
+      sidebarOpen
+        ? "justify-start px-4 py-3"
+        : "justify-center py-3"
+    }`}
+  >
+    <LogOut
+  size={22}
+  className="text-red-600"
+/>
+{sidebarOpen && (
+  <span className="ml-4 font-medium text-red-600">
+    Logout
+  </span>
+)}
+  </button>
+  </div>
+  </aside>
+);
 }

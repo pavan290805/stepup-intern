@@ -12,11 +12,13 @@ export default function AdminLayout({
   children,
 }: AdminLayoutProps) {
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+    <div className="flex h-screen flex-col">
 
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Header />
+    <Header />
+
+    <div className="flex flex-1 overflow-hidden">
+
+        <Sidebar />
 
         <main className="flex-1 overflow-y-auto p-6">
           {children}

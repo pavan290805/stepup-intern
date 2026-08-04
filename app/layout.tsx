@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { AuthProvider } from '@/context/AuthContext';
 import './globals.css';
 import { AdminProvider } from '@/context/AdminContext';
+import { LayoutProvider } from '@/context/LayoutContext';
 
 export const metadata: Metadata = {
   title: 'StepUp Intern',
@@ -26,7 +27,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body className="min-h-full flex flex-col">
         <AuthProvider> 
           <AdminProvider>
+            <LayoutProvider>
              {children}
+             </LayoutProvider>
           </AdminProvider>         
         </AuthProvider>
       </body>

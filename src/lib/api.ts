@@ -8,6 +8,7 @@ import type {
   VerificationActionRequest,
   UpdateInternshipStatusRequest,
 } from "@/types/admin";
+import { emitSessionExpired } from "@/lib/authEvents";
 
 type ApiEnvelope<T = unknown> = {
   success?: boolean;
@@ -17,6 +18,7 @@ type ApiEnvelope<T = unknown> = {
 };
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
+
 
 function buildUrl(path: string) {
   return `${API_BASE}${path}`;
@@ -30,16 +32,46 @@ async function readPayload<T>(response: Response): Promise<ApiEnvelope<T> | null
   }
 }
 
-export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(buildUrl(path), {
-    cache: "no-store",
-    credentials: "include",
-    ...init,
-    headers: {
-      ...(init.body instanceof FormData ? {} : { "Content-Type": "application/json" }),
-      ...(init.headers ?? {}),
-    },
-  });
+async function refreshAccessToken(): Promise<boolean> {
+  try {
+    const response = await fetch(buildUrl("/api/auth/refresh-token"), {
+      method: "POST",
+      credentials: "include",
+    });
+
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function apiRequest<T>(path: string, init: RequestInit = {}, retry = true): Promise<T> {
+  let response = await fetch(buildUrl(path), {
+  cache: "no-store",
+  credentials: "include",
+  ...init,
+  headers: {
+    ...(init.body instanceof FormData
+      ? {}
+      : { "Content-Type": "application/json" }),
+    ...(init.headers ?? {}),
+  },
+});
+if (
+  response.status === 401 &&
+  retry &&
+  path !== "/api/auth/refresh-token"
+) {
+  const refreshed = await refreshAccessToken();
+
+  if (refreshed) {
+    return apiRequest<T>(path, init, false);
+  }
+
+  emitSessionExpired();
+
+  throw new Error("Session expired");
+}
 
   const payload = await readPayload<T>(response);
 
@@ -340,7 +372,11 @@ export async function getNotifications() {
 // ============================================
 
 export async function getAdminStatistics() {
-  return apiGet<AdminStatistics>("/api/admin/statistics");
+  const response = await apiGet<{
+    statistics: AdminStatistics;
+  }>("/api/admin/statistics");
+
+  return response.statistics;
 }
 
 // ============================================

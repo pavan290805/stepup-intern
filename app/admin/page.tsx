@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAdmin } from "../../src/hooks/useAdmin";
+import { useAdmin } from "@/hooks/useAdmin";
+
+import DashboardGrid from "../../Components/admin/Dashboard/DashboardGrid";
 
 export default function AdminDashboard() {
   const {
@@ -13,91 +15,47 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     loadStatistics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   if (loading) {
     return (
-      <div className="text-lg font-semibold">
-        Loading dashboard...
+      <div className="flex h-full items-center justify-center">
+        <p className="text-lg font-semibold text-[#0880EF]">
+          Loading Dashboard...
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-600">
-        {error}
+      <div className="rounded-lg border border-[#0880EF] bg-white p-6">
+        <p className="text-[#000000]">
+          {error}
+        </p>
       </div>
     );
   }
 
+  if (!statistics) {
+    return null;
+  }
+
   return (
-    <div>
-      <h1 className="mb-8 text-3xl font-bold">
-        Dashboard
-      </h1>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold text-[#000000]">
+          Dashboard
+        </h1>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-xl bg-white p-6 shadow">
-          <h2 className="text-gray-500">
-            Total Users
-          </h2>
-
-          <p className="mt-2 text-4xl font-bold text-blue-600">
-            {statistics?.totalUsers ?? 0}
-          </p>
-        </div>
-
-        <div className="rounded-xl bg-white p-6 shadow">
-          <h2 className="text-gray-500">
-            Total Companies
-          </h2>
-
-          <p className="mt-2 text-4xl font-bold text-green-600">
-            {statistics?.totalCompanies ?? 0}
-          </p>
-        </div>
-
-        <div className="rounded-xl bg-white p-6 shadow">
-          <h2 className="text-gray-500">
-            Total Internships
-          </h2>
-
-          <p className="mt-2 text-4xl font-bold text-purple-600">
-            {statistics?.totalInternships ?? 0}
-          </p>
-        </div>
-
-        <div className="rounded-xl bg-white p-6 shadow">
-          <h2 className="text-gray-500">
-            Total Applications
-          </h2>
-
-          <p className="mt-2 text-4xl font-bold text-orange-600">
-            {statistics?.totalApplications ?? 0}
-          </p>
-        </div>
-
-        <div className="rounded-xl bg-white p-6 shadow">
-          <h2 className="text-gray-500">
-            Students
-          </h2>
-
-          <p className="mt-2 text-4xl font-bold text-cyan-600">
-            {statistics?.studentCount ?? 0}
-          </p>
-        </div>
-
-        <div className="rounded-xl bg-white p-6 shadow">
-          <h2 className="text-gray-500">
-            Recruiters
-          </h2>
-
-          <p className="mt-2 text-4xl font-bold text-pink-600">
-            {statistics?.recruiterCount ?? 0}
-          </p>
-        </div>
+        <p className="mt-2 text-[#000000]/70">
+          Welcome to the StepUpIntern Admin Dashboard.
+        </p>
       </div>
+
+      <DashboardGrid statistics={statistics} />
     </div>
   );
 }

@@ -32,6 +32,7 @@ import {
   deleteAdminInternship as deleteAdminInternshipApi,
 } from "@/lib/api";
 
+
 interface AdminContextType {
   statistics: AdminStatistics | null;
 
@@ -99,8 +100,8 @@ export function AdminProvider({
     setError(null);
 
     const data = await getAdminStatistics();
-
     setStatistics(data);
+    
   } catch (err) {
     if (err instanceof Error) {
       setError(err.message);
