@@ -42,7 +42,6 @@ const recruiterProfileSchema = new Schema<IRecruiterProfile>(
   { timestamps: true }
 );
 
-recruiterProfileSchema.index({ userId: 1 });
 recruiterProfileSchema.index({ companyId: 1 });
 
 const RecruiterProfile: Model<IRecruiterProfile> =

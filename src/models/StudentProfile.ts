@@ -91,7 +91,6 @@ const studentProfileSchema = new Schema<IStudentProfile>(
   { timestamps: true }
 );
 
-studentProfileSchema.index({ userId: 1 });
 
 const StudentProfile: Model<IStudentProfile> =
   mongoose.models.StudentProfile || mongoose.model<IStudentProfile>('StudentProfile', studentProfileSchema);

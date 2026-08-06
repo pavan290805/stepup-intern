@@ -1,4 +1,4 @@
-import { comparePassword, generateAccessToken, generateRefreshToken, hashPassword } from '@/lib/auth';
+import { comparePassword, generateAccessToken, generateRefreshToken, hashPassword, verifyRefreshToken} from '@/lib/auth';
 import { LoginInput, RegisterInput } from '@/lib/validations';
 import User, { IUser } from '@/models/User';
 import Company from '@/models/Company';
@@ -100,6 +100,11 @@ export const authService = {
   },
 
   async refreshToken(token: string): Promise<{ accessToken: string; refreshToken: string }> {
+    const payload = verifyRefreshToken(token);
+
+if (!payload) {
+    throw new Error("Invalid or expired refresh token");
+}
     const user = await User.findOne({ refreshToken: token });
 
     if (!user) {

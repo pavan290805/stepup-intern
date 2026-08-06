@@ -57,7 +57,6 @@ const companySchema = new Schema<ICompany>(
   { timestamps: true }
 );
 
-companySchema.index({ name: 1 });
 companySchema.index({ verificationStatus: 1 });
 
 const Company: Model<ICompany> =

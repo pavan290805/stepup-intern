@@ -73,7 +73,7 @@ export default function Login() {
 
         <div className="mb-8 flex items-center justify-center">
           <Image
-            src="/illustration_Image.png"
+            src="/Illustration_Image.png"
             alt="Career Illustration"
             width={420}
             height={420}

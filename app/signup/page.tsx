@@ -109,7 +109,7 @@ export default  function Signup() {
         <div className="flex flex-1 w-full flex-col items-center justify-center text-center px-6">
           <div className="mb-10 flex justify-center">
             <Image
-              src="/illustration_Image.png"
+              src="/Illustration_Image.png"
               alt="Career Illustration"
               width={420}
               height={420}

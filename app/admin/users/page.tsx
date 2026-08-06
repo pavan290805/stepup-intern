@@ -23,6 +23,8 @@ export default function UsersPage() {
 
   const [search, setSearch] = useState("");
 
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
   const [page, setPage] = useState(1);
 
   const [limit, setLimit] = useState(20);
@@ -41,32 +43,61 @@ export default function UsersPage() {
   function handleUserDeleted(userId: string) {
     setUsers(prev => prev.filter(user => user._id !== userId));
   }
+  function handlePreviousPage() {
+    if (page > 1) {
+        setPage((prev) => prev - 1);
+    }
+}
+
+function handleNextPage() {
+    if (pagination && page < pagination.pages) {
+        setPage((prev) => prev + 1);
+    }
+}
+function handleLimitChange(
+    event: React.ChangeEvent<HTMLSelectElement>
+) {
+    const newLimit = Number(event.target.value);
+
+    setLimit(newLimit);
+
+    setPage(1);
+}
+function getShowingText() {
+    if (!pagination) return "";
+
+    const start =
+        (pagination.page - 1) * pagination.limit + 1;
+
+    const end = Math.min(
+        pagination.page * pagination.limit,
+        pagination.total
+    );
+
+    return `Showing ${start}-${end} of ${pagination.total} users`;
+}
 
   useEffect(() => {
     fetchUsers({
       page,
       limit,
-      search,
+      search:debouncedSearch,
     });
-  }, []);
+  }, [page,limit,debouncedSearch]);
 
   useEffect(() => {
 
     const timer = setTimeout(() => {
 
-        setPage(1);
+        setDebouncedSearch(search.trim());
 
-        fetchUsers({
-            page: 1,
-            limit,
-            search,
-        });
+        setPage(1);
 
     }, 500);
 
     return () => clearTimeout(timer);
 
-}, [search, limit]);
+}, [search]);
 
   async function fetchUsers({
     page = 1,
@@ -132,7 +163,58 @@ export default function UsersPage() {
         onStatusUpdated={handleStatusUpdated}
         onUserDeleted={handleUserDeleted}
       />
+      {pagination && (
+        
+    <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
+        <div className="flex items-center gap-3">
+             <p className="text-sm text-gray-500">
+        {getShowingText()}
+    </p>
+
+            <span className="text-sm text-gray-600">
+                Items per page
+            </span>
+
+            <select
+                value={limit}
+                onChange={handleLimitChange}
+                className="rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-[#0880EF]"
+            >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+            </select>
+
+        </div>
+
+        <div className="flex items-center gap-4">
+
+            <button
+                onClick={handlePreviousPage}
+                disabled={page === 1}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 "
+            >
+                Previous
+            </button>
+
+            <p className="text-sm text-gray-600">
+                Page {pagination.page} of {pagination.pages}
+            </p>
+
+            <button
+                onClick={handleNextPage}
+                disabled={page === pagination.pages}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+                Next
+            </button>
+
+        </div>
+
+    </div>
+)}
     </div>
   );
 }

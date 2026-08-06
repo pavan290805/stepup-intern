@@ -45,7 +45,6 @@ const interviewSchema = new Schema<IInterview>(
   { timestamps: true }
 );
 
-interviewSchema.index({ applicationId: 1 });
 interviewSchema.index({ status: 1 });
 
 const Interview: Model<IInterview> =
