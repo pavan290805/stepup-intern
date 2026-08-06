@@ -1,4 +1,5 @@
 import type {
+  AdminUser,
   AdminStatistics,
   UsersResponse,
   CompaniesResponse,
@@ -391,7 +392,7 @@ export async function updateAdminUserStatus(
   id: string,
   input: UpdateUserStatusRequest
 ) {
-  return apiPatch<null>(`/api/admin/users/${id}`, input);
+  return apiPatch<AdminUser>(`/api/admin/users/${id}`, input);
 }
 
 export async function deleteAdminUser(id: string) {

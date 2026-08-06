@@ -3,17 +3,22 @@
 import UserRow from "./UserRow";
 
 import type { AdminUser } from "@/types/admin";
+import { Users } from "lucide-react";
 
 interface Props {
   users: AdminUser[];
   loading: boolean;
   error: string | null;
+  onStatusUpdated: (updatedUser: AdminUser) => void;
+  onUserDeleted: (userId: string) => void;
 }
 
 export default function UserTable({
   users,
   loading,
   error,
+  onStatusUpdated,
+  onUserDeleted,
 }: Props) {
   if (loading) {
     return (
@@ -30,6 +35,23 @@ export default function UserTable({
       </div>
     );
   }
+  if (users.length === 0) {
+  return (
+    <div className="rounded-xl bg-white p-12 text-center shadow">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
+        <Users className="h-8 w-8 text-[#0880EF]" />
+      </div>
+
+      <h3 className="mt-5 text-xl font-semibold text-gray-900">
+        No Users Found
+      </h3>
+
+      <p className="mt-2 text-sm text-gray-500">
+        There are no users to display at the moment.
+      </p>
+    </div>
+  );
+}
 
   return (
     <div className="overflow-hidden rounded-xl bg-white shadow">
@@ -70,6 +92,8 @@ export default function UserTable({
             <UserRow
               key={user._id}
               user={user}
+              onStatusUpdated={onStatusUpdated}
+              onUserDeleted={onUserDeleted}
             />
           ))}
 

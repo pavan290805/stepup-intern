@@ -10,10 +10,14 @@ import type { AdminUser } from "@/types/admin";
 
 interface Props {
   user: AdminUser;
+  onStatusUpdated: (updatedUser: AdminUser) => void;
+  onUserDeleted: (userId: string) => void;
 }
 
 export default function UserActions({
   user,
+  onStatusUpdated,
+  onUserDeleted,
 }: Props) {
   const {
     deleteUser,
@@ -33,8 +37,7 @@ export default function UserActions({
       await deleteUser(user._id);
 
       setDeleteDialogOpen(false);
-
-      window.location.reload();
+      onUserDeleted(user._id);
     } catch (error) {
       console.error(error);
     } finally {
@@ -46,11 +49,11 @@ export default function UserActions({
     try {
       setLoading(true);
 
-      await updateUserStatus(user._id, {
+      const updatedUser = await updateUserStatus(user._id, {
         isActive: !user.isActive,
       });
-
-      window.location.reload();
+      
+      onStatusUpdated(updatedUser);
     } catch (error) {
       console.error(error);
     } finally {

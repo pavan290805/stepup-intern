@@ -6,10 +6,14 @@ import type { AdminUser } from "@/types/admin";
 
 interface Props {
   user: AdminUser;
+  onStatusUpdated: (updatedUser: AdminUser) => void;
+  onUserDeleted: (userId: string) => void;
 }
 
 export default function UserRow({
   user,
+  onStatusUpdated,
+  onUserDeleted,
 }: Props) {
   return (
     <tr className="border-b">
@@ -44,6 +48,8 @@ export default function UserRow({
 
         <UserActions
           user={user}
+          onStatusUpdated={onStatusUpdated}
+          onUserDeleted={onUserDeleted}
         />
 
       </td>

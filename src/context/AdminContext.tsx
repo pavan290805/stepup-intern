@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import type {
+  AdminUser,
   AdminStatistics,
   UsersResponse,
   CompaniesResponse,
@@ -47,7 +48,7 @@ interface AdminContextType {
   updateUserStatus: (
     id: string,
     input: UpdateUserStatusRequest
-  ) => Promise<void>;
+  ) => Promise<AdminUser>;
 
   deleteUser: (id: string) => Promise<void>;
 
@@ -135,12 +136,13 @@ export function AdminProvider({
   const updateUserStatus = async (
   id: string,
   input: UpdateUserStatusRequest
-): Promise<void> => {
+): Promise<AdminUser> => {
   try {
     setLoading(true);
     setError(null);
 
-    await updateAdminUserStatus(id, input);
+    const user = await updateAdminUserStatus(id, input);
+    return user;
   } catch (err) {
     if (err instanceof Error) {
       setError(err.message);
