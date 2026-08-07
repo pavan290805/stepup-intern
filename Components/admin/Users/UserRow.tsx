@@ -8,12 +8,14 @@ interface Props {
   user: AdminUser;
   onStatusUpdated: (updatedUser: AdminUser) => void;
   onUserDeleted: (userId: string) => void;
+  onViewUser: (user: AdminUser) => void;
 }
 
 export default function UserRow({
   user,
   onStatusUpdated,
   onUserDeleted,
+  onViewUser,
 }: Props) {
   return (
     <tr className="border-b">
@@ -50,6 +52,7 @@ export default function UserRow({
           user={user}
           onStatusUpdated={onStatusUpdated}
           onUserDeleted={onUserDeleted}
+          onViewUser={onViewUser}
         />
 
       </td>

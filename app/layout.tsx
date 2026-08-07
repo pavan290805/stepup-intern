@@ -4,6 +4,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import './globals.css';
 import { AdminProvider } from '@/context/AdminContext';
 import { LayoutProvider } from '@/context/LayoutContext';
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: 'StepUp Intern',
@@ -29,6 +30,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <AdminProvider>
             <LayoutProvider>
              {children}
+             <Toaster
+                position="top-right"
+                richColors
+                closeButton
+              />
              </LayoutProvider>
           </AdminProvider>         
         </AuthProvider>

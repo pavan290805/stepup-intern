@@ -1,45 +1,57 @@
 "use client";
 
-import type { RecruiterProfileApi } from "@/lib/api";
 import RecruiterActions from "./RecruiterActions";
+
+import type {
+  RecruiterProfileApi,
+} from "@/lib/api";
 
 interface Props {
   recruiter: RecruiterProfileApi;
+
+  onRecruiterUpdated: (
+    recruiter: RecruiterProfileApi
+  ) => void;
+
+  onRecruiterRemoved: (
+    recruiterId: string
+  ) => void;
 }
 
 export default function RecruiterRow({
   recruiter,
+  onRecruiterUpdated,
+  onRecruiterRemoved,
 }: Props) {
-  const recruiterName =
-    typeof recruiter.userId === "object"
-      ? recruiter.userId?.name
-      : "-";
-
-  const companyName =
-    typeof recruiter.companyId === "object"
-      ? recruiter.companyId?.name
-      : "-";
-
   return (
     <tr className="border-b">
 
-      <td className="px-6 py-4">
-        {recruiterName ?? "-"}
+      <td className="px-6 py-4 font-medium">
+        {
+            typeof recruiter.userId === "object"
+            ? recruiter.userId?.name
+            : "-"
+            }
       </td>
 
       <td className="px-6 py-4">
-        {companyName ?? "-"}
+        {
+  typeof recruiter.companyId === "object"
+    ? recruiter.companyId?.name
+    : "-"
+}
       </td>
 
       <td className="px-6 py-4">
-        {recruiter.designation ?? "-"}
+        {recruiter.designation}
       </td>
 
       <td className="px-6 py-4">
-        {recruiter.phoneNumber ?? "-"}
+        {recruiter.phoneNumber}
       </td>
 
       <td className="px-6 py-4">
+
         <span
           className={`rounded-full px-3 py-1 text-sm ${
             recruiter.verificationStatus === "verified"
@@ -49,12 +61,19 @@ export default function RecruiterRow({
               : "bg-yellow-100 text-yellow-700"
           }`}
         >
-          {recruiter.verificationStatus ?? "pending"}
+          {recruiter.verificationStatus}
         </span>
+
       </td>
 
       <td className="px-6 py-4">
-        <RecruiterActions recruiter={recruiter} />
+
+        <RecruiterActions
+          recruiter={recruiter}
+          onRecruiterUpdated={onRecruiterUpdated}
+          onRecruiterRemoved={onRecruiterRemoved}
+        />
+
       </td>
 
     </tr>

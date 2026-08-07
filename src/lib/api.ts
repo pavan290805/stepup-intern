@@ -191,7 +191,7 @@ export type StudentProfileApi = {
 };
 
 export type RecruiterProfileApi = {
-  _id?: string;
+  _id: string;
   userId?:
     | {
         name?: string;

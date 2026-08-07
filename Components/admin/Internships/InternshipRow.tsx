@@ -1,21 +1,30 @@
 "use client";
 
-import type { InternshipApiItem } from "@/lib/api";
-
 import InternshipActions from "./InternshipActions";
+
+import type { InternshipApiItem } from "@/lib/api";
 
 interface Props {
   internship: InternshipApiItem;
+
+  onStatusUpdated: (
+    internship: InternshipApiItem
+  ) => void;
+
+  onInternshipDeleted: (
+    internshipId: string
+  ) => void;
 }
 
 export default function InternshipRow({
   internship,
+  onStatusUpdated,
+  onInternshipDeleted,
 }: Props) {
-
   return (
     <tr className="border-b">
 
-      <td className="px-6 py-4">
+      <td className="px-6 py-4 font-medium">
         {internship.title}
       </td>
 
@@ -51,6 +60,8 @@ export default function InternshipRow({
 
         <InternshipActions
           internship={internship}
+          onStatusUpdated={onStatusUpdated}
+          onInternshipDeleted={onInternshipDeleted}
         />
 
       </td>

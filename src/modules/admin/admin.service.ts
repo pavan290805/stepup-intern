@@ -42,20 +42,53 @@ export const adminService = {
     await User.findByIdAndDelete(userId);
   },
 
-  async getPendingCompanies(query: PaginationQuery): Promise<{ companies: any[]; total: number }> {
-    const page = query.page || 1;
-    const limit = query.limit || 10;
-    const skip = (page - 1) * limit;
+ async getPendingCompanies(query: PaginationQuery): Promise<{
+  companies: any[];
+  total: number;
+}> {
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  const skip = (page - 1) * limit;
 
-    const companies = await Company.find({ verificationStatus: 'pending' })
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+  const filter: any = {
+    verificationStatus: "pending",
+  };
 
-    const total = await Company.countDocuments({ verificationStatus: 'pending' });
+  if (query.search) {
+    filter.$or = [
+      {
+        name: {
+          $regex: query.search,
+          $options: "i",
+        },
+      },
+      {
+        industry: {
+          $regex: query.search,
+          $options: "i",
+        },
+      },
+      {
+        headquarters: {
+          $regex: query.search,
+          $options: "i",
+        },
+      },
+    ];
+  }
 
-    return { companies, total };
-  },
+  const companies = await Company.find(filter)
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+
+  const total = await Company.countDocuments(filter);
+
+  return {
+    companies,
+    total,
+  };
+},
 
   async verifyCompany(companyId: string): Promise<any> {
     return Company.findByIdAndUpdate(companyId, { verificationStatus: 'verified' }, { new: true });
@@ -66,24 +99,48 @@ export const adminService = {
   },
 
   async getPendingRecruiters(query: PaginationQuery): Promise<{
-    recruiters: any[];
-    total: number;
-  }> {
-    const page = query.page || 1;
-    const limit = query.limit || 10;
-    const skip = (page - 1) * limit;
+  recruiters: any[];
+  total: number;
+}> {
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  const skip = (page - 1) * limit;
 
-    const recruiters = await RecruiterProfile.find({ verificationStatus: 'pending' })
-      .populate('userId')
-      .populate('companyId')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+  const filter: any = {
+    verificationStatus: "pending",
+  };
 
-    const total = await RecruiterProfile.countDocuments({ verificationStatus: 'pending' });
+  if (query.search) {
+    filter.$or = [
+      {
+        designation: {
+          $regex: query.search,
+          $options: "i",
+        },
+      },
+      {
+        phoneNumber: {
+          $regex: query.search,
+          $options: "i",
+        },
+      },
+    ];
+  }
 
-    return { recruiters, total };
-  },
+  const recruiters = await RecruiterProfile.find(filter)
+    .populate("userId")
+    .populate("companyId")
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+
+  const total = await RecruiterProfile.countDocuments(filter);
+
+  return {
+    recruiters,
+    total,
+  };
+},
 
   async verifyRecruiter(recruiterId: string): Promise<any> {
     return RecruiterProfile.findByIdAndUpdate(
@@ -101,22 +158,53 @@ export const adminService = {
     );
   },
 
-  async getInternships(query: PaginationQuery): Promise<{ internships: any[]; total: number }> {
-    const page = query.page || 1;
-    const limit = query.limit || 10;
-    const skip = (page - 1) * limit;
+  async getInternships(query: PaginationQuery): Promise<{
+  internships: any[];
+  total: number;
+}> {
+  const page = query.page || 1;
+  const limit = query.limit || 10;
+  const skip = (page - 1) * limit;
 
-    const internships = await Internship.find()
-      .populate('companyId')
-      .populate('recruiterId')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+  const filter: any = {};
 
-    const total = await Internship.countDocuments();
+  if (query.search) {
+    filter.$or = [
+      {
+        title: {
+          $regex: query.search,
+          $options: "i",
+        },
+      },
+      {
+        location: {
+          $regex: query.search,
+          $options: "i",
+        },
+      },
+      {
+        status: {
+          $regex: query.search,
+          $options: "i",
+        },
+      },
+    ];
+  }
 
-    return { internships, total };
-  },
+  const internships = await Internship.find(filter)
+    .populate("companyId")
+    .populate("recruiterId")
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+
+  const total = await Internship.countDocuments(filter);
+
+  return {
+    internships,
+    total,
+  };
+},
 
   async updateInternshipStatus(internshipId: string, status: string): Promise<any> {
     return Internship.findByIdAndUpdate(internshipId, { status }, { new: true });

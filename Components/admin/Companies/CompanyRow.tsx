@@ -6,10 +6,16 @@ import CompanyActions from "./CompanyActions";
 
 interface Props {
   company: CompanyApiItem;
+
+  onViewCompany: (company: CompanyApiItem) => void;
+
+  onCompanyVerified: (companyId: string) => void;
 }
 
 export default function CompanyRow({
   company,
+  onViewCompany,
+  onCompanyVerified,
 }: Props) {
   return (
     <tr className="border-b">
@@ -31,9 +37,10 @@ export default function CompanyRow({
         <a
           href={company.website}
           target="_blank"
-          className="text-[#0880EF]"
+          rel="noopener noreferrer"
+          className="text-[#0880EF] hover:underline"
         >
-          Website
+          Visit Website
         </a>
 
       </td>
@@ -58,6 +65,8 @@ export default function CompanyRow({
 
         <CompanyActions
           company={company}
+          onViewCompany={onViewCompany}
+          onCompanyVerified={onCompanyVerified}
         />
 
       </td>

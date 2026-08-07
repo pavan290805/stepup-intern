@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 
 import UserTable from "../../../Components/admin/Users/UserTable";
+import UserDetailsDialog from "../../../Components/admin/Users/UserDetailsDialog";
 
 import type { AdminUser, Pagination } from "@/types/admin";
 
@@ -31,6 +32,11 @@ export default function UsersPage() {
 
   const [pagination, setPagination] =
     useState<Pagination | null>(null);
+  const [selectedUser, setSelectedUser] =
+  useState<AdminUser | null>(null);
+
+  const [detailsOpen, setDetailsOpen] =
+  useState(false);
 
   function handleStatusUpdated(updatedUser: AdminUser) {
     setUsers(prev =>
@@ -62,6 +68,10 @@ function handleLimitChange(
     setLimit(newLimit);
 
     setPage(1);
+}
+function handleViewUser(user: AdminUser) {
+  setSelectedUser(user);
+  setDetailsOpen(true);
 }
 function getShowingText() {
     if (!pagination) return "";
@@ -162,6 +172,7 @@ function getShowingText() {
         error={error}
         onStatusUpdated={handleStatusUpdated}
         onUserDeleted={handleUserDeleted}
+        onViewUser={handleViewUser}
       />
       {pagination && (
         
@@ -185,6 +196,9 @@ function getShowingText() {
                 <option value={20}>20</option>
                 <option value={50}>50</option>
                 <option value={100}>100</option>
+                <option value={pagination.total}>
+                  All ({pagination.total})
+                </option>
             </select>
 
         </div>
@@ -215,6 +229,14 @@ function getShowingText() {
 
     </div>
 )}
+<UserDetailsDialog
+  open={detailsOpen}
+  user={selectedUser}
+  onClose={() => {
+    setDetailsOpen(false);
+    setSelectedUser(null);
+  }}
+/>
     </div>
   );
 }

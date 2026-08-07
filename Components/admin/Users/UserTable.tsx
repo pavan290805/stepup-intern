@@ -11,6 +11,7 @@ interface Props {
   error: string | null;
   onStatusUpdated: (updatedUser: AdminUser) => void;
   onUserDeleted: (userId: string) => void;
+  onViewUser: (user: AdminUser) => void;
 }
 
 export default function UserTable({
@@ -19,6 +20,7 @@ export default function UserTable({
   error,
   onStatusUpdated,
   onUserDeleted,
+  onViewUser,
 }: Props) {
   if (loading) {
     return (
@@ -94,6 +96,7 @@ export default function UserTable({
               user={user}
               onStatusUpdated={onStatusUpdated}
               onUserDeleted={onUserDeleted}
+              onViewUser={onViewUser}
             />
           ))}
 
