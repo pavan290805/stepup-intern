@@ -19,9 +19,6 @@ const params = useParams();
 const internshipId = params.id as string;
 
 const { internships, loading } = useRecruiterInternshipContext();
-console.log("loading =", loading);
-console.log("internshipId =", internshipId);
-console.log("internships =", internships);
 const internship = internships.find(
   (i) => i.id === internshipId
 );
@@ -31,6 +28,7 @@ const {
   getInternshipInterviews,
   shortlistApplicant,
   rejectApplicant,
+  offerApplicant,
   scheduleInterview,
   deleteApplication,
   sendEmail,
@@ -87,6 +85,10 @@ const handleAction = (action: string, applicantId: string) => {
 
     case "reject":
       rejectApplicant(applicantId);
+      break;
+
+    case "offer":
+      offerApplicant(applicantId);
       break;
 
     case "delete":
@@ -268,6 +270,7 @@ const handleAction = (action: string, applicantId: string) => {
                   applicant={applicant}
                   onShortlist={() => handleAction("shortlist", applicant.id)}
                   onReject={() => handleAction("reject", applicant.id)}
+                  onOffer={() => handleAction("offer", applicant.id)}
                   onScheduleInterview={() =>
                     handleAction("schedule", applicant.id)
                   }

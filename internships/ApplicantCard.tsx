@@ -5,6 +5,7 @@ type ApplicantCardProps = {
   applicant: Applicant;
   onShortlist: () => void;
   onReject: () => void;
+  onOffer: () => void;
   onScheduleInterview: () => void;
   onSendEmail: () => void;
   onViewResume: () => void;
@@ -16,6 +17,7 @@ export default function ApplicantCard({
   applicant,
   onShortlist,
   onReject,
+  onOffer,
   onScheduleInterview,
   onSendEmail,
   onViewResume,
@@ -23,6 +25,7 @@ export default function ApplicantCard({
   onDelete,
 }: ApplicantCardProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -47,9 +50,16 @@ export default function ApplicantCard({
       .toUpperCase();
   };
 
-  const handleAction = (action: () => void) => {
-    action();
+  const handleAction = async (action: () => void | Promise<void>) => {
+    setIsProcessing(true);
     setShowMenu(false);
+    try {
+      await action();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -100,13 +110,14 @@ export default function ApplicantCard({
         <div className="relative">
           <button
             type="button"
+            disabled={isProcessing}
             onClick={() => setShowMenu(!showMenu)}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-white hover:border-blue-400 hover:text-blue-600"
+            className={`rounded-lg border px-4 py-2 text-sm font-medium transition ${isProcessing ? 'border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed' : 'border-slate-300 text-slate-700 hover:bg-white hover:border-blue-400 hover:text-blue-600'}`}
           >
-            More ▼
+            {isProcessing ? "Processing..." : "More ▼"}
           </button>
 
-          {showMenu && (
+          {showMenu && !isProcessing && (
             <div className="absolute right-0 top-full mt-2 w-56 rounded-lg border border-slate-200 bg-white shadow-xl z-10">
               <button
                 type="button"
@@ -124,6 +135,15 @@ export default function ApplicantCard({
               >
                 <span>❌</span>
                 <span>Reject Candidate</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleAction(onOffer)}
+                className="flex w-full items-center gap-3 border-b border-slate-100 px-4 py-3 text-sm text-green-600 hover:bg-green-50"
+              >
+                <span>✅</span>
+                <span>Offer Candidate</span>
               </button>
 
               <button

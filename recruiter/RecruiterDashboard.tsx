@@ -51,6 +51,8 @@ const {
 
 
   const { applicants } = useApplicants();
+  const { profile, loading: profileLoading } = useRecruiterProfile();
+  const isProfileComplete = Boolean(profile?.companyId);
   const [form, setForm] = useState<InternshipFormState>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -232,13 +234,25 @@ const handleViewApplicants = (internship: Internship) => {
                 </p>
               </div>
 
-              <button
-                type="button"
-                className="rounded-2xl bg-gradient-to-r from-[#0880EF] to-[#0A67C6] px-5 py-4 text-base font-semibold text-white shadow-lg shadow-blue-100 transition hover:translate-y-[-1px] hover:from-[#0A67C6] hover:to-[#0859AD]"
-                onClick={openCreateForm}
-              >
-                + Create New Internship
-              </button>
+              <div className="flex flex-col items-end gap-2">
+                <button
+                  type="button"
+                  disabled={!isProfileComplete || profileLoading}
+                  className={`rounded-2xl px-5 py-4 text-base font-semibold text-white shadow-lg transition ${
+                    !isProfileComplete || profileLoading 
+                      ? 'bg-slate-400 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-[#0880EF] to-[#0A67C6] shadow-blue-100 hover:translate-y-[-1px] hover:from-[#0A67C6] hover:to-[#0859AD]'
+                  }`}
+                  onClick={openCreateForm}
+                >
+                  + Create New Internship
+                </button>
+                {!isProfileComplete && !profileLoading && (
+                  <p className="text-sm text-red-600 font-medium max-w-xs text-right">
+                    Please complete your company profile to post internships.
+                  </p>
+                )}
+              </div>
             </div>
 
             <RecruiterStatsGrid stats={dashboardStats} />

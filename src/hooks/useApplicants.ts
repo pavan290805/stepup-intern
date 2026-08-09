@@ -213,6 +213,13 @@ useEffect(() => {
     [updateApplicantStatus]
   );
 
+  const offerApplicant = useCallback(
+    async (applicantId: string) => {
+      await updateApplicantStatus(applicantId, "Completed");
+    },
+    [updateApplicantStatus]
+  );
+
   const scheduleInterview = useCallback(
     async (applicantId: string, internshipId: string, date: string, time: string) => {
       const selectedApplicant = applicants.find((applicant) => applicant.id === applicantId && applicant.internshipId === internshipId);
@@ -270,6 +277,7 @@ useEffect(() => {
     updateApplicantStatus,
     shortlistApplicant,
     rejectApplicant,
+    offerApplicant,
     scheduleInterview,
     deleteApplication,
     sendEmail,

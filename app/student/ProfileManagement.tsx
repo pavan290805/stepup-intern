@@ -13,10 +13,6 @@ type Academic = { university: string; degree: string; graduationYear: string; gp
 
 const uid = (prefix = "id") => `${prefix}_${Math.random().toString(36).slice(2, 9)}`;
 
-/* ─── Backend API shapes ──────────────────────────────────────────────────────
- * These reflect the StudentProfile Mongoose model (src/models/StudentProfile.ts)
- * and the Zod schema (src/lib/validations/index.ts → studentProfileSchema).
- * ─────────────────────────────────────────────────────────────────────────── */
 
 interface BackendProfile {
   userId: { name: string; email: string; profilePicture?: string };
@@ -629,7 +625,6 @@ export default function ProfileManagement() {
     }
 
     // TODO: achievements, experience (internship history), and projects are NOT in
-    // studentProfileSchema (src/lib/validations/index.ts), so Zod strips them before
     // they reach the database. Extend the schema and StudentProfile model to persist them.
 
     return payload;

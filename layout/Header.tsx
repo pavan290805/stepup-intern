@@ -19,7 +19,7 @@ const handleLogout = () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
 
-  router.replace("/login");
+  router.replace("/");
 };
 
   const inRecruiterPortal =
@@ -265,3 +265,5 @@ const handleLogout = () => {
     
   );
 }
+
+

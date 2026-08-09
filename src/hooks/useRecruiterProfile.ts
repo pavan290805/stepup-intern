@@ -8,6 +8,7 @@ export type RecruiterProfile = {
   picture: string;
   role: string;
   company: string;
+  companyId?: string;
   location: string;
   email: string;
   phone: string;
@@ -76,6 +77,7 @@ const normalizeProfile = (profile: RecruiterProfileApi | null | undefined): Recr
     picture: user?.profilePicture || defaultProfile.picture,
     role: profile.designation || defaultProfile.role,
     company: company?.name || defaultProfile.company,
+    companyId: typeof profile.companyId === "string" ? profile.companyId : company?._id,
     email: user?.email || defaultProfile.email,
     phone: profile.phoneNumber || defaultProfile.phone,
     lastAudit: profile.updatedAt ? `Last audit: ${new Date(profile.updatedAt).toLocaleString()}` : defaultProfile.lastAudit,

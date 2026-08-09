@@ -27,8 +27,7 @@ export async function apiFetch(
   if (token && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${token}`);
   }
-  console.log("API_URL =", API_URL);
-console.log("Final URL =", `${API_URL}${normalizedEndpoint}`);
+
   const response = await fetch(`${API_URL}${normalizedEndpoint}`, {
     ...options,
     credentials: "include",
@@ -80,14 +79,7 @@ const token =
   typeof window !== "undefined"
     ? localStorage.getItem("accessToken")
     : null;
-console.log("==== API REQUEST ====");
-console.log("Path:", path);
-console.log("Token:", token);
-console.log(
-  "Authorization:",
-  token ? `Bearer ${token}` : "NO TOKEN"
-);
-console.log("=====================");
+
 const response = await fetch(buildUrl(path), {
   cache: "no-store",
   credentials: "include",

@@ -31,13 +31,13 @@ interface AuthContextType {
     name: string;
     email: string;
     password: string;
-  }) => Promise<void>;
+  }) => Promise<AuthUser>;
 
   signupRecruiter: (input: {
     name: string;
     email: string;
     password: string;
-  }) => Promise<void>;
+  }) => Promise<AuthUser>;
 
   logout: () => Promise<void>;
 
@@ -103,7 +103,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(true);
       setError(null);
 
-      await registerStudent(input);
+      const response = await registerStudent(input);
+      setUser(response.user);
+      return response.user;
     } catch (err: any) {
       setError(err.message || "Registration failed");
       throw err;
@@ -125,7 +127,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(true);
       setError(null);
 
-      await registerRecruiter(input);
+      const response = await registerRecruiter(input);
+      setUser(response.user);
+      return response.user;
     } catch (err: any) {
       setError(err.message || "Registration failed");
       throw err;

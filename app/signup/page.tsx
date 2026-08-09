@@ -58,7 +58,7 @@ export default  function Signup() {
       await signupStudent(studentData);
       setSuccess("Student account created successfully!");
       setTimeout(() => {
-        router.push("/login");
+        router.push("/student");
       }, 1500);
 
     } else {
@@ -71,7 +71,7 @@ export default  function Signup() {
       await signupRecruiter(recruiterData);
       setSuccess("Recruiter account created successfully!");
       setTimeout(() => {
-        router.push("/login");
+        router.push("/recruiter");
       }, 1500);
       
     }

@@ -5,12 +5,13 @@ import { CompanyProvider, useCompanyContext } from "../../Components/contexts/Co
 import {
   listInternships,
   InternshipApiItem,
-  applyForInternship,
 } from "@/lib/api";
+import Link from "next/link";
 
 function InternshipsContent() {
   const { companies, selectedCompany, loading, error, loadCompanies, loadCompanyById } = useCompanyContext();
   const [internships, setInternships] = useState<InternshipApiItem[]>([]);
+  const [loadingInternships, setLoadingInternships] = useState(true);
 
   useEffect(() => {
     void loadCompanies();
@@ -23,29 +24,13 @@ function InternshipsContent() {
         setInternships(data.internships);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoadingInternships(false);
       }
     }
 
     load();
   }, []);
-
-  const handleApply = async (internshipId: string) => {
-    try {
-      await applyForInternship({
-        internshipId,
-      });
-
-      alert("Application submitted successfully!");
-    } catch (err) {
-      console.error(err);
-
-      if (err instanceof Error) {
-        alert(err.message);
-      } else {
-        alert("Failed to apply.");
-      }
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#F5F8FF] px-4 py-24 sm:px-6 lg:px-8">
@@ -99,11 +84,16 @@ function InternshipsContent() {
 
         <h2 className="mt-12 text-2xl font-bold">All Internships</h2>
         <div className="mt-6 grid gap-6">
-          {internships.map((internship) => (
-            <div
-              key={internship._id}
-              className="rounded-xl border p-6 shadow"
-            >
+          {loadingInternships ? (
+            <div className="text-center py-10 text-slate-500 animate-pulse">Loading internships...</div>
+          ) : internships.length === 0 ? (
+            <div className="text-center py-10 text-slate-500">No internships found.</div>
+          ) : (
+            internships.map((internship) => (
+              <div
+                key={internship._id}
+                className="rounded-xl border p-6 shadow"
+              >
               <h2 className="text-xl font-semibold">
                 {internship.title}
               </h2>
@@ -121,14 +111,15 @@ function InternshipsContent() {
               <p>
                 💼 {internship.workMode}
               </p>
-              <button
-                className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-                onClick={() => handleApply(internship._id)}
+              <Link
+                href={`/internships/${internship._id}`}
+                className="mt-4 inline-block rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
               >
-                Apply Now
-              </button>
+                View Details
+              </Link>
             </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

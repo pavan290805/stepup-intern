@@ -8,17 +8,38 @@ import ATSChecker from "@/components/ATSChecker";
 import AIAssistant from "@/components/AIAssistant";
 import { INITIAL_PROFILE, INITIAL_CHAT } from "@/utils/mockData";
 import { StudentProfile, ChatMessage } from "@/types";
+import { getStudentProfile, StudentProfileApi, logout } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import MyApplications from "./MyApplications";
+import InternshipsAvailable from "./InternshipsAvailable";
 
 function StudentDashboardContent() {
-  const [active, setActive] = useState<"profile" | "skill" | "ats" | "ai">("profile");
+  const [active, setActive] = useState<"profile" | "skill" | "ats" | "ai" | "applications" | "internships">("profile");
   const [profile, setProfile] = useState<StudentProfile>(INITIAL_PROFILE);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>(INITIAL_CHAT);
   
+  const [backendProfile, setBackendProfile] = useState<StudentProfileApi | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+  const router = useRouter();
+
   const { applications, savedInternships, loading, error, loadMyApplications, loadSavedInternships } = useStudentActivityContext();
 
   useEffect(() => {
     void loadMyApplications();
     void loadSavedInternships();
+    
+    // Fetch real backend profile to derive workflow state
+    async function loadProfile() {
+      try {
+        const data = await getStudentProfile();
+        setBackendProfile(data);
+      } catch (err) {
+        console.error("Failed to load profile", err);
+      } finally {
+        setLoadingProfile(false);
+      }
+    }
+    loadProfile();
   }, [loadMyApplications, loadSavedInternships]);
 
   const handleUpdateResumeText = (text: string) => {
@@ -33,110 +54,147 @@ function StudentDashboardContent() {
     setChatMessages([]);
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    router.replace("/");
+  };
+
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
-      <div className="mx-4 mb-6 grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-slate-900">My Applications</h3>
-            {loading ? <span className="text-sm text-slate-500">Loading…</span> : null}
+    <div className="min-h-screen bg-[#F8FAFC]">
+      {/* Top Navbar */}
+      <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur-md shadow-sm">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-8">
+            <div className="flex shrink-0 items-center gap-2">
+              <span className="text-xl font-bold tracking-tight text-blue-600">StepUp</span>
+              <span className="text-xl font-bold tracking-tight text-slate-900">Intern</span>
+            </div>
+            
+            <div className="hidden lg:flex lg:gap-x-1 lg:items-center">
+              {[
+                { id: "profile", label: "Profile" },
+                { id: "applications", label: "My Applications" },
+                { id: "internships", label: "Available Internships" },
+                { id: "skill", label: "Skill Gap Analyzer" },
+                { id: "ats", label: "ATS Checker" },
+                { id: "ai", label: "AI Assistant" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActive(tab.id as any)}
+                  className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+                    active === tab.id
+                      ? "bg-blue-50 text-blue-600"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
-          {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
-          {!loading && applications.length === 0 && !error ? (
-            <p className="mt-3 text-sm text-slate-500">You have no applications yet.</p>
-          ) : null}
-          <div className="mt-3 space-y-2">
-            {applications.map((application) => (
-              <div key={application._id} className="rounded-xl border border-slate-200 bg-white p-3">
-                <p className="font-medium text-slate-900">{typeof application.internshipId === "object" && application.internshipId ? application.internshipId.title : "Internship"}</p>
-                <p className="text-sm text-slate-500">Status: {application.status}</p>
-              </div>
-            ))}
+          
+          <div className="flex items-center gap-4">
+             <button
+              onClick={handleLogout}
+              className="hidden sm:inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-slate-900"
+            >
+              Log out
+            </button>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <h3 className="text-lg font-semibold text-slate-900">Saved Internships</h3>
-          {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
-          {!loading && savedInternships.length === 0 && !error ? (
-            <p className="mt-3 text-sm text-slate-500">You have no saved internships.</p>
-          ) : null}
-          <div className="mt-3 space-y-2">
-            {savedInternships.map((item, index) => (
-              <div key={item._id ?? `${item.internshipId}-${index}`} className="rounded-xl border border-slate-200 bg-white p-3">
-                <p className="font-medium text-slate-900">
-                  {typeof item.internshipId === "object" && item.internshipId && "title" in item.internshipId ? item.internshipId.title : "Saved internship"}
-                </p>
-                <p className="text-sm text-slate-500">Saved for later</p>
-              </div>
-            ))}
-          </div>
+        {/* Mobile Navigation Row (Horizontal Scroll) */}
+        <div className="flex lg:hidden overflow-x-auto border-t border-slate-100 px-4 py-2 hide-scrollbar">
+           <div className="flex gap-2">
+              {[
+                { id: "profile", label: "Profile" },
+                { id: "applications", label: "My Applications" },
+                { id: "internships", label: "Available Internships" },
+                { id: "skill", label: "Skill Gap Analyzer" },
+                { id: "ats", label: "ATS Checker" },
+                { id: "ai", label: "AI Assistant" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActive(tab.id as any)}
+                  className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition ${
+                    active === tab.id
+                      ? "bg-blue-600 text-white shadow-sm"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+              <button
+                onClick={handleLogout}
+                className="shrink-0 rounded-full px-4 py-1.5 text-sm font-medium border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50"
+              >
+                Log out
+              </button>
+           </div>
         </div>
-      </div>
+      </nav>
 
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
-        <button
-          onClick={() => setActive("profile")}
-          className={`px-4 py-2 text-sm font-semibold rounded-lg transition cursor-pointer ${
-            active === "profile"
-              ? "bg-blue-600 text-white shadow"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-          }`}
-        >
-          Profile Management
-        </button>
-
-        <button
-          onClick={() => setActive("skill")}
-          className={`px-4 py-2 text-sm font-semibold rounded-lg transition cursor-pointer ${
-            active === "skill"
-              ? "bg-blue-600 text-white shadow"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-          }`}
-        >
-          Skill Gap Analyzer
-        </button>
-
-        <button
-          onClick={() => setActive("ats")}
-          className={`px-4 py-2 text-sm font-semibold rounded-lg transition cursor-pointer ${
-            active === "ats"
-              ? "bg-blue-600 text-white shadow"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-          }`}
-        >
-          ATS Checker
-        </button>
-
-        <button
-          onClick={() => setActive("ai")}
-          className={`px-4 py-2 text-sm font-semibold rounded-lg transition cursor-pointer ${
-            active === "ai"
-              ? "bg-blue-600 text-white shadow"
-              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-          }`}
-        >
-          AI Assistant
-        </button>
-      </div>
-
-      <div>
-        {active === "profile" && <ProfileManagement />}
-        {active === "skill" && <SkillGapAnalyzer />}
-        {active === "ats" && (
-          <ATSChecker
-            profile={profile}
-            onUpdateResumeText={handleUpdateResumeText}
-          />
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {!loadingProfile && backendProfile && active === "profile" && (
+          <div className="mb-8 rounded-2xl border border-blue-200 bg-blue-50/50 p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div>
+              <h3 className="text-lg font-semibold text-blue-900">
+                {backendProfile.profileCompletion < 100 
+                  ? "Complete your profile" 
+                  : !backendProfile.resumeUrl 
+                    ? "Upload your resume" 
+                    : "Profile is ready!"}
+              </h3>
+              <p className="mt-1.5 text-sm text-blue-800">
+                {backendProfile.profileCompletion < 100 
+                  ? "Get personalized internship recommendations by completing your profile." 
+                  : !backendProfile.resumeUrl 
+                    ? "Run the ATS Checker by uploading your resume in the Profile tab." 
+                    : "Run the ATS Checker or Skill Gap Analyzer to discover your next steps."}
+              </p>
+            </div>
+            <button
+              onClick={() => setActive(backendProfile.profileCompletion < 100 || !backendProfile.resumeUrl ? "profile" : "ats")}
+              className="shrink-0 rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+            >
+              {backendProfile.profileCompletion < 100 
+                  ? "Go to Profile" 
+                  : !backendProfile.resumeUrl 
+                    ? "Upload Resume" 
+                    : "Run ATS Checker"}
+            </button>
+          </div>
         )}
-        {active === "ai" && (
-          <AIAssistant
-            profile={profile}
-            initialChatMessages={chatMessages}
-            onSendMessage={handleSendMessage}
-            onClearChatHistory={handleClearChatHistory}
-          />
-        )}
+
+        <main>
+          {active === "profile" && <ProfileManagement />}
+          {active === "applications" && <MyApplications />}
+          {active === "internships" && <InternshipsAvailable />}
+          {active === "skill" && <SkillGapAnalyzer />}
+          {active === "ats" && (
+            <ATSChecker
+              profile={profile}
+              onUpdateResumeText={handleUpdateResumeText}
+            />
+          )}
+          {active === "ai" && (
+            <AIAssistant
+              profile={profile}
+              initialChatMessages={chatMessages}
+              onSendMessage={handleSendMessage}
+              onClearChatHistory={handleClearChatHistory}
+            />
+          )}
+        </main>
       </div>
     </div>
   );
