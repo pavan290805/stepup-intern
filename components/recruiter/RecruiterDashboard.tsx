@@ -49,7 +49,7 @@ export default function RecruiterPage() {
     error,
   } = useRecruiterInternships();
   const { profile } = useRecruiterProfile();
-  const { applicants } = useApplicants();
+  const { applicants, loading: loadingApplicants } = useApplicants();
   const [form, setForm] = useState<InternshipFormState>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -251,7 +251,15 @@ export default function RecruiterPage() {
               </button>
             </div>
 
-            <RecruiterStatsGrid stats={dashboardStats} />
+            {loading || loadingApplicants ? (
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="h-20 rounded-2xl bg-slate-100 animate-pulse" />
+                <div className="h-20 rounded-2xl bg-slate-100 animate-pulse" />
+                <div className="h-20 rounded-2xl bg-slate-100 animate-pulse" />
+              </div>
+            ) : (
+              <RecruiterStatsGrid stats={dashboardStats} />
+            )}
             {error ? (
               <p className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {error}
@@ -400,7 +408,13 @@ export default function RecruiterPage() {
             </div>
 
             <div className="mt-6 space-y-4">
-              {filteredInternships.length === 0 ? (
+              {loading || loadingApplicants ? (
+                <div className="space-y-4">
+                  <div className="h-28 rounded-xl bg-slate-100 animate-pulse" />
+                  <div className="h-28 rounded-xl bg-slate-100 animate-pulse" />
+                  <div className="h-28 rounded-xl bg-slate-100 animate-pulse" />
+                </div>
+              ) : filteredInternships.length === 0 ? (
                 <EmptyListingsState />
               ) : (
                 filteredInternships.map((internship) => (
@@ -409,7 +423,6 @@ export default function RecruiterPage() {
                     internship={internship}
                     formatDate={formatDate}
                     onEdit={startEditing}
-                    
                     onClose={closeListing}
                     onReopen={reopenListing}
                     onViewApplicants={handleViewApplicants}

@@ -24,18 +24,16 @@ export default function Header({ onCreate }: HeaderProps) {
     { key: "home", label: "Home", href: "/" },
     { key: "about", label: "About Us", href: "/about" },
     { key: "internships", label: "Internships", href: inRecruiterPortal ? "/recruiter" : "/internships" },
-    { key: "interviews", label: "Interviews", href: "/interviews" },
     { key: "contact", label: "Contact Us", href: "/contact" },
-    { key: "profile", label: "Profile", href: "/profile" },
   ];
+
+  const interviewsHref = "/interviews";
 
   // Mobile-only menu (hamburger) — intentionally separate from desktop nav
   const mobileNav = [
     { key: "internships", label: "Internships", href: inRecruiterPortal ? "/recruiter" : "/internships" },
-    { key: "interviews", label: "Interviews", href: "/interviews" },
     { key: "about", label: "About Us", href: "/about" },
     { key: "contact", label: "Contact Us", href: "/contact" },
-    { key: "profile", label: "Profile", href: "/profile" },
   ];
 
   const isActiveNavItem = (key: string) => {
@@ -125,18 +123,22 @@ export default function Header({ onCreate }: HeaderProps) {
   return (
     <header className="sticky inset-x-0 top-0 z-[9999] border-b border-slate-200 bg-white/95 backdrop-blur shadow-sm overflow-visible px-4 sm:px-6 lg:px-8 xl:px-10">
       <div className="grid w-full grid-cols-[auto_1fr_auto] items-center px-0 py-4">
-        <div className="flex items-center gap-3">
-          <button
-              type="button"
-              onClick={toggleNav}
-              className="inline-flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-2xl bg-transparent text-slate-700 transition hover:bg-blue-50 hover:text-[#0880EF] focus:outline-none focus:ring-2 focus:ring-[#0880EF]/30 group"
-              aria-expanded={navOpen}
-              aria-label="Open navigation"
-            >
-              <span className="block h-0.5 w-6 rounded-full bg-slate-700 transition-colors group-hover:bg-[#0880EF]" />
-              <span className="block h-0.5 w-6 rounded-full bg-slate-700 transition-colors group-hover:bg-[#0880EF]" />
-              <span className="block h-0.5 w-6 rounded-full bg-slate-700 transition-colors group-hover:bg-[#0880EF]" />
-            </button>
+          <div className="flex items-center gap-3">
+            {inRecruiterPortal ? (
+              <div aria-hidden="true" className="inline-flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-2xl bg-transparent" />
+            ) : (
+              <button
+                type="button"
+                onClick={toggleNav}
+                className="inline-flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-2xl bg-transparent text-slate-700 transition hover:bg-blue-50 hover:text-[#0880EF] focus:outline-none focus:ring-2 focus:ring-[#0880EF]/30 group"
+                aria-expanded={navOpen}
+                aria-label="Open navigation"
+              >
+                <span className="block h-0.5 w-6 rounded-full bg-slate-700 transition-colors group-hover:bg-[#0880EF]" />
+                <span className="block h-0.5 w-6 rounded-full bg-slate-700 transition-colors group-hover:bg-[#0880EF]" />
+                <span className="block h-0.5 w-6 rounded-full bg-slate-700 transition-colors group-hover:bg-[#0880EF]" />
+              </button>
+            )}
 
             <div className="flex items-center gap-4">
               <div className="leading-none">
@@ -151,13 +153,13 @@ export default function Header({ onCreate }: HeaderProps) {
             </div>
           </div>
 
-          <nav className="hidden justify-self-center md:flex flex-wrap items-center gap-3">
+          <nav className="hidden justify-self-center md:flex items-center gap-3 overflow-x-auto whitespace-nowrap">
             {navItems.map((item) => (
               <Link
                 key={item.key}
                 href={item.href}
                 className={
-                  "inline-flex items-center rounded-full px-6 py-3 text-lg font-semibold transition " +
+                  "inline-flex items-center rounded-full px-4 py-2 md:px-6 md:py-3 text-base md:text-lg font-semibold transition " +
                   (isActiveNavItem(item.key)
                     ? "bg-[#E8F2FF] text-[#0B5CC4] shadow-sm"
                     : "text-slate-600 hover:bg-slate-100 hover:text-slate-900")
@@ -179,36 +181,67 @@ export default function Header({ onCreate }: HeaderProps) {
                 <span className="hidden sm:inline text-base font-medium sm:text-lg">{profile.name}</span>
               </button>
 
-              {dropdownOpen ? (
-                <div className="absolute right-0 z-[1001] mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-4 shadow-lg">
-                  <div className="mb-3">
-                    <p className="text-sm font-semibold text-slate-900">{profile.name}</p>
-                    <p className="text-xs text-slate-500">{profile.role}</p>
-                  </div>
-                  <div className="space-y-2">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        try {
-                          await logout();
-                        } catch (error) {
-                          console.error("Logout failed", error);
-                        }
-                        setDropdownOpen(false);
-                        router.push("/");
-                      }}
-                      className="w-full rounded-2xl bg-[#0880EF] px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-[#0A67C6]"
-                    >
-                      Logout
-                    </button>
-                  </div>
+              <div
+                className={
+                  "absolute right-0 z-[1001] mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-4 shadow-lg transform transition-all duration-150 origin-top-right " +
+                  (dropdownOpen
+                    ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+                    : "opacity-0 scale-95 -translate-y-2 pointer-events-none")
+                }
+                aria-hidden={!dropdownOpen}
+              >
+                <div className="mb-3">
+                  <p className="text-sm font-semibold text-slate-900">{profile.name}</p>
+                  <p className="text-xs text-slate-500">{profile.role}</p>
                 </div>
-              ) : null}
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      router.push("/profile");
+                    }}
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  >
+                    Profile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      try {
+                        localStorage.setItem("highlight_interviews", String(Date.now()));
+                      } catch (e) {
+                        // ignore
+                      }
+                      setDropdownOpen(false);
+                      router.push(interviewsHref);
+                    }}
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  >
+                    Scheduled Interviews
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        await logout();
+                      } catch (error) {
+                        console.error("Logout failed", error);
+                      }
+                      setDropdownOpen(false);
+                      router.push("/");
+                    }}
+                    className="w-full rounded-2xl bg-[#0880EF] px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-[#0A67C6]"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-      {mounted && navOpen ? (
+      {mounted && navOpen && !inRecruiterPortal ? (
         createPortal(
           <>
             <div className="fixed inset-0 z-[9998] bg-slate-950/30 opacity-100 transition-opacity duration-200" onClick={closeNav} />

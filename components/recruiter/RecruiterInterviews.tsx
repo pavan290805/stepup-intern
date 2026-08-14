@@ -14,6 +14,7 @@ type InterviewCard = {
 };
 
 export default function InterviewsPage() {
+  const [highlight, setHighlight] = useState(false);
   const [link, setLink] = useState<string>("");
   const [savedLink, setSavedLink] = useState<string>("");
   // start with no recent alerts for now
@@ -74,6 +75,19 @@ export default function InterviewsPage() {
     if (stored) setSavedLink(stored);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const v = localStorage.getItem("highlight_interviews");
+    if (v) {
+      try {
+        localStorage.removeItem("highlight_interviews");
+      } catch (e) {}
+      setHighlight(true);
+      const t = setTimeout(() => setHighlight(false), 2000);
+      return () => clearTimeout(t);
+    }
+  }, []);
+
   const saveLink = useCallback(() => {
     try {
       localStorage.setItem("recruiter_calendly_link", link.trim());
@@ -106,7 +120,7 @@ export default function InterviewsPage() {
         </aside>
 
         <section className="space-y-6">
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className={"rounded-2xl border border-slate-200 bg-white p-6 shadow-sm " + (highlight ? "ring-4 ring-[#0B5CC4]/25 transition-shadow duration-300 animate-pulse" : "") }>
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-500">Scheduling Configuration</p>
