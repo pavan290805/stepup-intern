@@ -25,9 +25,15 @@ export async function GET(
     }
 
     return successResponse(interview);
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch interview', undefined, 500);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : 'Failed to fetch interview',
+    undefined,
+    500
+  );
+}
 }
 
 export async function PATCH(
@@ -51,7 +57,13 @@ export async function PATCH(
     }
 
     return successResponse(interview, 'Interview updated successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to update interview', undefined, 400);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : 'Failed to update interview',
+    undefined,
+    400
+  );
+}
 }

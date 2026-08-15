@@ -24,7 +24,7 @@ export async function PATCH(
     const { valid, data, response } = await validateRequestBody(request, applicationStatusUpdateSchema);
     if (!valid) return response;
 
-    const application = await applicationService.updateApplicationStatus(id, data as any);
+    const application = await applicationService.updateApplicationStatus(id, data);
 
     if (!application) {
       return errorResponse('Application not found', undefined, 404);
@@ -45,9 +45,15 @@ export async function PATCH(
     }
 
     return successResponse(application, 'Application status updated successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to update application', undefined, 400);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to update application",
+    undefined,
+    400
+  );
+}
 }
 
 export async function DELETE(
@@ -64,7 +70,13 @@ export async function DELETE(
     await applicationService.deleteApplication(id);
 
     return successResponse(null, 'Application deleted successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to delete application', undefined, 500);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to delete application",
+    undefined,
+    500
+  );
+}
 }

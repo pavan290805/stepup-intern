@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 
-import DashboardGrid from "../../Components/admin/Dashboard/DashboardGrid";
+import DashboardGrid from "@/components/admin/Dashboard/DashboardGrid";
 
 export default function AdminDashboard() {
   const {

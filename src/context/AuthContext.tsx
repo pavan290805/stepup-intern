@@ -14,11 +14,16 @@ import {
   logout as logoutApi,
   getCurrentUser,
   type AuthUser,
+  type AuthResponse,
 } from "@/lib/api";
 
 import { useRouter } from "next/navigation";
 
 import { onSessionExpired } from "@/lib/authEvents";
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -29,7 +34,7 @@ interface AuthContextType {
   login: (input: {
     email: string;
     password: string;
-  }) => Promise<AuthUser>;
+  }) => Promise<AuthResponse>;
 
   signupStudent: (input: {
     name: string;
@@ -87,9 +92,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await loginApi(input);
 
       setUser(response.user);
-      return response.user;
-    } catch (err: any) {
-      setError(err.message || "Login failed");
+      return response;
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Login failed"));
       throw err;
     } finally {
       setLoading(false);
@@ -110,8 +115,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setError(null);
 
       await registerStudent(input);
-    } catch (err: any) {
-      setError(err.message || "Registration failed");
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Registration failed"));
       throw err;
     } finally {
       setLoading(false);
@@ -132,8 +137,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setError(null);
 
       await registerRecruiter(input);
-    } catch (err: any) {
-      setError(err.message || "Registration failed");
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Registration failed"));
       throw err;
     } finally {
       setLoading(false);
@@ -153,8 +158,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setUser(null);
       setError(null);
       router.replace("/");
-    } catch (err: any) {
-      setError(err.message || "Logout failed");
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, "Logout failed"));
       throw err;
     } finally {
       setLoading(false);

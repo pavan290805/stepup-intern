@@ -16,7 +16,13 @@ export async function GET(request: NextRequest) {
     return successResponse({
       statistics: stats,
     });
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch statistics', undefined, 500);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to fetch statistics",
+    undefined,
+    500
+  );
+}
 }

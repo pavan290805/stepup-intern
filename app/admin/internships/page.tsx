@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useAdmin } from "@/hooks/useAdmin";
 
-import InternshipTable from "../../../Components/admin/Internships/InternshipTable";
+import InternshipTable from "../@/components/admin/Internships/InternshipTable";
 
 import type { InternshipApiItem } from "@/lib/api";
 import type { Pagination } from "@/types/admin";
@@ -34,16 +34,37 @@ export default function InternshipsPage() {
   const [pagination, setPagination] =
     useState<Pagination | null>(null);
 
+  const fetchInternships = useCallback(async ({
+    page = 1,
+    limit = 20,
+    search = "",
+  }: FetchInternshipsOptions = {}) => {
+    try {
+      const query = `page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`;
+      const response = await getInternships(query);
+
+      setInternships(response.internships);
+      setPagination(response.pagination);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [getInternships]);
+
   useEffect(() => {
-    fetchInternships();
-  }, [page]);
+    void fetchInternships({
+      page,
+      limit,
+      search,
+    });
+  }, [fetchInternships, page, limit, search]);
+
   useEffect(() => {
 
     const timer = setTimeout(() => {
 
         setPage(1);
 
-        fetchInternships({
+        void fetchInternships({
             page: 1,
             limit,
             search,
@@ -53,26 +74,7 @@ export default function InternshipsPage() {
 
     return () => clearTimeout(timer);
 
-}, [search, limit]);
-
-  async function fetchInternships({
-    page = 1,
-    limit = 20,
-    search = "",
-}: FetchInternshipsOptions = {}) {
-    try {
-      const query =
-        `page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`;
-
-      const response =
-        await getInternships(query);
-
-      setInternships(response.internships);
-      setPagination(response.pagination);
-    } catch (err) {
-      console.error(err);
-    }
-  }
+}, [fetchInternships, search, limit]);
 
   function handleStatusUpdated(
     updatedInternship: InternshipApiItem

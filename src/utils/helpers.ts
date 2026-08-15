@@ -11,7 +11,7 @@ export function generatePaginationMeta(page: number, limit: number, total: numbe
   };
 }
 
-export function formatErrorMessage(error: any): string {
+export function formatErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     return error.message;
   }
@@ -22,12 +22,12 @@ export function isValidMongoId(id: string): boolean {
   return /^[0-9a-fA-F]{24}$/.test(id);
 }
 
-export function sanitizeObject<T extends Record<string, any>>(obj: T): Partial<T> {
-  const sanitized: any = {};
+export function sanitizeObject<T extends Record<string, unknown>>(obj: T): Partial<T> {
+  const sanitized: Partial<T> = {};
 
   for (const [key, value] of Object.entries(obj)) {
     if (value !== undefined && value !== null && key !== 'password') {
-      sanitized[key] = value;
+      sanitized[key as keyof T] = value as T[keyof T];
     }
   }
 

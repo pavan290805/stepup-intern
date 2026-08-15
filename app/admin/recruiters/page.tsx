@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useAdmin } from "@/hooks/useAdmin";
 
-import RecruiterTable from "../../../Components/admin/Recruiters/RecruiterTable";
+import RecruiterTable from "../@/components/admin/Recruiters/RecruiterTable";
 
 import type {
   RecruiterProfileApi,
@@ -44,6 +44,34 @@ export default function RecruitersPage() {
 
   const [pagination, setPagination] =
     useState<Pagination | null>(null);
+
+  const fetchRecruiters = useCallback(async ({
+    page = 1,
+    limit = 20,
+    search = "",
+  }: FetchRecruitersOptions = {}) => {
+    try {
+      setPageLoading(true);
+
+      const query = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search.trim()) {
+        query.set("search", search.trim());
+      }
+
+      const response = await getRecruiters(query.toString());
+
+      setRecruiters(response.recruiters);
+      setPagination(response.pagination);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPageLoading(false);
+    }
+  }, [getRecruiters]);
 
   function handleRecruiterUpdated(
     updatedRecruiter: RecruiterProfileApi
@@ -93,19 +121,19 @@ export default function RecruitersPage() {
   }
 
   useEffect(() => {
-    fetchRecruiters({
+    void fetchRecruiters({
       page,
       limit,
       search,
     });
-  }, [page]);
+  }, [fetchRecruiters, page, limit, search]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
 
       setPage(1);
 
-      fetchRecruiters({
+      void fetchRecruiters({
         page: 1,
         limit,
         search,
@@ -116,53 +144,7 @@ export default function RecruitersPage() {
     return () =>
       clearTimeout(timer);
 
-  }, [search, limit]);
-
-  async function fetchRecruiters({
-    page = 1,
-    limit = 20,
-    search = "",
-  }: FetchRecruitersOptions = {}) {
-    try {
-
-      setPageLoading(true);
-
-      const query =
-        new URLSearchParams({
-          page: page.toString(),
-          limit: limit.toString(),
-        });
-
-      if (search.trim()) {
-        query.set(
-          "search",
-          search.trim()
-        );
-      }
-
-      const response =
-        await getRecruiters(
-          query.toString()
-        );
-
-      setRecruiters(
-        response.recruiters
-      );
-
-      setPagination(
-        response.pagination
-      );
-
-    } catch (err) {
-
-      console.error(err);
-
-    } finally {
-
-      setPageLoading(false);
-
-    }
-  }
+  }, [fetchRecruiters, search, limit]);
 
   return (
     <div className="space-y-8">

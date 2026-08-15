@@ -12,7 +12,7 @@ import {
   sectionSubtitleStyles,
   labelStyles,
   linkStyles,
-} from "../../Components/constants/styles";
+} from "@/constants/styles";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";

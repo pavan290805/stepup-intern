@@ -1,8 +1,8 @@
 "use client";
 
 import { ReactNode } from "react";
-import Sidebar from "../../Components/admin/Sidebar";
-import Header from "../../Components/admin/Header";
+import Sidebar from "@/components/admin/Sidebar";
+import Header from "@/components/admin/Header";
 
 interface AdminLayoutProps {
   children: ReactNode;

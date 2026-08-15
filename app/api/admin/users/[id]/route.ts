@@ -29,9 +29,15 @@ export async function PATCH(
     }
 
     return successResponse(user, 'User status updated successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to update user', undefined, 400);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to update user",
+    undefined,
+    400
+  );
+}
 }
 
 export async function DELETE(
@@ -48,7 +54,13 @@ export async function DELETE(
     await adminService.deleteUser(id);
 
     return successResponse(null, 'User deleted successfully');
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to delete user', undefined, 500);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to delete user",
+    undefined,
+    500
+  );
+}
 }

@@ -5,15 +5,28 @@ import { internshipService } from '@/modules/internship/internship.service';
 import { recruiterService } from '@/modules/recruiter/recruiter.service';
 import { NextRequest } from 'next/server';
 
+type AuthenticatedRequest = NextRequest & {
+  user: {
+    userId: string;
+    role: string;
+  };
+};
+
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
-    const authError = await withAuth(request, [USER_ROLES.RECRUITER, USER_ROLES.ADMIN]);
+    const authError = await withAuth(request, [
+      USER_ROLES.RECRUITER,
+      USER_ROLES.ADMIN,
+    ]);
     if (authError) return authError;
 
-    const user = (request as any).user;
-    const recruiterProfile = await recruiterService.getRecruiterByUserId(user.userId);
+    const user = (request as AuthenticatedRequest).user;
+
+    const recruiterProfile = await recruiterService.getRecruiterByUserId(
+      user.userId
+    );
 
     if (!recruiterProfile) {
       return errorResponse('Recruiter profile not found', undefined, 404);
@@ -23,10 +36,13 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    const result = await internshipService.getInternshipsByRecruiterId(recruiterProfile._id.toString(), {
-      page,
-      limit,
-    });
+    const result = await internshipService.getInternshipsByRecruiterId(
+      recruiterProfile._id.toString(),
+      {
+        page,
+        limit,
+      }
+    );
 
     return successResponse({
       internships: result.internships,
@@ -37,7 +53,13 @@ export async function GET(request: NextRequest) {
         pages: Math.ceil(result.total / limit),
       },
     });
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch recruiter internships', undefined, 500);
+  } catch (error: unknown) {
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : 'Failed to fetch recruiter internships',
+      undefined,
+      500
+    );
   }
 }

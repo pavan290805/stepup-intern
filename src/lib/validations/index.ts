@@ -68,6 +68,8 @@ export const internshipSchema = z.object({
   duration: z.string(),
   openings: z.number().min(1),
   deadline: z.string().datetime(),
+  featured: z.boolean().optional(),
+  status: z.enum(['draft', 'active', 'closed']).optional(),
 });
 
 export const internshipFilterSchema = z.object({

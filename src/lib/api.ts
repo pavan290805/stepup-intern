@@ -25,6 +25,22 @@ function buildUrl(path: string) {
   return `${API_BASE}${path}`;
 }
 
+function normalizeLegacyPath(path: string) {
+  if (path.startsWith("http://") || path.startsWith("https://")) {
+    return path;
+  }
+
+  if (path.startsWith("/api/")) {
+    return path;
+  }
+
+  if (path.startsWith("/")) {
+    return `/api${path}`;
+  }
+
+  return `/api/${path}`;
+}
+
 async function readPayload<T>(response: Response): Promise<ApiEnvelope<T> | null> {
   try {
     return (await response.json()) as ApiEnvelope<T>;
@@ -47,32 +63,29 @@ async function refreshAccessToken(): Promise<boolean> {
 }
 
 export async function apiRequest<T>(path: string, init: RequestInit = {}, retry = true): Promise<T> {
-  let response = await fetch(buildUrl(path), {
-  cache: "no-store",
-  credentials: "include",
-  ...init,
-  headers: {
-    ...(init.body instanceof FormData
-      ? {}
-      : { "Content-Type": "application/json" }),
-    ...(init.headers ?? {}),
-  },
-});
-if (
-  response.status === 401 &&
-  retry &&
-  path !== "/api/auth/refresh-token"
-) {
-  const refreshed = await refreshAccessToken();
+  const response = await fetch(buildUrl(path), {
+    cache: "no-store",
+    credentials: "include",
+    ...init,
+    headers: {
+      ...(init.body instanceof FormData
+        ? {}
+        : { "Content-Type": "application/json" }),
+      ...(init.headers ?? {}),
+    },
+  });
 
-  if (refreshed) {
-    return apiRequest<T>(path, init, false);
+  if (response.status === 401 && retry && path !== "/api/auth/refresh-token") {
+    const refreshed = await refreshAccessToken();
+
+    if (refreshed) {
+      return apiRequest<T>(path, init, false);
+    }
+
+    emitSessionExpired();
+
+    throw new Error("Session expired");
   }
-
-  emitSessionExpired();
-
-  throw new Error("Session expired");
-}
 
   const payload = await readPayload<T>(response);
 
@@ -83,6 +96,48 @@ if (
   }
 
   return (payload?.data ?? payload) as T;
+}
+
+export async function apiFetch<T = unknown>(
+  path: string,
+  init: RequestInit = {},
+  retry = true
+): Promise<ApiEnvelope<T>> {
+  const normalizedPath = normalizeLegacyPath(path);
+
+  const response = await fetch(buildUrl(normalizedPath), {
+    cache: "no-store",
+    credentials: "include",
+    ...init,
+    headers: {
+      ...(init.body instanceof FormData
+        ? {}
+        : { "Content-Type": "application/json" }),
+      ...(init.headers ?? {}),
+    },
+  });
+
+  if (response.status === 401 && retry && normalizedPath !== "/api/auth/refresh-token") {
+    const refreshed = await refreshAccessToken();
+
+    if (refreshed) {
+      return apiFetch<T>(path, init, false);
+    }
+
+    emitSessionExpired();
+
+    throw new Error("Session expired");
+  }
+
+  const payload = await readPayload<T>(response);
+
+  if (!response.ok || payload?.success === false) {
+    const message = payload?.message || `Request failed with status ${response.status}`;
+    const errors = Array.isArray(payload?.errors) && payload?.errors.length > 0 ? `: ${payload?.errors.join(", ")}` : "";
+    throw new Error(`${message}${errors}`);
+  }
+
+  return payload ?? {};
 }
 
 export const apiGet = <T,>(path: string) => apiRequest<T>(path);
@@ -101,6 +156,7 @@ export type InternshipApiItem = {
   title: string;
   description: string;
   skillsRequired: string[];
+  responsibilities?: string[];
   location: string;
   workMode: "remote" | "hybrid" | "onsite";
   stipend: number;

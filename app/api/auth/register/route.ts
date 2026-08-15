@@ -15,11 +15,7 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
-    const result = await authService.register(data as any);
-
-    if (!valid) {
-      return response;
-    }
+    const result = await authService.register(data);
 
     return createAuthCookies(
       {
@@ -36,7 +32,11 @@ export async function POST(request: NextRequest) {
       result.refreshToken,
       'User registered successfully'
     );
-  } catch (error: any) {
-    return errorResponse(error?.message || 'Registration failed', undefined, 400);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error ? error.message : "Registration failed",
+    undefined,
+    400
+  );
+}
 }

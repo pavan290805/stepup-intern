@@ -23,16 +23,18 @@ const recruiterProfileSchema = new Schema<IRecruiterProfile>(
       ref: 'Company',
       required: [true, 'Company ID is required'],
     },
-    designation: {
-      type: String,
-      required: [true, 'Designation is required'],
-      maxlength: [100, 'Designation cannot exceed 100 characters'],
-    },
+   designation: {
+  type: String,
+  required: [true, 'Designation is required'],
+  maxlength: [100, 'Designation cannot exceed 100 characters'],
+  trim: true,
+},
     phoneNumber: {
-      type: String,
-      required: [true, 'Phone number is required'],
-      match: [/^\+?[1-9]\d{1,14}$/, 'Please provide a valid phone number'],
-    },
+  type: String,
+  required: [true, 'Phone number is required'],
+  trim: true,
+  match: [/^\+?[1-9]\d{1,14}$/, 'Please provide a valid phone number'],
+},
     verificationStatus: {
       type: String,
       enum: ['pending', 'verified', 'rejected'],

@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useAdmin } from "@/hooks/useAdmin";
 
-import CompanyTable from "../../../Components/admin/Companies/CompanyTable";
-import CompanyDetailsDialog from "../../../Components/admin/Companies/CompanyDetailsDialog";
+import CompanyTable from "../@/components/admin/Companies/CompanyTable";
+import CompanyDetailsDialog from "../@/components/admin/Companies/CompanyDetailsDialog";
 
 import type { CompanyApiItem } from "@/lib/api";
 import type { Pagination } from "@/types/admin";
@@ -13,7 +13,7 @@ import type { Pagination } from "@/types/admin";
 interface FetchCompaniesOptions {
   page?: number;
   limit?: number;
-  search?: string;
+  search?: string;  
 }
 
 export default function CompaniesPage() {
@@ -46,38 +46,12 @@ export default function CompaniesPage() {
   const [detailsOpen, setDetailsOpen] =
     useState(false);
 
-  useEffect(() => {
-    fetchCompanies({
-      page,
-      limit,
-      search,
-    });
-  }, [page]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-
-      setPage(1);
-
-      fetchCompanies({
-        page: 1,
-        limit,
-        search,
-      });
-
-    }, 500);
-
-    return () => clearTimeout(timer);
-
-  }, [search, limit]);
-
-  async function fetchCompanies({
+  const fetchCompanies = useCallback(async ({
     page = 1,
     limit = 20,
     search = "",
-  }: FetchCompaniesOptions = {}) {
+  }: FetchCompaniesOptions = {}) => {
     try {
-
       setPageLoading(true);
 
       const query = new URLSearchParams({
@@ -89,18 +63,41 @@ export default function CompaniesPage() {
         query.set("search", search.trim());
       }
 
-      const response =
-        await getCompanies(query.toString());
+      const response = await getCompanies(query.toString());
 
       setCompanies(response.companies);
       setPagination(response.pagination);
-
     } catch (err) {
       console.error(err);
     } finally {
       setPageLoading(false);
     }
-  }
+  }, [getCompanies]);
+
+  useEffect(() => {
+    void fetchCompanies({
+      page,
+      limit,
+      search,
+    });
+  }, [fetchCompanies, page, limit, search]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+
+      setPage(1);
+
+      void fetchCompanies({
+        page: 1,
+        limit,
+        search,
+      });
+
+    }, 500);
+
+    return () => clearTimeout(timer);
+
+  }, [fetchCompanies, search, limit]);
 
   function handleViewCompany(
     company: CompanyApiItem

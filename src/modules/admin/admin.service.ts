@@ -6,212 +6,254 @@ import User from '@/models/User';
 import { PaginationQuery } from '@/types';
 
 export const adminService = {
-  async getAllUsers(query: PaginationQuery): Promise<{ users: any[]; total: number }> {
+  async getAllUsers(query: PaginationQuery): Promise<{
+    users: unknown[];
+    total: number;
+  }> {
     const page = query.page || 1;
     const limit = query.limit || 10;
     const skip = (page - 1) * limit;
 
-    const filter: any = {};
+    const filter: {
+      $or?: {
+        name?: object;
+        email?: object;
+      }[];
+    } = {};
 
     if (query.search) {
       filter.$or = [
-        { name: { $regex: query.search, $options: 'i' } },
-        { email: { $regex: query.search, $options: 'i' } },
+        {
+          name: {
+            $regex: query.search,
+            $options: 'i',
+          },
+        },
+        {
+          email: {
+            $regex: query.search,
+            $options: 'i',
+          },
+        },
       ];
     }
 
-    const users = await User.find(filter)
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+    const [users, total] = await Promise.all([
+      User.find(filter)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .lean(),
 
-    const total = await User.countDocuments(filter);
+      User.countDocuments(filter),
+    ]);
 
-    return { users, total };
+    return {
+      users,
+      total,
+    };
   },
 
-  async getUserById(userId: string): Promise<any> {
-    return User.findById(userId);
+  async getUserById(
+    userId: string
+  ): Promise<unknown> {
+    return User.findById(userId).lean();
   },
 
-  async updateUserStatus(userId: string, isActive: boolean): Promise<any> {
-    return User.findByIdAndUpdate(userId, { isActive }, { new: true });
+  async updateUserStatus(
+    userId: string,
+    isActive: boolean
+  ): Promise<unknown> {
+    return User.findByIdAndUpdate(
+      userId,
+      { isActive },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
   },
 
-  async deleteUser(userId: string): Promise<void> {
+  async deleteUser(
+    userId: string
+  ): Promise<void> {
     await User.findByIdAndDelete(userId);
   },
 
- async getPendingCompanies(query: PaginationQuery): Promise<{
-  companies: any[];
-  total: number;
-}> {
-  const page = query.page || 1;
-  const limit = query.limit || 10;
-  const skip = (page - 1) * limit;
+  async getPendingCompanies(
+    query: PaginationQuery
+  ): Promise<{
+    companies: unknown[];
+    total: number;
+  }> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
 
-  const filter: any = {
-    verificationStatus: "pending",
-  };
+    const filter: {
+      verificationStatus: 'pending';
+    } = {
+      verificationStatus: 'pending',
+    };
 
-  if (query.search) {
-    filter.$or = [
-      {
-        name: {
-          $regex: query.search,
-          $options: "i",
-        },
-      },
-      {
-        industry: {
-          $regex: query.search,
-          $options: "i",
-        },
-      },
-      {
-        headquarters: {
-          $regex: query.search,
-          $options: "i",
-        },
-      },
-    ];
-  }
+    const [companies, total] = await Promise.all([
+      Company.find(filter)
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .lean(),
 
-  const companies = await Company.find(filter)
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 });
+      Company.countDocuments(filter),
+    ]);
 
-  const total = await Company.countDocuments(filter);
-
-  return {
-    companies,
-    total,
-  };
-},
-
-  async verifyCompany(companyId: string): Promise<any> {
-    return Company.findByIdAndUpdate(companyId, { verificationStatus: 'verified' }, { new: true });
+    return {
+      companies,
+      total,
+    };
   },
 
-  async rejectCompany(companyId: string): Promise<any> {
-    return Company.findByIdAndUpdate(companyId, { verificationStatus: 'rejected' }, { new: true });
-  },
-
-  async getPendingRecruiters(query: PaginationQuery): Promise<{
-  recruiters: any[];
-  total: number;
-}> {
-  const page = query.page || 1;
-  const limit = query.limit || 10;
-  const skip = (page - 1) * limit;
-
-  const filter: any = {
-    verificationStatus: "pending",
-  };
-
-  if (query.search) {
-    filter.$or = [
+  async verifyCompany(
+    companyId: string
+  ): Promise<unknown> {
+    return Company.findByIdAndUpdate(
+      companyId,
       {
-        designation: {
-          $regex: query.search,
-          $options: "i",
-        },
+        verificationStatus: 'verified',
       },
       {
-        phoneNumber: {
-          $regex: query.search,
-          $options: "i",
-        },
-      },
-    ];
-  }
-
-  const recruiters = await RecruiterProfile.find(filter)
-    .populate("userId")
-    .populate("companyId")
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 });
-
-  const total = await RecruiterProfile.countDocuments(filter);
-
-  return {
-    recruiters,
-    total,
-  };
-},
-
-  async verifyRecruiter(recruiterId: string): Promise<any> {
-    return RecruiterProfile.findByIdAndUpdate(
-      recruiterId,
-      { verificationStatus: 'verified' },
-      { new: true }
+        new: true,
+        runValidators: true,
+      }
     );
   },
 
-  async rejectRecruiter(recruiterId: string): Promise<any> {
-    return RecruiterProfile.findByIdAndUpdate(
-      recruiterId,
-      { verificationStatus: 'rejected' },
-      { new: true }
+  async rejectCompany(
+    companyId: string
+  ): Promise<unknown> {
+    return Company.findByIdAndUpdate(
+      companyId,
+      {
+        verificationStatus: 'rejected',
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
     );
   },
 
-  async getInternships(query: PaginationQuery): Promise<{
-  internships: any[];
-  total: number;
-}> {
-  const page = query.page || 1;
-  const limit = query.limit || 10;
-  const skip = (page - 1) * limit;
+  async getPendingRecruiters(
+    query: PaginationQuery
+  ): Promise<{
+    recruiters: unknown[];
+    total: number;
+  }> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
 
-  const filter: any = {};
+const filter: {
+  verificationStatus: 'pending';
+} = {
+  verificationStatus: 'pending',
+};
 
-  if (query.search) {
-    filter.$or = [
-      {
-        title: {
-          $regex: query.search,
-          $options: "i",
-        },
-      },
-      {
-        location: {
-          $regex: query.search,
-          $options: "i",
-        },
-      },
-      {
-        status: {
-          $regex: query.search,
-          $options: "i",
-        },
-      },
-    ];
-  }
+    const [recruiters, total] = await Promise.all([
+      RecruiterProfile.find(filter)
+        .populate('userId')
+        .populate('companyId')
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .lean(),
 
-  const internships = await Internship.find(filter)
-    .populate("companyId")
-    .populate("recruiterId")
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 });
+      RecruiterProfile.countDocuments(filter),
+    ]);
 
-  const total = await Internship.countDocuments(filter);
-
-  return {
-    internships,
-    total,
-  };
-},
-
-  async updateInternshipStatus(internshipId: string, status: string): Promise<any> {
-    return Internship.findByIdAndUpdate(internshipId, { status }, { new: true });
+    return {
+      recruiters,
+      total,
+    };
   },
 
-  async removeInternship(internshipId: string): Promise<void> {
-    await Internship.findByIdAndDelete(internshipId);
+  async verifyRecruiter(
+    recruiterId: string
+  ): Promise<unknown> {
+    return RecruiterProfile.findByIdAndUpdate(
+      recruiterId,
+      {
+        verificationStatus: 'verified',
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  },
+
+  async rejectRecruiter(
+    recruiterId: string
+  ): Promise<unknown> {
+    return RecruiterProfile.findByIdAndUpdate(
+      recruiterId,
+      {
+        verificationStatus: 'rejected',
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  },
+
+  async getInternships(
+    query: PaginationQuery
+  ): Promise<{
+    internships: unknown[];
+    total: number;
+  }> {
+    const page = query.page || 1;
+    const limit = query.limit || 10;
+    const skip = (page - 1) * limit;
+
+    const [internships, total] = await Promise.all([
+      Internship.find()
+        .populate('companyId')
+        .populate('recruiterId')
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .lean(),
+
+      Internship.countDocuments(),
+    ]);
+
+    return {
+      internships,
+      total,
+    };
+  },
+
+  async updateInternshipStatus(
+    internshipId: string,
+    status: string
+  ): Promise<unknown> {
+    return Internship.findByIdAndUpdate(
+      internshipId,
+      { status },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  },
+
+  async removeInternship(
+    internshipId: string
+  ): Promise<void> {
+    await Internship.findByIdAndDelete(
+      internshipId
+    );
   },
 
   async getStatistics(): Promise<{
@@ -222,12 +264,25 @@ export const adminService = {
     studentCount: number;
     recruiterCount: number;
   }> {
-    const totalUsers = await User.countDocuments();
-    const totalCompanies = await Company.countDocuments();
-    const totalInternships = await Internship.countDocuments();
-    const totalApplications = await Application.countDocuments();
-    const studentCount = await User.countDocuments({ role: 'student' });
-    const recruiterCount = await User.countDocuments({ role: 'recruiter' });
+    const [
+      totalUsers,
+      totalCompanies,
+      totalInternships,
+      totalApplications,
+      studentCount,
+      recruiterCount,
+    ] = await Promise.all([
+      User.countDocuments(),
+      Company.countDocuments(),
+      Internship.countDocuments(),
+      Application.countDocuments(),
+      User.countDocuments({
+        role: 'student',
+      }),
+      User.countDocuments({
+        role: 'recruiter',
+      }),
+    ]);
 
     return {
       totalUsers,

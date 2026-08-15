@@ -1,34 +1,66 @@
-import { connectDB } from '@/lib/db';
-import { errorResponse, successResponse, withAuth } from '@/middleware/auth';
-import { authService } from '@/modules/auth/auth.service';
-import { NextRequest } from 'next/server';
+import { connectDB } from "@/lib/db";
+import {
+  errorResponse,
+  successResponse,
+  withAuth,
+} from "@/middleware/auth";
+import { authService } from "@/modules/auth/auth.service";
+import { NextRequest } from "next/server";
+
+type AuthenticatedRequest = NextRequest & {
+  user: {
+    userId: string;
+  };
+};
 
 export async function GET(request: NextRequest) {
   try {
+    console.log("STEP 1");
+
     await connectDB();
 
+    console.log("STEP 2");
+
     const authError = await withAuth(request);
-    if (authError) return authError;
 
-    const user = (request as any).user;
+    console.log("STEP 3", authError);
 
-    const currentUser = await authService.getCurrentUser(user.userId);
-
-    if (!currentUser) {
-      return errorResponse('User not found', undefined, 404);
+    if (authError) {
+      console.log("RETURNING AUTH ERROR");
+      return authError;
     }
 
-    return successResponse({
-      id: currentUser._id,
-      name: currentUser.name,
-      email: currentUser.email,
-      role: currentUser.role,
-      profilePicture: currentUser.profilePicture,
-      isVerified: currentUser.isVerified,
-      isActive: currentUser.isActive,
-      createdAt: currentUser.createdAt,
-    });
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to get current user', undefined, 500);
+    console.log("STEP 4");
+
+    const user = (request as AuthenticatedRequest).user;
+
+    console.log("USER =", user);
+
+    const currentUser = await authService.getCurrentUser(
+      user.userId
+    );
+
+    console.log("CURRENT USER =", currentUser);
+
+    if (!currentUser) {
+      return errorResponse(
+        "User not found",
+        undefined,
+        404
+      );
+    }
+
+    return successResponse(currentUser);
+  } catch (error) {
+    console.error("AUTH ME ERROR");
+    console.error(error);
+
+    return errorResponse(
+      error instanceof Error
+        ? error.message
+        : "Unknown error",
+      undefined,
+      500
+    );
   }
 }

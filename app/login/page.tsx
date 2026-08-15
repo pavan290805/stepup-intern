@@ -10,7 +10,7 @@ import {
   sectionSubtitleStyles,
   labelStyles,
   linkStyles,
-} from "../../Components/constants/styles";
+} from "@/constants/styles";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
@@ -40,17 +40,13 @@ export default function Login() {
       password: typeof password === "string" ? password : "",
     };
     try{
-    const user = await login(loginData);
-    router.push(
-  user.role === "admin"
-    ? "/admin"
-    : user.role === "recruiter"
-    ? "/recruiter"
-    : "/student"
-);
-  } catch (err: any) {
-    setError(err.message);
-  } finally {
+    const result = await login(loginData);
+    localStorage.setItem("accessToken", result.accessToken);
+localStorage.setItem("refreshToken", result.refreshToken);
+    router.push(result.user.role === "recruiter" ? "/recruiter" : "/internships");
+} catch (err: unknown) {
+  setError(err instanceof Error ? err.message : "Login failed");
+} finally {
     setLoading(false);
   }
 };
@@ -212,7 +208,7 @@ export default function Login() {
 
           {/* Signup Link */}
           <p className="text-center text-sm mt-6 text-black">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <button type="button"
               onClick={() => router.push("/signup")}
               className={linkStyles}

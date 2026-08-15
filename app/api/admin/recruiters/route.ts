@@ -27,7 +27,13 @@ export async function GET(request: NextRequest) {
         pages: Math.ceil(result.total / limit),
       },
     });
-  } catch (error: any) {
-    return errorResponse(error.message || 'Failed to fetch recruiters', undefined, 500);
-  }
+} catch (error: unknown) {
+  return errorResponse(
+    error instanceof Error
+      ? error.message
+      : "Failed to fetch recruiters",
+    undefined,
+    500
+  );
+}
 }

@@ -14,12 +14,16 @@ interface Cached {
   promise: Promise<typeof mongoose> | null;
 }
 
-let cached: Cached = (global as any).mongoose || { conn: null, promise: null };
-
-if (!cached) {
-  cached = (global as any).mongoose = { conn: null, promise: null };
+declare global {
+  var mongooseCache: Cached | undefined;
 }
 
+const cached: Cached =
+  global.mongooseCache ??
+  (global.mongooseCache = {
+    conn: null,
+    promise: null,
+  });
 export async function connectDB() {
   if (!MONGODB_URI) {
     throw new Error('Please define the MONGODB_URI environment variable inside .env.local');

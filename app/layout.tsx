@@ -1,42 +1,42 @@
 
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 import { AuthProvider } from '@/context/AuthContext';
 import './globals.css';
 import { AdminProvider } from '@/context/AdminContext';
 import { LayoutProvider } from '@/context/LayoutContext';
-import { Toaster } from "sonner";
+import { Toaster } from "@/lib/toast";
 
 export const metadata: Metadata = {
-  title: 'StepUp Intern',
-  description: 'Recruiter and internship management dashboard for StepUp Intern',
+  title: "StepUp Intern",
+  description: "Recruiter and internship management dashboard for StepUp Intern",
   icons: {
     icon: [
-      { url: '/Product_logos/logo.svg', type: 'image/svg+xml' },
-      { url: '/Product_logos/favicon.ico' },
+      { url: "/Product_logos/logo.svg", type: "image/svg+xml" },
+      { url: "/Product_logos/favicon.ico" },
     ],
-    shortcut: '/Product_logos/favicon.ico',
+    shortcut: "/Product_logos/favicon.ico",
   },
 };
 
-interface RootLayoutProps {
+export default function RootLayout({
+  children,
+}: {
   children: React.ReactNode;
-}
-
-export default function RootLayout({ children }: RootLayoutProps) {
+}) {
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
-        <AuthProvider> 
+        <AuthProvider>
           <AdminProvider>
             <LayoutProvider>
-             {children}
-             <Toaster
+              {children}
+              <Toaster
                 position="top-right"
                 richColors
                 closeButton
               />
-             </LayoutProvider>
-          </AdminProvider>         
+            </LayoutProvider>
+          </AdminProvider>
         </AuthProvider>
       </body>
     </html>

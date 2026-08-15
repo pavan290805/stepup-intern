@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useAdmin } from "@/hooks/useAdmin";
 
-import UserTable from "../../../Components/admin/Users/UserTable";
-import UserDetailsDialog from "../../../Components/admin/Users/UserDetailsDialog";
+import UserTable from "../@/components/admin/Users/UserTable";
+import UserDetailsDialog from "../@/components/admin/Users/UserDetailsDialog";
 
 import type { AdminUser, Pagination } from "@/types/admin";
 
@@ -37,6 +37,34 @@ export default function UsersPage() {
 
   const [detailsOpen, setDetailsOpen] =
   useState(false);
+
+  const fetchUsers = useCallback(async ({
+    page = 1,
+    limit = 20,
+    search = "",
+  }: FetchUsersOptions = {}) => {
+    try {
+      setPageLoading(true);
+
+      const query = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
+      if (search.trim()) {
+        query.set("search", search.trim());
+      }
+
+      const response = await getUsers(query.toString());
+
+      setUsers(response.users);
+      setPagination(response.pagination);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setPageLoading(false);
+    }
+  }, [getUsers]);
 
   function handleStatusUpdated(updatedUser: AdminUser) {
     setUsers(prev =>
@@ -88,12 +116,12 @@ function getShowingText() {
 }
 
   useEffect(() => {
-    fetchUsers({
+    void fetchUsers({
       page,
       limit,
-      search:debouncedSearch,
+      search: debouncedSearch,
     });
-  }, [page,limit,debouncedSearch]);
+  }, [fetchUsers, page, limit, debouncedSearch]);
 
   useEffect(() => {
 
@@ -107,35 +135,7 @@ function getShowingText() {
 
     return () => clearTimeout(timer);
 
-}, [search]);
-
-  async function fetchUsers({
-    page = 1,
-    limit = 20,
-    search = "",  
-  }: FetchUsersOptions = {}) {
-    try {
-      setPageLoading(true);
-
-        const query = new URLSearchParams({
-            page: page.toString(),
-            limit: limit.toString(),
-        });
-
-        if (search.trim()) {
-            query.set("search", search.trim());
-        }
-
-        const response = await getUsers(query.toString());
-
-        setUsers(response.users);
-        setPagination(response.pagination);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setPageLoading(false);
-    }
-  }
+  }, [search]);
 
   return (
     <div className="space-y-8">
