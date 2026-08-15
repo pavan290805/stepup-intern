@@ -72,12 +72,6 @@ export default function Navbar({ isLoggedIn, onLogout, homeRoute = "/", title }:
               priority
             />
           </Link>
-          {title && (
-            <>
-              <div className="h-6 w-[1px] bg-gray-300 ml-1 mr-2 hidden sm:block"></div>
-              <span className="hidden sm:block text-slate-800 font-medium text-lg">{title}</span>
-            </>
-          )}
         </div>
 
         {/* Navigation */}

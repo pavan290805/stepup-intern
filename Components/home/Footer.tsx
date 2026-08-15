@@ -7,51 +7,29 @@ import Image from "next/image";
 export default function Footer() {
   return (
     <footer className="bg-black text-gray-400 font-sans">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6 lg:py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-6">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-1.5 lg:py-1.5">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-1.5">
           
-          {/* Brand Section */}
-          <div className="lg:col-span-5 flex flex-col items-start pr-0 lg:pr-12">
-            <Link href="/" className="mb-3 block">
+          {/* Brand Section - Left Side */}
+          <div className="flex items-center gap-2 flex-1">
+            <Link href="/" className="block shrink-0 leading-none py-0">
               <Image
                 src="/StepUpLogo_Black.png"
                 alt="StepUp Intern"
-                width={120}
-                height={48}
-                className="h-auto w-auto"
+                width={70}
+                height={28}
+                className="h-auto w-auto block"
               />
             </Link>
-            <p className="text-xs leading-relaxed max-w-sm">
+            <p className="text-xs leading-tight max-w-sm py-0">
               StepUp Intern is an AI-powered internship platform connecting students and recruiters while helping careers grow through modern technology.
             </p>
           </div>
 
-          {/* Quick Links */}
-          <div className="lg:col-span-2">
-            <h3 className="text-white font-medium mb-2 text-sm tracking-wide">Quick Links</h3>
-            <ul className="flex flex-col gap-1.5 text-xs">
-              <li><Link href="/" className="hover:text-white transition-colors duration-200">Home</Link></li>
-              <li><Link href="/about" className="hover:text-white transition-colors duration-200">About</Link></li>
-              <li><Link href="/internships" className="hover:text-white transition-colors duration-200">Internships</Link></li>
-              <li><Link href="/partners" className="hover:text-white transition-colors duration-200">Recruiters</Link></li>
-              <li><Link href="/contact" className="hover:text-white transition-colors duration-200">Contact</Link></li>
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div className="lg:col-span-3">
-            <h3 className="text-white font-medium mb-2 text-sm tracking-wide">Resources</h3>
-            <ul className="flex flex-col gap-1.5 text-xs">
-              <li><Link href="#" className="hover:text-white transition-colors duration-200">Career Resources</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors duration-200">AI Assistant</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors duration-200">Resume Builder</Link></li>
-            </ul>
-          </div>
-
-          {/* Connect */}
-          <div className="lg:col-span-2">
-            <h3 className="text-white font-medium mb-2 text-sm tracking-wide">Connect</h3>
-            <div className="flex gap-3 items-center mb-3">
+          {/* Connect - Right Side */}
+          <div className="flex flex-col md:items-center items-start shrink-0 pt-0">
+            <h3 className="text-white font-medium mb-0.5 text-sm tracking-wide">Connect</h3>
+            <div className="flex gap-3 items-center mb-0.5">
               <a 
                 href="https://www.instagram.com/stepup_intern/" 
                 target="_blank" 
@@ -85,7 +63,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-gray-800/80 mt-6 pt-4 flex flex-col md:flex-row justify-between items-center gap-3">
+        <div className="border-t border-gray-800/80 mt-1 pt-0.5 flex flex-col md:flex-row justify-between items-center gap-0.5">
           <p className="text-xs text-gray-500">
             © {new Date().getFullYear()} StepUp Intern. All Rights Reserved.
           </p>
