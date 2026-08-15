@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { AuthProvider } from '@/context/AuthContext';
 import './globals.css';
 import { AdminProvider } from '@/context/AdminContext';
+import FloatingAIAssistant from '@/components/FloatingAIAssistant';
 export const metadata: Metadata = {
   title: "StepUp Intern",
   description: "Recruiter and internship management dashboard for StepUp Intern",
@@ -29,6 +30,7 @@ export default function RootLayout({
         <AuthProvider> 
           <AdminProvider>
              {children}
+             <FloatingAIAssistant />
           </AdminProvider>         
         </AuthProvider>
       </body>

@@ -8,11 +8,8 @@ import Home from "./home/Home";
 export default async function Page() {
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken")?.value;
-  const redirectPath = getAuthenticatedRedirectPath(token);
-
-  if (redirectPath) {
-    redirect(redirectPath);
-  }
+  // We allow logged-in users to view the homepage if they explicitly navigate here.
+  // The dashboard can be accessed via the profile dropdown.
 
   return (
     <>

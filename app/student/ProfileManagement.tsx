@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 /* ─── Frontend state types (unchanged from original) ─────────────────────── */
 
@@ -439,7 +440,9 @@ function ProfileSkeleton() {
 
 /* ─── Main component ──────────────────────────────────────────────────────── */
 
-export default function ProfileManagement() {
+export default function ProfileManagement({ onProgressUpdate }: { onProgressUpdate?: (progress: number) => void } = {}) {
+  const { user } = useAuth();
+
   // ── Async / API state ──────────────────────────────────────────────────────
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -509,11 +512,17 @@ export default function ProfileManagement() {
     return Math.round(Math.min(100, personalScore + skillScore + projectScore + resumeScore));
   }, [serverCompletion, name, email, phone, location, university, studentTitle, skills.length, projects.length, resumeName]);
 
+  useEffect(() => {
+    if (onProgressUpdate) {
+      onProgressUpdate(profileStrength);
+    }
+  }, [profileStrength, onProgressUpdate]);
+
   // ─── Hydrate component state from a backend GET response ─────────────────
 
   function hydrateFromBackend(data: BackendProfile) {
-    setName(data.userId?.name ?? "");
-    setEmail(data.userId?.email ?? "");
+    setName(data.userId?.name ?? user?.name ?? "");
+    setEmail(data.userId?.email ?? user?.email ?? "");
     setStudentTitle(data.headline ?? "");
     setBio(data.bio ?? "");
 
@@ -645,6 +654,10 @@ export default function ProfileManagement() {
         hydrateFromBackend(result.data);
       } else if (result.status === 404) {
         setIsFirstTime(true); // No profile yet – will POST on first save
+        if (user) {
+          setName(user.name);
+          setEmail(user.email);
+        }
       } else if (result.status === 401 || result.status === 403) {
         setError(result.message);
       } else {
@@ -869,7 +882,7 @@ export default function ProfileManagement() {
         <div className="grid gap-6 lg:grid-cols-3">
 
           {/* Left column */}
-          <div className="space-y-6">
+          <div className="flex h-full flex-col space-y-6">
 
             {/* Profile card */}
             <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-gray-200">
@@ -971,23 +984,41 @@ export default function ProfileManagement() {
               </div>
             </div>
 
-            {/* Profile strength */}
-            <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Profile strength</h3>
-              <div className="mt-4 space-y-3">
-                <div className="h-3 w-full overflow-hidden rounded-full bg-gray-100">
-                  <div className="h-full rounded-full bg-blue-600" style={{ width: `${profileStrength}%` }} />
+            {/* Academic */}
+            <div className="flex-1 rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-gray-200">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">Academic background</h2>
+                  <p className="text-sm text-gray-500 mt-1">Keep your degree and GPA current.</p>
                 </div>
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span>{profileStrength}% complete</span>
-                  <span>Keep your profile detailed</span>
-                </div>
+                <button onClick={() => setEditingAcademic(true)}
+                  className="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Edit</button>
+              </div>
+              <div className="mt-6">
+                {editingAcademic ? (
+                  <AcademicEditor initial={academic}
+                    onSave={(a) => { setAcademic(a); setEditingAcademic(false); }}
+                    onCancel={() => setEditingAcademic(false)} />
+                ) : (
+                  !academic.university && !academic.degree ? (
+                    <p className="text-sm text-gray-500">No academic background added.</p>
+                  ) : (
+                    <div className="space-y-3 text-sm text-gray-700">
+                      <div className="font-medium text-gray-900">{academic.university}</div>
+                      <div>{academic.degree} • Expected {academic.graduationYear}</div>
+                      {academic.gpa && (
+                        <div className="inline-flex rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600">GPA: {academic.gpa}</div>
+                      )}
+                    </div>
+                  )
+                )}
               </div>
             </div>
+
           </div>
 
           {/* Right column */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="flex h-full flex-col space-y-6 lg:col-span-2">
 
             {/* Skills */}
             <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-gray-200">
@@ -1132,7 +1163,7 @@ export default function ProfileManagement() {
             </div>
 
             {/* Internships */}
-            <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-gray-200">
+            <div className="flex-1 rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-gray-200">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-xl font-semibold text-gray-900">Internship history</h2>
@@ -1162,31 +1193,6 @@ export default function ProfileManagement() {
                       </div>
                     </div>
                   ))
-                )}
-              </div>
-            </div>
-
-            {/* Academic */}
-            <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-gray-200">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900">Academic background</h2>
-                  <p className="text-sm text-gray-500 mt-1">Keep your degree and GPA current.</p>
-                </div>
-                <button onClick={() => setEditingAcademic(true)}
-                  className="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Edit</button>
-              </div>
-              <div className="mt-6">
-                {editingAcademic ? (
-                  <AcademicEditor initial={academic}
-                    onSave={(a) => { setAcademic(a); setEditingAcademic(false); }}
-                    onCancel={() => setEditingAcademic(false)} />
-                ) : (
-                  <div className="space-y-3 text-sm text-gray-700">
-                    <div className="font-medium text-gray-900">{academic.university}</div>
-                    <div>{academic.degree} • Expected {academic.graduationYear}</div>
-                    <div className="inline-flex rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600">GPA: {academic.gpa}</div>
-                  </div>
                 )}
               </div>
             </div>

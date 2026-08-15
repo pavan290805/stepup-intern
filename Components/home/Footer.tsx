@@ -6,171 +6,95 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="bg-black text-white">
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
-
-        <div className="grid lg:grid-cols-4 md:grid-cols-2 gap-12">
-
-          {/* Logo */}
-
-          <div>
-
-            <Image
-              src="/StepUpLogo_Black.png"
-              alt="StepUp Intern"
-              width={150}
-              height={60}
-            />
-
-            <p className="text-gray-400 mt-6 leading-7">
-
-              StepUp Intern is an AI-powered internship
-              platform connecting students and recruiters
-              while helping careers grow through modern
-              technology.
-
+    <footer className="bg-black text-gray-400 font-sans">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-6 lg:py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 lg:gap-6">
+          
+          {/* Brand Section */}
+          <div className="lg:col-span-5 flex flex-col items-start pr-0 lg:pr-12">
+            <Link href="/" className="mb-3 block">
+              <Image
+                src="/StepUpLogo_Black.png"
+                alt="StepUp Intern"
+                width={120}
+                height={48}
+                className="h-auto w-auto"
+              />
+            </Link>
+            <p className="text-xs leading-relaxed max-w-sm">
+              StepUp Intern is an AI-powered internship platform connecting students and recruiters while helping careers grow through modern technology.
             </p>
-
           </div>
 
           {/* Quick Links */}
-
-          <div>
-
-            <h3 className="text-xl font-semibold mb-5">
-              Quick Links
-            </h3>
-
-            <div className="flex flex-col gap-3">
-
-              <Link href="/">Home</Link>
-
-              <Link href="/about">About</Link>
-
-              <Link href="/internships">Internships</Link>
-
-              <Link href="/partners">Recruiters</Link>
-
-              <Link href="/contact">Contact</Link>
-
-            </div>
-            
-
+          <div className="lg:col-span-2">
+            <h3 className="text-white font-medium mb-2 text-sm tracking-wide">Quick Links</h3>
+            <ul className="flex flex-col gap-1.5 text-xs">
+              <li><Link href="/" className="hover:text-white transition-colors duration-200">Home</Link></li>
+              <li><Link href="/about" className="hover:text-white transition-colors duration-200">About</Link></li>
+              <li><Link href="/internships" className="hover:text-white transition-colors duration-200">Internships</Link></li>
+              <li><Link href="/partners" className="hover:text-white transition-colors duration-200">Recruiters</Link></li>
+              <li><Link href="/contact" className="hover:text-white transition-colors duration-200">Contact</Link></li>
+            </ul>
           </div>
 
           {/* Resources */}
+          <div className="lg:col-span-3">
+            <h3 className="text-white font-medium mb-2 text-sm tracking-wide">Resources</h3>
+            <ul className="flex flex-col gap-1.5 text-xs">
+              <li><Link href="#" className="hover:text-white transition-colors duration-200">Career Resources</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors duration-200">AI Assistant</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors duration-200">Resume Builder</Link></li>
+            </ul>
+          </div>
 
-          <div>
-
-            <h3 className="text-xl font-semibold mb-5">
-              Resources
-            </h3>
-
-            <div className="flex flex-col gap-3">
-
-              <Link href="#">
-                Career Resources
-              </Link>
-
-              <Link href="#">
-                AI Assistant
-              </Link>
-
-              <Link href="#">
-                Resume Builder
-              </Link>
-
+          {/* Connect */}
+          <div className="lg:col-span-2">
+            <h3 className="text-white font-medium mb-2 text-sm tracking-wide">Connect</h3>
+            <div className="flex gap-3 items-center mb-3">
+              <a 
+                href="https://www.instagram.com/stepup_intern/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:opacity-80 transition-opacity"
+              >
+                <Image src="/InstagramLogo.png" alt="Instagram" width={20} height={20} className="w-4 h-4" />
+              </a>
+              <a 
+                href="https://www.linkedin.com/company/stepup-intern/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:opacity-80 transition-opacity"
+              >
+                <Image src="/LinkedinLogo_White.svg" alt="LinkedIn" width={20} height={20} className="w-4 h-4" />
+              </a>
+              <a 
+                href="https://wa.me/918341011206" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:opacity-80 transition-opacity"
+              >
+                <Image src="/WhatsappLogo.png" alt="WhatsApp" width={20} height={20} className="w-4 h-4" />
+              </a>
             </div>
-
-          </div>
-
-          {/* Contact */}
-
-          <div>
-
-            <h3 className="text-xl font-semibold mb-5">
-              Connect
-            </h3>
-            <div className="flex gap-5">
-
-  <a
-    href="https://www.instagram.com/stepup_intern/"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="transition hover:scale-110"
-  >
-    <Image
-      src="/InstagramLogo.png"
-      alt="Instagram"
-      width={38}
-      height={38}
-    />
-  </a>
-
-  <a
-    href="https://www.linkedin.com/company/stepup-intern/"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="transition hover:scale-110"
-  >
-    <Image
-      src="/LinkedinLogo_White.svg"
-      alt="LinkedIn"
-      width={34}
-      height={34}
-    />
-  </a>
-
-  <a
-    href="https://wa.me/918341011206"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="transition hover:scale-110"
-  >
-    <Image
-      src="/WhatsappLogo.png"
-      alt="WhatsApp"
-      width={34}
-      height={34}
-    />
-  </a>
-
-</div>
-            
-
-            <p className="text-gray-400 mt-8">
-                info@stepupintern.com
-            </p>
-
+            <a href="mailto:info@stepupintern.com" className="text-xs hover:text-white transition-colors">
+              info@stepupintern.com
+            </a>
           </div>
 
         </div>
 
-        <div className="border-t border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-
-          <p className="text-gray-400">
-
-            © 2026 StepUp Intern. All Rights Reserved.
-
+        {/* Bottom Bar */}
+        <div className="border-t border-gray-800/80 mt-6 pt-4 flex flex-col md:flex-row justify-between items-center gap-3">
+          <p className="text-xs text-gray-500">
+            © {new Date().getFullYear()} StepUp Intern. All Rights Reserved.
           </p>
-
-          <div className="flex gap-6 mt-4 md:mt-0">
-
-            <Link href="#">
-              Privacy Policy
-            </Link>
-
-            <Link href="#">
-              Terms of Service
-            </Link>
-
+          <div className="flex gap-6 text-xs text-gray-500">
+            <Link href="#" className="hover:text-gray-300 transition-colors">Privacy Policy</Link>
+            <Link href="#" className="hover:text-gray-300 transition-colors">Terms of Service</Link>
           </div>
-
         </div>
-
       </div>
-
     </footer>
   );
 }
