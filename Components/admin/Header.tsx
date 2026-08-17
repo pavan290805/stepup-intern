@@ -1,23 +1,54 @@
 "use client";
 
 import {
-  Menu,
   Bell,
   ChevronDown,
   User,
   Settings,
   LogOut,
+  LayoutDashboard,
+  Users,
+  Building2,
+  UserCheck,
+  BriefcaseBusiness,
 } from "lucide-react";
+
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
 import { useAuth } from "@/hooks/useAuth";
-import { useLayout } from "@/hooks/useLayout";
+
+const navigationItems = [
+  {
+    title: "Dashboard",
+    href: "/admin",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Users",
+    href: "/admin/users",
+    icon: Users,
+  },
+  {
+    title: "Companies",
+    href: "/admin/companies",
+    icon: Building2,
+  },
+  {
+    title: "Recruiters",
+    href: "/admin/recruiters",
+    icon: UserCheck,
+  },
+  {
+    title: "Internships",
+    href: "/admin/internships",
+    icon: BriefcaseBusiness,
+  },
+];
 
 export default function Header() {
   const { user, logout } = useAuth();
-  const { toggleSidebar } = useLayout();
 
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] =
@@ -68,47 +99,65 @@ export default function Header() {
   }
 
   return (
-    <header className="flex h-20 items-center justify-between border-b border-gray-200 bg-white px-8">
+    <header className="relative z-50 flex min-h-20 items-center justify-between border-b border-gray-200 bg-white px-6">
 
-      {/* Left Side */}
+      {/* Logo + Navigation */}
 
-      <div className="flex items-center gap-6">
+      <div className="flex min-w-0 items-center gap-8">
 
-        <button
-          onClick={toggleSidebar}
-          className="rounded-lg p-2 transition hover:bg-gray-100"
+        {/* Logo */}
+
+        <Link
+          href="/admin"
+          className="flex shrink-0 items-center"
         >
-          <Menu size={24} />
-        </button>
+          <Image
+            src="/StepUpLogo_White.png"
+            alt="StepUp Intern"
+            width={100}
+            height={42}
+            className="h-auto w-[100px]"
+          />
 
-        <div className="flex items-center">
-
-          <div className="flex items-center gap-3">
-
-            <Image
-              src="/StepUpLogo_White.png"
-              alt="StepUp"
-              width={100}
-              height={42}
-            />
-
-          </div>
-
-          <div className="ml-5">
-
-            <h1 className="text-2xl font-bold text-black">
+          <div className="ml-5 border-l border-gray-300 pl-5">
+            <h1 className="text-xl font-bold text-black">
               Admin Console
             </h1>
-
           </div>
+        </Link>
 
-        </div>
+        {/* Admin Navigation */}
+
+        <nav className="hidden items-center gap-1 xl:flex">
+
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-[#0880EF]/10 hover:text-[#0880EF]"
+              >
+                <Icon
+                  size={18}
+                  className="transition group-hover:text-[#0880EF]"
+                />
+
+                <span>
+                  {item.title}
+                </span>
+              </Link>
+            );
+          })}
+
+        </nav>
 
       </div>
 
       {/* Right Side */}
 
-      <div className="flex items-center gap-8">
+      <div className="flex shrink-0 items-center gap-4">
 
         {/* Notifications */}
 
@@ -122,27 +171,22 @@ export default function Header() {
               setNotificationsOpen(
                 (prev) => !prev
               );
+
               setProfileOpen(false);
             }}
-            className="relative rounded-lg p-2 transition hover:bg-gray-100"
+            className="relative rounded-lg p-2.5 transition hover:bg-gray-100"
             title="Notifications"
           >
-
             <Bell
-              size={24}
+              size={23}
               className="text-black"
             />
-
-            
-
           </button>
 
           {/* Notification Dropdown */}
 
           {notificationsOpen && (
             <div className="absolute right-0 top-full z-50 mt-3 w-80 rounded-xl border border-gray-200 bg-white shadow-lg">
-
-              {/* Header */}
 
               <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
 
@@ -155,8 +199,6 @@ export default function Header() {
                 </span>
 
               </div>
-
-              {/* Empty State */}
 
               <div className="px-4 py-10 text-center">
 
@@ -196,18 +238,19 @@ export default function Header() {
               setProfileOpen(
                 (prev) => !prev
               );
+
               setNotificationsOpen(false);
             }}
             className="flex items-center gap-3 rounded-lg px-2 py-1.5 transition hover:bg-gray-100"
           >
 
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0880EF] text-lg font-semibold text-white">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0880EF] text-lg font-semibold text-white">
               {user?.name
                 ?.charAt(0)
                 .toUpperCase()}
             </div>
 
-            <div className="text-left">
+            <div className="hidden text-left md:block">
 
               <p className="font-semibold text-black">
                 {user?.name}

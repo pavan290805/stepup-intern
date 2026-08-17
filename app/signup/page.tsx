@@ -35,19 +35,26 @@ export default  function Signup() {
 
   const handleSubmit = async (
   event: React.FormEvent<HTMLFormElement>
-  ) => {
+) => {
   event.preventDefault();
+
   setError("");
   setSuccess("");
+
   const form = event.currentTarget;
   const formData = new FormData(form);
-  if(formData.get("password") !== formData.get("confirmPassword")){
-        setError("Passwords do not match");
-        return;
-      }
+
+  if (
+    formData.get("password") !==
+    formData.get("confirmPassword")
+  ) {
+    setError("Passwords do not match");
+    return;
+  }
+
   setLoading(true);
+
   try {
-    
     if (role === "student") {
       const studentData = {
         name: formData.get("fullName") as string,
@@ -55,33 +62,34 @@ export default  function Signup() {
         password: formData.get("password") as string,
       };
 
-      await signupStudent(studentData);
-      setSuccess("Student account created successfully!");
-      setTimeout(() => {
-        router.push("/login");
-      }, 1500);
+      const user = await signupStudent(studentData);
 
+      setSuccess("Student account created successfully!");
+
+      if (user.role === "student") {
+        router.replace("/student");
+      }
     } else {
-      
       const recruiterData = {
         name: formData.get("contactPersonName") as string,
         email: formData.get("personalEmail") as string,
         password: formData.get("password") as string,
       };
-      await signupRecruiter(recruiterData);
-      setSuccess("Recruiter account created successfully!");
-      setTimeout(() => {
-        router.push("/login");
-      }, 1500);
-      
-    }
 
+      const user = await signupRecruiter(recruiterData);
+
+      setSuccess("Recruiter account created successfully!");
+
+      if (user.role === "recruiter") {
+        router.replace("/recruiter");
+      }
+    }
   } catch (error) {
-  if (error instanceof Error) {
-    setError(error.message);
-  } else {
-    setError("Something went wrong");
-  }
+    if (error instanceof Error) {
+      setError(error.message);
+    } else {
+      setError("Something went wrong");
+    }
   } finally {
     setLoading(false);
   }
