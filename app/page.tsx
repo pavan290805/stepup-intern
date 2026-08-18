@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getAuthenticatedRedirectPath } from "../src/lib/auth-session";
 
 import Navbar from "./navbar/Navbar";
-import Home from "./home/Home";
+import Home from "./home/page";
 
 export default async function Page() {
   const cookieStore = await cookies();
